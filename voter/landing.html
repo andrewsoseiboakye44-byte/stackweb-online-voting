@@ -1,0 +1,886 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB — Secure online voting. Enter your token to access the ballot."/>
+  <title>Cast Your Vote — STACKWEB</title>
+  <link rel="icon" href="../public/favicon/favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Lucide icons ── */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#4f46e5;--primary-dark:#4338ca;--primary-light:#6366f1;
+      --primary-glow:rgba(79,70,229,0.28);
+      --secondary:#14b8a6;--success:#22c55e;--danger:#ef4444;--warning:#f59e0b;
+      --bg:#0a0e1a;--bg-2:#0f1422;--bg-card:#131929;--bg-card-2:#161d2e;
+      --border:#1e2740;--border-light:#263050;
+      --text-1:#f0f4ff;--text-2:#8892b0;--text-muted:#4a5580;
+      --font-body:'Inter',sans-serif;
+      --font-head:'Poppins',sans-serif;
+      --font-mono:'JetBrains Mono',monospace;
+      --radius:14px;--radius-sm:10px;--radius-lg:20px;--radius-xl:28px;
+      --transition:220ms ease;
+      --shadow-card:0 40px 100px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    html,body{height:100%;}
+    body{
+      font-family:var(--font-body);
+      background:var(--bg);
+      color:var(--text-1);
+      -webkit-font-smoothing:antialiased;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      overflow-x:hidden;
+    }
+    a{text-decoration:none;color:inherit;}
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:var(--bg);}
+    ::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:99px;}
+
+    /* ── Animated background ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+    .bg-gradient{
+      position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% -20%,rgba(79,70,229,0.18) 0%,transparent 60%),
+        radial-gradient(ellipse 60% 50% at 10% 100%,rgba(20,184,166,0.12) 0%,transparent 60%),
+        radial-gradient(ellipse 40% 40% at 50% 50%,rgba(99,102,241,0.06) 0%,transparent 70%);
+    }
+    .bg-grid{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(99,102,241,0.05) 1px,transparent 1px);
+      background-size:48px 48px;
+      mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);
+    }
+    .orb{position:absolute;border-radius:50%;pointer-events:none;will-change:transform;transform:translateZ(0);}
+    .orb-1{width:700px;height:700px;background:radial-gradient(circle,rgba(79,70,229,0.12),transparent 70%);top:-200px;right:-150px;filter:blur(90px);animation:drift 22s ease-in-out infinite;}
+    .orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(20,184,166,0.1),transparent 70%);bottom:-100px;left:-100px;filter:blur(80px);animation:drift 16s ease-in-out infinite reverse;}
+    @keyframes drift{0%,100%{transform:translate(0,0) translateZ(0);}50%{transform:translate(30px,-25px) translateZ(0);}}
+
+    /* ── Topbar ── */
+    .topbar{
+      position:relative;z-index:10;flex-shrink:0;
+      height:68px;
+      background:rgba(10,14,26,0.85);
+      backdrop-filter:blur(24px);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 2.5rem;
+    }
+    .topbar::after{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(79,70,229,0.5) 30%,rgba(20,184,166,0.4) 70%,transparent);
+    }
+    .tb-brand{display:flex;align-items:center;gap:0.875rem;}
+    .tb-divider{width:1px;height:24px;background:var(--border-light);}
+    .tb-system-name{
+      font-family:var(--font-head);font-size:1rem;font-weight:900;letter-spacing:-0.01em;
+      background:linear-gradient(135deg,#a5b4fc 0%,#38bdf8 60%,#34d399 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .tb-pipe{color:var(--border-light);font-size:1rem;font-weight:300;}
+    .tb-label{font-size:0.68rem;font-weight:600;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;}
+    .tb-right{display:flex;align-items:center;gap:0.5rem;}
+    .tb-btn{
+      display:flex;align-items:center;gap:0.4rem;
+      padding:0.45rem 0.9rem;border-radius:var(--radius-sm);
+      font-size:0.78rem;font-weight:600;color:var(--text-2);
+      border:1px solid var(--border-light);
+      background:rgba(255,255,255,0.04);
+      transition:all var(--transition);
+    }
+    .tb-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);color:var(--text-1);}
+
+    /* ── Page main ── */
+    .page-main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:3.5rem 1.5rem 2.5rem;
+      position:relative;z-index:1;
+    }
+    .center-wrap{
+      width:100%;
+      max-width:620px;
+      display:flex;
+      flex-direction:column;
+      gap:0;
+    }
+
+    /* ── 1. Welcome / System name section ── */
+    .welcome-section{
+      text-align:center;
+      margin-bottom:2.75rem;
+      animation:fadeUp 0.55s ease both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+    .ws-badge{
+      display:inline-flex;align-items:center;gap:0.5rem;
+      background:rgba(99,102,241,0.1);
+      border:1px solid rgba(99,102,241,0.22);
+      border-radius:99px;
+      padding:0.35rem 1rem;
+      font-size:0.7rem;font-weight:700;
+      color:#a5b4fc;
+      letter-spacing:0.1em;text-transform:uppercase;
+      margin-bottom:1.25rem;
+    }
+    .ws-pulse{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite;flex-shrink:0;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.85);}}
+
+    .ws-title{
+      font-family:var(--font-head);
+      font-size:clamp(2rem,5.5vw,3.25rem);
+      font-weight:900;
+      line-height:1.08;
+      letter-spacing:-0.035em;
+      margin-bottom:0.5rem;
+    }
+    .ws-system{
+      font-family:var(--font-head);
+      font-size:clamp(1rem,2.5vw,1.4rem);
+      font-weight:700;
+      letter-spacing:-0.01em;
+      color:var(--text-2);
+      margin-bottom:1.1rem;
+    }
+    .ws-grad{
+      background:linear-gradient(135deg,#c7d2fe 0%,#818cf8 30%,#38bdf8 60%,#34d399 85%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      animation:shimmer 4s ease-in-out infinite;
+      background-size:200% auto;
+    }
+    @keyframes shimmer{0%{background-position:0% center;}50%{background-position:100% center;}100%{background-position:0% center;}}
+    .ws-sub{
+      font-size:0.95rem;color:var(--text-2);
+      max-width:460px;margin:0 auto;
+      line-height:1.7;
+    }
+
+    /* ── Form card ── */
+    .form-card{
+      background:rgba(19,25,41,0.85);
+      border:1px solid var(--border-light);
+      border-radius:var(--radius-xl);
+      padding:2.5rem 2.5rem 2rem;
+      box-shadow:var(--shadow-card);
+      position:relative;overflow:hidden;
+      backdrop-filter:blur(12px);
+      animation:fadeUp 0.55s 0.1s ease both;
+    }
+    .form-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--primary),var(--primary-light),var(--secondary));
+    }
+
+    /* ── 2. Election name (above token input) ── */
+    .election-active-card{
+      display:none;
+      align-items:center;gap:1rem;
+      background:linear-gradient(135deg,rgba(34,197,94,0.07),rgba(20,184,166,0.05));
+      border:1.5px solid rgba(34,197,94,0.22);
+      border-radius:var(--radius);
+      padding:1.1rem 1.5rem;
+      margin-bottom:1.75rem;
+    }
+    .election-active-card.show{display:block;}
+
+    /* ── Professional Election Identity Block ── */
+    .election-identity{
+      display:none;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      padding:1.75rem 1.5rem 1.5rem;
+      margin-bottom:1.75rem;
+      background:linear-gradient(160deg,rgba(79,70,229,0.09) 0%,rgba(20,184,166,0.06) 100%);
+      border:1.5px solid rgba(99,102,241,0.25);
+      border-radius:var(--radius);
+      position:relative;
+      overflow:hidden;
+    }
+    .election-identity::before{
+      content:'';
+      position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--primary),#818cf8,var(--secondary));
+    }
+    .election-identity.show{display:flex;}
+    /* Institution logo */
+    .ei-logo-wrap{
+      width:80px;height:80px;
+      border-radius:16px;
+      border:2px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.06);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+      margin-bottom:0.85rem;
+      box-shadow:0 4px 20px rgba(0,0,0,0.35);
+    }
+    .ei-logo-wrap img{width:100%;height:100%;object-fit:contain;padding:6px;}
+    /* Lazy-load fade-in for institution logo */
+    #institution-logo{opacity:0;transition:opacity 0.35s ease;}
+    #institution-logo.img-loaded{opacity:1;}
+    .ei-logo-placeholder{color:rgba(255,255,255,0.25);}
+    /* Institution name */
+    .ei-institution{
+      font-size:0.78rem;
+      font-weight:700;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:#a5b4fc;
+      margin-bottom:0.35rem;
+    }
+    /* LIVE badge */
+    .ei-live-badge{
+      display:inline-flex;align-items:center;gap:0.35rem;
+      background:rgba(34,197,94,0.12);
+      border:1px solid rgba(34,197,94,0.3);
+      border-radius:99px;
+      padding:0.25rem 0.75rem;
+      font-size:0.68rem;font-weight:700;
+      color:var(--success);
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      margin-bottom:0.75rem;
+    }
+    .ei-live-dot{
+      width:6px;height:6px;border-radius:50%;
+      background:var(--success);
+      animation:pulse 1.5s infinite;
+    }
+    /* Election name */
+    .ei-election-label{
+      font-size:0.65rem;font-weight:600;
+      letter-spacing:0.1em;text-transform:uppercase;
+      color:var(--text-muted);
+      margin-bottom:0.3rem;
+    }
+    .ei-election-name{
+      font-family:var(--font-head);
+      font-size:clamp(1.1rem,3vw,1.4rem);
+      font-weight:800;
+      color:var(--text-1);
+      line-height:1.2;
+      margin-bottom:0.4rem;
+    }
+    .ei-sub{
+      font-size:0.75rem;
+      color:var(--text-muted);
+    }
+    /* Divider between identity block and token input */
+    .ei-divider{
+      width:100%;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
+      margin:0 0 1.5rem;
+    }
+    .live-ring{
+      display:flex;align-items:center;justify-content:center;
+      width:36px;height:36px;flex-shrink:0;
+      border-radius:50%;
+      background:rgba(34,197,94,0.1);
+      border:1px solid rgba(34,197,94,0.25);
+      position:relative;
+    }
+    .live-ring::after{
+      content:'';position:absolute;inset:-4px;border-radius:50%;
+      border:1.5px solid rgba(34,197,94,0.2);
+      animation:ringPulse 2s ease-in-out infinite;
+    }
+    @keyframes ringPulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.25);opacity:0;}}
+    .live-dot-inner{width:10px;height:10px;border-radius:50%;background:var(--success);}
+    .election-info{flex:1;min-width:0;}
+    .ea-label{font-size:0.68rem;font-weight:700;color:var(--success);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.25rem;}
+    .ea-name{
+      font-family:var(--font-head);
+      font-size:1.1rem;font-weight:800;
+      color:var(--text-1);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .ea-sub{font-size:0.73rem;color:var(--text-muted);margin-top:0.15rem;}
+
+    .no-election-card{
+      display:none;
+      align-items:center;gap:1rem;
+      background:rgba(239,68,68,0.06);
+      border:1.5px solid rgba(239,68,68,0.2);
+      border-radius:var(--radius);
+      padding:1.1rem 1.5rem;
+      margin-bottom:1.75rem;
+    }
+    .no-election-card.show{display:flex;}
+    .ne-icon{width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#f87171;}
+    .ne-name{font-family:var(--font-head);font-size:1rem;font-weight:800;color:#f87171;}
+    .ne-sub{font-size:0.73rem;color:var(--text-muted);margin-top:0.15rem;}
+
+    /* ── Token segment preview ── */
+    .token-segments{
+      display:flex;align-items:center;justify-content:center;
+      gap:0.375rem;margin-bottom:1.25rem;
+    }
+    .seg{
+      flex:1;height:42px;
+      background:var(--bg-2);
+      border:1.5px solid var(--border);
+      border-radius:var(--radius-sm);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-mono);font-size:0.82rem;font-weight:600;
+      letter-spacing:0.06em;
+      transition:all var(--transition);color:var(--text-muted);
+    }
+    .seg.filled{border-color:var(--primary-light);color:var(--primary-light);background:rgba(99,102,241,0.07);}
+    .seg.valid-seg{border-color:var(--success);color:var(--success);background:rgba(34,197,94,0.07);}
+    .seg-dash{color:var(--text-muted);font-weight:700;font-size:0.9rem;flex-shrink:0;opacity:0.5;}
+
+    /* ── Error box ── */
+    .error-box{
+      background:rgba(239,68,68,0.08);
+      border:1px solid rgba(239,68,68,0.25);
+      border-radius:var(--radius-sm);
+      padding:0.75rem 1rem;
+      font-size:0.82rem;color:#f87171;
+      display:none;margin-bottom:1.25rem;
+      align-items:flex-start;gap:0.5rem;line-height:1.5;
+    }
+    .error-box.show{display:flex;}
+
+    /* ── 3. LARGE rectangular token input ── */
+    .input-group{margin-bottom:1.25rem;}
+    .input-label{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:0.625rem;
+    }
+    .input-label-text{font-size:0.8rem;font-weight:700;color:var(--text-2);letter-spacing:0.03em;text-transform:uppercase;}
+    .input-label-hint{font-size:0.7rem;color:var(--text-muted);}
+    .input-wrap{position:relative;}
+
+    .token-input{
+      width:100%;
+      height:80px;
+      background:var(--bg-2);
+      border:2.5px solid var(--border);
+      border-radius:16px;
+      color:var(--text-1);
+      font-family:var(--font-mono);
+      font-size:clamp(1.4rem,4vw,1.9rem);
+      font-weight:700;
+      letter-spacing:0.18em;
+      padding:0 3.5rem 0 1.5rem;
+      outline:none;
+      text-transform:uppercase;
+      text-align:center;
+      transition:all var(--transition);
+      caret-color:var(--primary-light);
+    }
+    .token-input::placeholder{
+      color:var(--text-muted);
+      font-size:clamp(1rem,2.5vw,1.3rem);
+      letter-spacing:0.12em;
+      font-weight:500;
+    }
+    .token-input:focus{
+      border-color:var(--primary-light);
+      box-shadow:0 0 0 4px rgba(99,102,241,0.14),0 0 0 1px rgba(99,102,241,0.1),0 8px 32px rgba(79,70,229,0.15);
+    }
+    .token-input.valid{
+      border-color:var(--success);
+      box-shadow:0 0 0 4px rgba(34,197,94,0.1),0 8px 24px rgba(34,197,94,0.1);
+    }
+    .token-input.invalid{
+      border-color:var(--danger);
+      box-shadow:0 0 0 4px rgba(239,68,68,0.1);
+    }
+    .input-clear{
+      position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+      background:rgba(255,255,255,0.06);border:1px solid var(--border-light);cursor:pointer;
+      width:32px;height:32px;border-radius:8px;
+      display:none;align-items:center;justify-content:center;
+      color:var(--text-muted);font-size:0.85rem;
+      transition:all var(--transition);
+    }
+    .input-clear:hover{background:rgba(255,255,255,0.12);color:var(--text-1);}
+    .input-clear.show{display:flex;}
+    .input-hint{
+      font-size:0.72rem;color:var(--text-muted);
+      margin-top:0.625rem;text-align:center;
+    }
+    .input-hint code{
+      font-family:var(--font-mono);
+      background:rgba(255,255,255,0.06);
+      padding:0.1rem 0.4rem;border-radius:5px;
+      color:var(--text-2);letter-spacing:0.04em;
+    }
+
+    /* ── Submit button ── */
+    .btn-submit{
+      width:100%;padding:1.05rem;
+      border-radius:var(--radius);border:none;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color:#fff;font-family:var(--font-body);font-size:1rem;font-weight:700;
+      cursor:pointer;transition:all var(--transition);
+      box-shadow:0 4px 24px rgba(79,70,229,0.4);
+      display:flex;align-items:center;justify-content:center;gap:0.5rem;
+      position:relative;overflow:hidden;letter-spacing:0.01em;
+    }
+    .btn-submit::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent);
+      opacity:0;transition:opacity var(--transition);
+    }
+    .btn-submit:hover:not(:disabled)::before{opacity:1;}
+    .btn-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 36px rgba(79,70,229,0.55);}
+    .btn-submit:active:not(:disabled){transform:translateY(0);}
+    .btn-submit:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+    .spin{display:inline-block;width:17px;height:17px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── 4. Steps guide (last) ── */
+    .steps-section{
+      margin-top:2rem;
+      padding-top:1.75rem;
+      border-top:1px solid var(--border);
+    }
+    .steps-title{
+      font-size:0.72rem;font-weight:700;color:var(--text-muted);
+      letter-spacing:0.1em;text-transform:uppercase;
+      margin-bottom:1rem;text-align:center;
+    }
+    .steps-row{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:1rem;
+    }
+    .step-card{
+      background:rgba(255,255,255,0.02);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:1rem 0.875rem;
+      text-align:center;
+      transition:all var(--transition);
+    }
+    .step-card:hover{background:rgba(79,70,229,0.04);border-color:rgba(79,70,229,0.2);}
+    .step-num-badge{
+      width:28px;height:28px;border-radius:50%;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color:#fff;font-size:0.72rem;font-weight:800;
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 0.625rem;
+      box-shadow:0 0 12px rgba(79,70,229,0.35);
+    }
+    .step-label{font-size:0.78rem;color:var(--text-2);line-height:1.5;font-weight:500;}
+
+    /* ── Dev footer ── */
+    @media(max-width:600px){}
+
+    /* ── Responsive ── */
+    @media(max-width:680px){
+      .topbar{padding:0 1.25rem;}
+      .tb-label,.tb-pipe,.tb-divider{display:none;}
+      .page-main{padding:2rem 1rem 2rem;}
+      .form-card{padding:1.75rem 1.25rem 1.5rem;border-radius:var(--radius-lg);}
+      .ws-title{font-size:1.9rem;}
+      .ws-system{font-size:1rem;}
+      .welcome-section{margin-bottom:2rem;}
+      .token-input{height:68px;font-size:1.3rem;letter-spacing:0.14em;border-radius:14px;}
+      .token-input::placeholder{font-size:1rem;}
+      .ea-name{font-size:1rem;}
+      /* Election identity block — tablet / large phone */
+      .election-identity{padding:1.5rem 1.25rem 1.25rem;}
+      .ei-logo-wrap{width:64px;height:64px;border-radius:12px;}
+      .ei-election-name{font-size:1.1rem;}
+      .steps-row{grid-template-columns:1fr;gap:0.5rem;}
+      .step-card{display:flex;align-items:center;gap:0.875rem;text-align:left;padding:0.75rem 1rem;}
+      .step-num-badge{margin:0;flex-shrink:0;}
+      .step-label{font-size:0.82rem;}
+    }
+    @media(max-width:420px){
+      .token-input{height:62px;font-size:1.15rem;letter-spacing:0.1em;}
+      .token-input::placeholder{font-size:0.9rem;}
+      .ws-title{font-size:1.65rem;}
+      /* Election identity block — standard phone */
+      .election-identity{padding:1.25rem 1rem 1rem;}
+      .ei-logo-wrap{width:56px;height:56px;border-radius:10px;}
+      .ei-election-name{font-size:1rem;}
+      .ei-institution{font-size:0.72rem;}
+      .ei-sub{font-size:0.7rem;}
+    }
+    @media(max-width:360px){
+      .token-input{height:56px;font-size:1rem;letter-spacing:0.08em;border-radius:12px;}
+      .token-input::placeholder{font-size:0.82rem;}
+      .form-card{padding:1.25rem 1rem;}
+      .ws-title{font-size:1.4rem;}
+      #toast-container{left:0.75rem;right:0.75rem;max-width:calc(100vw - 1.5rem);}
+      #toast-container .toast{min-width:0;width:100%;}
+      /* Election identity block — iPhone SE / small Android */
+      .election-identity{padding:1rem 0.875rem 0.875rem;}
+      .ei-logo-wrap{width:48px;height:48px;border-radius:8px;margin-bottom:0.6rem;}
+      .ei-election-name{font-size:0.92rem;}
+      .ei-live-badge{font-size:0.6rem;padding:0.2rem 0.55rem;}
+      .ei-institution{letter-spacing:0.08em;}
+      .ei-election-label{font-size:0.58rem;}
+    }
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-scene">
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- Topbar -->
+<header class="topbar">
+  <div class="tb-brand">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="tb-logo-img"/>
+    <div class="tb-divider"></div>
+    <span class="tb-system-name">STACKWEB</span>
+    <span class="tb-pipe">|</span>
+    <span class="tb-label">Voter Portal</span>
+  </div>
+  <div class="tb-right">
+    <a href="../index.html" class="tb-btn"><i data-lucide="arrow-left"></i> Home</a>
+  </div>
+</header>
+
+<!-- Page content -->
+<main class="page-main">
+  <div class="center-wrap">
+
+    <!-- ① System welcome & name (TOP) -->
+    <div class="welcome-section">
+      <div class="ws-badge">
+        <div class="ws-pulse"></div>
+        Secure &amp; Anonymous Voting
+      </div>
+      <h1 class="ws-title">Welcome to <span class="ws-grad">STACKWEB</span></h1>
+      <div class="ws-system">Online Voting System</div>
+      <p class="ws-sub">Your secure, anonymous, and tamper-proof digital ballot. Every vote counts — cast yours with confidence.</p>
+    </div>
+
+    <!-- Form card -->
+    <div class="form-card">
+
+      <!-- ② Election Identity Block — centered, prominent, professional -->
+      <div class="election-identity" id="election-banner">
+        <!-- Institution logo (hidden if not set) -->
+        <div class="ei-logo-wrap" id="ei-logo-wrap" style="display:none">
+          <img id="institution-logo" src="" alt="Institution Logo" loading="lazy" decoding="async" onload="this.classList.add('img-loaded')" />
+        </div>
+        <!-- Institution name -->
+        <div class="ei-institution" id="institution-name" style="display:none"></div>
+        <!-- LIVE badge -->
+        <div class="ei-live-badge">
+          <div class="ei-live-dot"></div> Live &bull; Voting Open
+        </div>
+        <!-- Election label + name -->
+        <div class="ei-election-label">You are voting for</div>
+        <div class="ei-election-name" id="banner-name">Loading&hellip;</div>
+        <div class="ei-sub" id="banner-sub">Enter your token below to access your ballot</div>
+      </div>
+      <div class="ei-divider" id="ei-divider" style="display:none"></div>
+
+      <div class="no-election-card" id="no-election-banner">
+        <div class="ne-icon"><i data-lucide="lock"></i></div>
+        <div class="election-info">
+          <div class="ne-name">No Active Election</div>
+          <div class="ne-sub" id="no-election-sub">There is no election currently open for voting.</div>
+        </div>
+      </div>
+
+      <!-- Token segments visual -->
+      <div class="token-segments" id="segs">
+        <div class="seg" id="seg-0">SW</div>
+        <div class="seg-dash">—</div>
+        <div class="seg" id="seg-1">XXXX</div>
+        <div class="seg-dash">—</div>
+        <div class="seg" id="seg-2">XXXX</div>
+        <div class="seg-dash">—</div>
+        <div class="seg" id="seg-3">XXXX</div>
+      </div>
+
+      <!-- Error box -->
+      <div class="error-box" id="error-box">
+        <span><i data-lucide="alert-triangle"></i></span>
+        <span id="error-text">Invalid token</span>
+      </div>
+
+      <!-- ③ LARGE rectangular token input -->
+      <div class="input-group">
+        <div class="input-label">
+          <span class="input-label-text">Voting Token</span>
+          <span class="input-label-hint">19 characters &mdash; SW-XXXX-XXXX-XXXX</span>
+        </div>
+        <div class="input-wrap">
+          <input
+            type="text"
+            id="token-input"
+            class="token-input"
+            placeholder="SW-XXXX-XXXX-XXXX"
+            maxlength="19"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          />
+          <button class="input-clear" id="clear-btn" title="Clear">✕</button>
+        </div>
+        <div class="input-hint">Token format: <code>SW-XXXX-XXXX-XXXX</code> — provided by your school administrator</div>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn-submit" id="btn-submit" disabled>
+        <span id="btn-text"><i data-lucide="check-square"></i>&nbsp;Access My Ballot</span>
+      </button>
+
+      <!-- ④ Voting steps (LAST) -->
+      <div class="steps-section">
+        <div class="steps-title">How it works</div>
+        <div class="steps-row">
+          <div class="step-card">
+            <div class="step-num-badge">1</div>
+            <div class="step-label">Enter the token given by your admin or class representative</div>
+          </div>
+          <div class="step-card">
+            <div class="step-num-badge">2</div>
+            <div class="step-label">Review all candidates and make your selections carefully</div>
+          </div>
+          <div class="step-card">
+            <div class="step-num-badge">3</div>
+            <div class="step-label">Submit your vote — recorded instantly and securely</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /form-card -->
+  </div><!-- /center-wrap -->
+</main>
+
+<!-- StackWeb Developers Footer -->
+<footer class="sw-dev-footer">
+  <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo"/>
+  <div class="sw-dev-footer-copy">
+    &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+    <em>Smart Systems. Real Solutions.</em>
+  </div>
+</footer>
+
+<script type="module">
+import { fetchActiveElection, fetchSettings } from '../src/assets/js/supabase-client.js';
+import { validateVoterAccess } from '../src/assets/js/auth.js';
+import { setVoterSession }     from '../src/assets/js/supabase-client.js';
+
+const input    = document.getElementById('token-input');
+const clearBtn = document.getElementById('clear-btn');
+const submitBtn= document.getElementById('btn-submit');
+const errorBox = document.getElementById('error-box');
+const errorTxt = document.getElementById('error-text');
+
+// ── Load election status + institution branding ─────────────────────────
+async function loadElectionStatus() {
+  try {
+    const [election, settings] = await Promise.all([
+      fetchActiveElection(),
+      fetchSettings().catch(() => ({}))
+    ]);
+    if (election) {
+      const banner = document.getElementById('election-banner');
+      banner.classList.add('show');
+      document.getElementById('banner-name').textContent = election.name;
+      document.getElementById('banner-sub').textContent =
+        election.description || 'Enter your token below to access your ballot';
+      document.getElementById('ei-divider').style.display = 'block';
+
+      // Show institution branding if configured
+      const logoUrl  = settings?.school_logo_url;
+      const instName = settings?.school_name;
+      if (logoUrl) {
+        const logoWrap = document.getElementById('ei-logo-wrap');
+        const img = document.getElementById('institution-logo');
+        img.src = logoUrl;
+        img.alt = instName || 'Institution Logo';
+        logoWrap.style.display = 'flex';
+      }
+      if (instName) {
+        const nameEl = document.getElementById('institution-name');
+        nameEl.textContent = instName;
+        nameEl.style.display = 'block';
+      }
+    } else {
+      document.getElementById('no-election-banner').classList.add('show');
+      submitBtn.disabled = true;
+    }
+  } catch { /* silent */ }
+}
+
+loadElectionStatus();
+
+// ── Token formatting ────────────────────────────────────────────
+function formatTokenInput(raw) {
+  const clean = raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const parts = [];
+  if (clean.length > 0)  parts.push(clean.slice(0, 2));
+  if (clean.length > 2)  parts.push(clean.slice(2, 6));
+  if (clean.length > 6)  parts.push(clean.slice(6, 10));
+  if (clean.length > 10) parts.push(clean.slice(10, 14));
+  return parts.join('-');
+}
+
+function isComplete(token) {
+  return /^SW-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(token);
+}
+
+function updateSegments(token) {
+  const parts = token.split('-');
+  const segs  = [
+    document.getElementById('seg-0'),
+    document.getElementById('seg-1'),
+    document.getElementById('seg-2'),
+    document.getElementById('seg-3'),
+  ];
+  const defaults = ['SW','XXXX','XXXX','XXXX'];
+  const done = isComplete(token);
+
+  segs.forEach((s, i) => {
+    s.textContent = parts[i] || defaults[i];
+    s.classList.remove('filled','valid-seg');
+    if (parts[i] && parts[i].length > 0)
+      s.classList.add(done ? 'valid-seg' : 'filled');
+  });
+}
+
+input.addEventListener('input', () => {
+  const formatted = formatTokenInput(input.value);
+  input.value = formatted;
+  clearBtn.classList.toggle('show', formatted.length > 0);
+  updateSegments(formatted);
+  hideError();
+  const complete = isComplete(formatted);
+  submitBtn.disabled = !complete;
+  input.classList.remove('valid','invalid');
+  if (complete) input.classList.add('valid');
+});
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !submitBtn.disabled) submitBtn.click();
+});
+
+clearBtn.addEventListener('click', () => {
+  input.value = '';
+  input.classList.remove('valid','invalid');
+  clearBtn.classList.remove('show');
+  updateSegments('');
+  submitBtn.disabled = true;
+  input.focus();
+  hideError();
+});
+
+// ── Submit ──────────────────────────────────────────────────────
+submitBtn.addEventListener('click', async () => {
+  const token = input.value.trim().toUpperCase();
+  if (!isComplete(token)) return;
+  setBusy(true);
+  hideError();
+  try {
+    const result = await validateVoterAccess(token);
+    if (!result.valid) {
+      showError(result.error);
+      input.classList.remove('valid');
+      input.classList.add('invalid');
+      setBusy(false);
+      return;
+    }
+    setVoterSession(result.voter);
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    showError('Something went wrong: ' + (err.message || 'Please try again.'));
+    setBusy(false);
+  }
+});
+
+function setBusy(busy) {
+  submitBtn.disabled = busy;
+  document.getElementById('btn-text').innerHTML = busy
+    ? '<span class="spin"></span>&nbsp;Verifying…'
+    : '<i data-lucide="check-square"></i>&nbsp;Access My Ballot';
+  if (!busy && window.lucide) window.lucide.createIcons();
+}
+
+function showError(msg) {
+  errorTxt.textContent = msg;
+  errorBox.classList.add('show');
+  input.classList.add('invalid');
+  input.classList.remove('valid');
+}
+
+function hideError() {
+  errorBox.classList.remove('show');
+}
+</script>
+
+<!-- Lucide Icons – pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return;
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

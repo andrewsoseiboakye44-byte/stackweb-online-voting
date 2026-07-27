@@ -1,0 +1,34 @@
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+
+[[redirects]]
+  from = "/src/pages/admin/*"
+  to   = "/admin/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/src/pages/voter/*"
+  to   = "/voter/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/src/pages/operator/*"
+  to   = "/operator/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/404"
+  to   = "/error.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to   = "/error.html"
+  status = 404

@@ -1,0 +1,528 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB Analytics — Live election results, charts, and winner declarations."/>
+  <title>Analytics — STACKWEB Admin</title>
+  <link rel="icon" href="../public/favicon/favicon.ico"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#4f46e5;--primary-dark:#4338ca;--primary-glow:rgba(79,70,229,0.22);
+      --secondary:#14b8a6;--success:#3fb950;--warning:#d29922;--danger:#f85149;--accent:#f59e0b;
+      --bg:#0d1117;--bg-card:#161b22;--bg-sidebar:#010409;
+      --border:#21262d;--text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;
+      --font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;--font-mono:'JetBrains Mono',monospace;
+      --radius:12px;--radius-sm:8px;--radius-lg:16px;--sidebar-w:260px;--topbar-h:64px;
+      --shadow:0 4px 20px rgba(0,0,0,0.4);--transition:220ms ease;
+    }
+    html,body{height:100%;} body{font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}ul{list-style:none;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+    .shell{display:flex;min-height:100vh;}
+    .sidebar{width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;transition:transform var(--transition);}
+    .sidebar-brand{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
+    .brand-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;color:#fff;}
+    .brand-name{font-family:var(--font-head);font-weight:800;font-size:1.05rem;}.brand-sub{font-size:0.68rem;color:var(--text-muted);}
+    .sidebar-nav{flex:1;padding:0.75rem 0;}
+    .nav-section{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:0.875rem 1.25rem 0.375rem;}
+    .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.25rem;color:var(--text-2);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all var(--transition);position:relative;}
+    .nav-item:hover{color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-item.active{color:var(--primary);background:rgba(79,70,229,0.08);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);border-radius:0 2px 2px 0;}
+    .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+    .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);}
+    .user-row{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;border-radius:var(--radius-sm);}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.875rem;}
+    .user-name{font-size:0.8rem;font-weight:600;}.user-role{font-size:0.7rem;color:var(--text-muted);}
+    .icon-btn{width:28px;height:28px;border-radius:6px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.75rem;transition:all var(--transition);}
+    .icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{height:var(--topbar-h);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;}
+    .topbar-left{display:flex;align-items:center;gap:1rem;}
+    .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-1);border-radius:2px;}
+    .page-title{font-size:1.05rem;font-weight:700;}.breadcrumb{font-size:0.72rem;color:var(--text-muted);}
+    .topbar-right{display:flex;gap:0.75rem;align-items:center;}
+    .content{padding:2rem;flex:1;}
+    .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);white-space:nowrap;text-decoration:none;}
+    .btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);}
+    .btn-secondary{background:transparent;color:var(--text-1);border:1px solid var(--border);}.btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-success{background:var(--success);color:#fff;}.btn-sm{padding:0.375rem 0.75rem;font-size:0.78rem;}
+    .live-badge{display:flex;align-items:center;gap:0.4rem;font-size:0.72rem;font-weight:700;color:var(--success);background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.3);border-radius:99px;padding:0.25rem 0.65rem;}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+    /* Page header */
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;}
+    .page-header h1{font-family:var(--font-head);font-size:1.75rem;font-weight:800;}
+    .page-header p{font-size:0.85rem;color:var(--text-2);margin-top:0.25rem;}
+    /* Election picker */
+    .election-picker{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .election-picker select{flex:1;min-width:200px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-size:0.875rem;padding:0.6rem 0.875rem;outline:none;transition:border-color var(--transition);}
+    .election-picker select:focus{border-color:var(--primary);}
+    /* Stats strip */
+    .stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem;}
+    .stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center;}
+    .sb-num{font-family:var(--font-head);font-size:2rem;font-weight:800;}
+    .sb-lbl{font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;}
+    /* Winner card */
+    .winner-section{margin-bottom:1.75rem;}
+    .section-title{font-family:var(--font-head);font-size:1.05rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+    .winners-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
+    .winner-card{background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(79,70,229,0.06));border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;position:relative;overflow:hidden;}
+    .winner-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--primary));}
+    .winner-crown{font-size:2rem;margin-bottom:0.75rem;}
+    .winner-photo{width:72px;height:72px;border-radius:50%;object-fit:cover;margin:0 auto 0.75rem;border:3px solid rgba(245,158,11,0.4);background:rgba(79,70,229,0.1);display:flex;align-items:center;justify-content:center;font-size:2rem;}
+    .winner-photo img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+    .winner-name{font-family:var(--font-head);font-weight:700;font-size:1.05rem;}
+    .winner-pos{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem;}
+    .winner-votes{font-family:var(--font-mono);font-size:0.85rem;color:var(--accent);font-weight:600;}
+    /* Position results */
+    .position-result{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.25rem;overflow:hidden;}
+    .pr-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .pr-title{font-weight:700;font-size:0.95rem;}
+    .pr-total{font-size:0.78rem;color:var(--text-muted);}
+    .candidates-results{padding:1rem 1.5rem;}
+    .cand-result{display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid var(--border);position:relative;}
+    .cand-result:last-child{border-bottom:none;}
+    .cand-result.winner{background:rgba(245,158,11,0.04);margin:0 -1.5rem;padding:0.75rem 1.5rem;border-left:3px solid var(--accent);}
+    .cand-result.tied{background:rgba(251,146,60,0.04);margin:0 -1.5rem;padding:0.75rem 1.5rem;border-left:3px solid #fb923c;}
+    .cr-rank{font-family:var(--font-mono);font-size:0.78rem;font-weight:700;width:24px;text-align:center;flex-shrink:0;color:var(--text-muted);}
+    /* Tie styles */
+    .tie-badge{display:inline-flex;align-items:center;gap:0.3rem;background:rgba(251,146,60,0.12);color:#fb923c;border:1px solid rgba(251,146,60,0.35);border-radius:99px;font-size:0.68rem;font-weight:800;padding:0.2rem 0.6rem;letter-spacing:0.05em;}
+    .tie-banner{background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.3);border-radius:var(--radius-sm);padding:0.75rem 1rem;margin:0.75rem 0;display:flex;align-items:flex-start;gap:0.6rem;font-size:0.8rem;color:#fb923c;}
+    .tie-banner strong{display:block;font-size:0.83rem;margin-bottom:0.15rem;}
+    .winner-card.is-tie{background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(79,70,229,0.05));border-color:rgba(251,146,60,0.35);}
+    .winner-card.is-tie::before{background:linear-gradient(90deg,#fb923c,#f59e0b);}
+    .tie-group{display:contents;}
+    .cr-rank.gold{color:var(--accent);}
+    .cr-photo{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:rgba(79,70,229,0.1);display:flex;align-items:center;justify-content:center;font-size:1.25rem;overflow:hidden;}
+    .cr-photo img{width:100%;height:100%;object-fit:cover;}
+    .cr-info{flex:1;min-width:0;}
+    .cr-name{font-weight:600;font-size:0.9rem;}
+    .cr-bar-wrap{margin-top:0.3rem;}
+    .cr-bar-outer{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+    .cr-bar-fill{height:100%;border-radius:99px;transition:width 1s ease;}
+    .cr-right{text-align:right;flex-shrink:0;}
+    .cr-count{font-family:var(--font-mono);font-weight:700;font-size:0.9rem;}
+    .cr-pct{font-size:0.72rem;color:var(--text-muted);}
+    /* Charts */
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.75rem;}
+    .chart-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;}
+    .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+    .chart-title{font-weight:700;font-size:0.9rem;}
+    .chart-wrap{height:260px;position:relative;}
+        
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sidebar-dev-logo" /></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html"         class="nav-item"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Dashboard</a>
+      <a href="manage-elections.html"  class="nav-item"><span class="nav-icon"><i data-lucide="check-square"></i></span> Elections</a>
+      <a href="manage-candidates.html" class="nav-item"><span class="nav-icon"><i data-lucide="user"></i></span> Candidates</a>
+      <a href="voter-management.html"  class="nav-item"><span class="nav-icon"><i data-lucide="users"></i></span> Voters</a>
+      <div class="nav-section">Voting</div>
+      <a href="token-generator.html"   class="nav-item"><span class="nav-icon"><i data-lucide="key-round"></i></span> Token Generator</a>
+      <a href="voting-control.html"    class="nav-item"><span class="nav-icon"><i data-lucide="settings"></i></span> Voting Control</a>
+      <a href="analytics.html"         class="nav-item active"><span class="nav-icon"><i data-lucide="trending-up"></i></span> Analytics</a>
+      <div class="nav-section">System</div>
+      <a href="audit-logs.html"        class="nav-item"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Audit Logs</a>
+      <a href="settings.html"          class="nav-item"><span class="nav-icon"><i data-lucide="wrench"></i></span> Settings</a>
+      <a href="help.html"              class="nav-item"><span class="nav-icon"><i data-lucide="help-circle"></i></span> Help Center</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div><div class="user-name" id="user-name">Admin</div><div class="user-role">Administrator</div></div>
+        <div style="margin-left:auto"><button class="icon-btn" id="logout-btn"><i data-lucide="log-out"></i></button></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <div><div class="page-title">Analytics</div><div class="breadcrumb">Dashboard / Results</div></div>
+      </div>
+      <div class="topbar-right">
+        <div class="live-badge" id="live-badge" style="display:none"><div class="live-dot"></div> Live Results</div>
+        <button class="btn btn-secondary btn-sm" id="btn-export-csv"><i data-lucide="arrow-down"></i> Export CSV</button>
+        <button class="btn btn-secondary btn-sm" id="btn-export-pdf"><i data-lucide="printer"></i> Print Report</button>
+        <button class="btn btn-secondary btn-sm" id="btn-refresh"><i data-lucide="refresh-cw"></i> Refresh</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-header">
+        <div><h1>Election Analytics</h1><p>Live vote counts, candidate standings, and turnout statistics.</p></div>
+      </div>
+
+      <!-- Election picker -->
+      <div class="election-picker">
+        <label style="font-weight:600;font-size:0.875rem;white-space:nowrap"><i data-lucide="bar-chart-2"></i> Election:</label>
+        <select id="sel-election"><option value="">Loading…</option></select>
+        <span id="election-status-badge" style="font-size:0.78rem;color:var(--text-muted)"></span>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="stats-strip">
+        <div class="stat-box"><div class="sb-num" id="s-voters">—</div><div class="sb-lbl">Total Voters</div></div>
+        <div class="stat-box"><div class="sb-num" style="color:var(--success)" id="s-votes">—</div><div class="sb-lbl">Votes Cast</div></div>
+        <div class="stat-box"><div class="sb-num" style="color:var(--primary)" id="s-turnout">—</div><div class="sb-lbl">Turnout</div></div>
+        <div class="stat-box"><div class="sb-num" style="color:var(--text-muted)" id="s-pending">—</div><div class="sb-lbl">Pending</div></div>
+      </div>
+
+      <!-- Winners -->
+      <div class="winner-section" id="winner-section" style="display:none">
+        <div class="section-title"><i data-lucide="trophy"></i> Current Leaders / Winners</div>
+        <div class="winners-grid" id="winners-grid"></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Vote Distribution</div></div>
+          <div class="chart-wrap"><canvas id="chart-distribution"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Turnout Progress</div></div>
+          <div class="chart-wrap"><canvas id="chart-turnout"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Per-position results -->
+      <div class="section-title"><i data-lucide="check-square"></i> Results by Position</div>
+      <div id="positions-results">
+        <div class="empty">Select an election above to view results.</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+import { requireAdmin } from '../src/assets/js/auth.js';
+import { supabase, fetchElections, fetchVoteCounts, fetchTotalVotes, subscribeToVotes } from '../src/assets/js/supabase-client.js';
+import { showToast, formatNumber, formatPercent, toCSV, downloadFile } from '../src/assets/js/main.js';
+
+let elections=[], currentId=null, distChart=null, turnoutChart=null, liveUnsub=null;
+const COLORS=['#4f46e5','#14b8a6','#f59e0b','#f85149','#3fb950','#8b5cf6','#ec4899','#06b6d4'];
+
+async function init(){
+  const profile=await requireAdmin(); if(!profile)return;
+  document.getElementById('user-avatar').textContent=(profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
+  document.getElementById('user-name').textContent=profile.full_name||profile.email||'Admin';
+  elections=await fetchElections();
+  const sel=document.getElementById('sel-election');
+  sel.innerHTML='<option value="">— Select election —</option>';
+  elections.forEach(e=>sel.add(new Option(`${e.name} [${e.status}]`,e.id)));
+  initCharts();
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('election')){sel.value=params.get('election');await loadResults(params.get('election'));}
+}
+
+document.getElementById('sel-election').addEventListener('change',e=>loadResults(e.target.value));
+document.getElementById('btn-refresh').addEventListener('click',()=>{if(currentId)loadResults(currentId);});
+
+async function loadResults(id){
+  if(!id){currentId=null;return;}
+  currentId=id;
+  const election=elections.find(e=>e.id===id);
+  const badge=document.getElementById('election-status-badge');
+  badge.textContent=election?`Status: ${election.status}`:'';
+  document.getElementById('live-badge').style.display=election?.status==='active'?'flex':'none';
+
+  try{
+    const [{count:totalVoters},{count:totalVotes},positions]=await Promise.all([
+      supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',id),
+      supabase.from('votes').select('id',{count:'exact',head:true}).eq('election_id',id),
+      supabase.from('positions').select('id,title,candidates(id,name,photo_url,bio)').eq('election_id',id).order('order_index'),
+    ]);
+    const tv=totalVoters||0, vc=totalVotes||0;
+    const pct=tv>0?((vc/tv)*100).toFixed(1)+'%':'0%';
+    document.getElementById('s-voters').textContent=formatNumber(tv);
+    document.getElementById('s-votes').textContent=formatNumber(vc);
+    document.getElementById('s-turnout').textContent=pct;
+    document.getElementById('s-pending').textContent=formatNumber(Math.max(tv-vc,0));
+
+    // Per-position vote counts
+    const posResults=await Promise.all((positions.data||[]).map(async p=>{
+      const{data:votes}=await supabase.from('votes').select('candidate_id').eq('position_id',p.id);
+      const counts={};
+      (votes||[]).forEach(v=>counts[v.candidate_id]=(counts[v.candidate_id]||0)+1);
+      const total=votes?.length||0;
+      const candidates=(p.candidates||[]).map(c=>({...c,votes:counts[c.id]||0})).sort((a,b)=>b.votes-a.votes);
+      return{...p,candidates,totalVotes:total};
+    }));
+
+    renderWinners(posResults);
+    renderPositionResults(posResults);
+    updateDistChart(posResults);
+    updateTurnoutChart(vc,tv);
+
+    // Live subscription
+    if(liveUnsub){liveUnsub();} 
+    if(election?.status==='active'){
+      liveUnsub=subscribeToVotes(id,()=>loadResults(id));
+    }
+  }catch(err){toast('Error loading results: '+err.message,'error');}
+}
+
+// ── Tie detection helper ──────────────────────────────────────────
+// Returns the top vote count and all candidates that share it.
+function getTopGroup(candidates) {
+  if (!candidates.length) return { topVotes: 0, leaders: [] };
+  const topVotes = candidates[0].votes;
+  if (topVotes === 0)  return { topVotes: 0, leaders: [] };
+  const leaders = candidates.filter(c => c.votes === topVotes);
+  return { topVotes, leaders, isTie: leaders.length > 1 };
+}
+
+function renderWinners(posResults) {
+  const section = document.getElementById('winner-section');
+  const grid    = document.getElementById('winners-grid');
+  const hasVotes = posResults.some(p => p.totalVotes > 0);
+  if (!hasVotes) { section.style.display = 'none'; return; }
+  section.style.display = '';
+
+  // Update section title to reflect tie possibility
+  const hasTies = posResults.some(p => getTopGroup(p.candidates).isTie);
+  document.querySelector('#winner-section .section-title').innerHTML =
+    `<i data-lucide="trophy"></i> Current Leaders / Winners` +
+    (hasTies ? ' &nbsp;<span class="tie-badge"><i data-lucide="scale"></i> TIE DETECTED</span>' : '');
+
+  grid.innerHTML = posResults.map(p => {
+    const { topVotes, leaders, isTie } = getTopGroup(p.candidates);
+    if (!leaders.length) return '';
+    const pct = p.totalVotes > 0 ? ((topVotes / p.totalVotes) * 100).toFixed(1) : 0;
+
+    if (isTie) {
+      // Show all tied candidates side-by-side under one grouped card
+      return `<div class="winner-card is-tie" style="min-width:260px">
+        <div class="winner-crown" style="font-size:1.5rem"><i data-lucide="scale"></i></div>
+        <div class="tie-badge" style="justify-content:center;margin:0 auto 0.6rem">
+          <i data-lucide="alert-triangle"></i> TIE — ${leaders.length} candidates
+        </div>
+        <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:0.6rem">
+          ${leaders.map(c => `<div style="text-align:center">
+            <div class="winner-photo" style="border-color:rgba(251,146,60,0.4)">
+              ${c.photo_url ? `<img src="${c.photo_url}" alt="${c.name}" loading="lazy" decoding="async" onload="this.classList.add('img-loaded')"/>` : '<i data-lucide="user"></i>'}
+            </div>
+            <div class="winner-name" style="font-size:0.9rem">${c.name}</div>
+          </div>`).join('<div style="display:flex;align-items:center;color:#fb923c;font-weight:800;font-size:1.1rem;padding-top:1.5rem">vs</div>')}
+        </div>
+        <div class="winner-pos">${p.title}</div>
+        <div class="winner-votes" style="color:#fb923c">${topVotes} votes each (${pct}%)</div>
+      </div>`;
+    }
+
+    // Clear winner
+    const winner = leaders[0];
+    return `<div class="winner-card">
+      <div class="winner-crown"><i data-lucide="trophy"></i></div>
+      <div class="winner-photo">
+        ${winner.photo_url ? `<img src="${winner.photo_url}" alt="${winner.name}" loading="lazy" decoding="async" onload="this.classList.add('img-loaded')"/>` : '<i data-lucide="user"></i>'}
+      </div>
+      <div class="winner-name">${winner.name}</div>
+      <div class="winner-pos">${p.title}</div>
+      <div class="winner-votes">${winner.votes} votes (${pct}%)</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPositionResults(posResults) {
+  const container = document.getElementById('positions-results');
+  if (!posResults.length) { container.innerHTML = '<div class="empty">No positions found.</div>'; return; }
+
+  container.innerHTML = posResults.map(p => {
+    const { topVotes, isTie, leaders } = getTopGroup(p.candidates);
+
+    // Tie banner shown inside position card when a tie exists
+    const tieBanner = isTie ? `
+      <div class="tie-banner">
+        <i data-lucide="alert-triangle" style="flex-shrink:0;margin-top:1px"></i>
+        <div>
+          <strong>Tie Detected — No winner declared</strong>
+          ${leaders.map(c => c.name).join(' and ')} are tied with ${topVotes} vote${topVotes !== 1 ? 's' : ''} each.
+          A runoff election or tiebreaker procedure is required before a winner can be declared.
+        </div>
+      </div>` : '';
+
+    const candidateRows = p.candidates.map((c, i) => {
+      const pct   = p.totalVotes > 0 ? ((c.votes / p.totalVotes) * 100).toFixed(1) : 0;
+      const color = COLORS[i % COLORS.length];
+      const isTiedCandidate = isTie && c.votes === topVotes;
+      const isWinner = !isTie && i === 0 && c.votes > 0;
+
+      let rankHtml, rowClass;
+      if (isTiedCandidate) {
+        rowClass = 'tied';
+        rankHtml = `<span class="tie-badge" style="font-size:0.6rem;padding:0.1rem 0.4rem">TIE</span>`;
+      } else if (isWinner) {
+        rowClass = 'winner';
+        rankHtml = `<i data-lucide="medal"></i>`;
+      } else {
+        rowClass = '';
+        rankHtml = `#${i + 1}`;
+      }
+
+      return `<div class="cand-result ${rowClass}">
+        <div class="cr-rank ${isWinner ? 'gold' : ''}" style="${isTiedCandidate ? 'color:#fb923c' : ''}">${rankHtml}</div>
+        <div class="cr-photo">${c.photo_url ? `<img src="${c.photo_url}" alt="${c.name}" loading="lazy" decoding="async" onload="this.classList.add('img-loaded')"/>` : '<i data-lucide="user"></i>'}</div>
+        <div class="cr-info">
+          <div class="cr-name">${c.name}${isTiedCandidate ? ' <span class="tie-badge" style="font-size:0.6rem;vertical-align:middle">TIED</span>' : ''}</div>
+          <div class="cr-bar-wrap"><div class="cr-bar-outer"><div class="cr-bar-fill" style="width:${pct}%;background:${isTiedCandidate ? '#fb923c' : color}"></div></div></div>
+        </div>
+        <div class="cr-right">
+          <div class="cr-count" style="${isTiedCandidate ? 'color:#fb923c' : ''}">${c.votes}</div>
+          <div class="cr-pct">${pct}%</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="position-result">
+      <div class="pr-header">
+        <div class="pr-title">${p.title}${isTie ? ' &nbsp;<span class="tie-badge"><i data-lucide="scale"></i> TIE</span>' : ''}</div>
+        <div class="pr-total">${p.totalVotes} votes cast</div>
+      </div>
+      <div class="candidates-results">
+        ${tieBanner}
+        ${candidateRows}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function initCharts(){
+  const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161b22',borderColor:'#21262d',borderWidth:1,padding:10}}};
+  distChart=new Chart(document.getElementById('chart-distribution').getContext('2d'),{
+    type:'doughnut',data:{labels:[],datasets:[{data:[],backgroundColor:COLORS,borderColor:'#0d1117',borderWidth:2,hoverOffset:8}]},
+    options:{...opts,cutout:'65%'}
+  });
+  turnoutChart=new Chart(document.getElementById('chart-turnout').getContext('2d'),{
+    type:'doughnut',data:{labels:['Voted','Pending'],datasets:[{data:[0,100],backgroundColor:['#4f46e5','#21262d'],borderColor:'#0d1117',borderWidth:2,hoverOffset:6}]},
+    options:{...opts,cutout:'70%'}
+  });
+}
+
+function updateDistChart(posResults){
+  const labels=[],data=[];
+  posResults.forEach(p=>p.candidates.forEach(c=>{if(c.votes>0){labels.push(c.name);data.push(c.votes);}}));
+  distChart.data.labels=labels;distChart.data.datasets[0].data=data;distChart.update();
+}
+
+function updateTurnoutChart(voted,total){
+  const remaining=Math.max(total-voted,0);
+  turnoutChart.data.datasets[0].data=[voted,remaining];turnoutChart.update();
+}
+
+// Export
+document.getElementById('btn-export-csv').addEventListener('click',async()=>{
+  if(!currentId){toast('Select an election first.','error');return;}
+  const{data}=await supabase.from('votes').select('candidate_id,candidates(name,positions(title))').eq('election_id',currentId);
+  if(!data?.length){toast('No votes to export.','error');return;}
+  const rows=data.map(v=>({candidate:v.candidates?.name||'—',position:v.candidates?.positions?.title||'—'}));
+  downloadFile(toCSV(rows,['candidate','position']),'results-export.csv','text/csv');
+  toast('CSV exported!','success');
+});
+document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
+
+function toast(msg,type='info'){
+  const c=document.getElementById('toast-container'),t=document.createElement('div');
+  t.className=`toast ${type}`;t.innerHTML=`<span>${type==='success'?'<i data-lucide="check-circle-2"></i>':'<i data-lucide="x-circle"></i>'}</span><span>${msg}</span>`;
+  c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3500);
+}
+document.getElementById('hamburger').addEventListener('click',()=>{
+  const sb=document.getElementById('sidebar'),ov=document.getElementById('sidebar-overlay');
+  const open=sb.classList.toggle('open');
+  if(ov){ov.style.display='block';requestAnimationFrame(()=>{ov.style.opacity=open?'1':'0';});if(!open)setTimeout(()=>{ov.style.display='none';},220);}
+  document.body.style.overflow=open?'hidden':'';
+});
+document.getElementById('sidebar-overlay').addEventListener('click',()=>{
+  const sb=document.getElementById('sidebar'),ov=document.getElementById('sidebar-overlay');
+  sb.classList.remove('open');ov.style.opacity='0';setTimeout(()=>{ov.style.display='none';},220);document.body.style.overflow='';
+});
+document.getElementById('logout-btn').addEventListener('click',()=>import('../src/assets/js/auth.js').then(m=>m.adminLogout()));
+init();
+</script>
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

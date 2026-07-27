@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="refresh" content="0;url=token-portal.html"/>
+  <title>Token Staff Portal — STACKWEB</title>
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    body{font-family:'Inter',sans-serif;background:#0d1117;color:#e6edf3;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:1rem;}
+    p{color:#8b949e;font-size:0.9rem;}
+    a{color:#4f46e5;}
+      
+    
+        
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+  <p>🔑 Redirecting to Token Staff Portal…</p>
+  <p><a href="token-portal.html">Click here if not redirected</a></p>
+  <script>window.location.replace('token-portal.html');</script>
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../../assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

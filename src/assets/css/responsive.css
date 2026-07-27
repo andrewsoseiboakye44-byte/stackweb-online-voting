@@ -1,0 +1,434 @@
+/* ============================================================
+   STACKWEB — Comprehensive Responsive & Mobile CSS
+   ============================================================
+   Breakpoints:
+     xs:  < 480px   (small phones — iPhone SE, Galaxy A)
+     sm:  < 640px   (large phones)
+     md:  < 768px   (tablets portrait)
+     lg:  < 1024px  (tablets landscape / small laptops)
+     xl:  < 1280px  (laptops)
+   ============================================================ */
+
+/* ────────────────────────────────────────────────────────────
+   SIDEBAR OVERLAY  (injected on mobile open)
+   ──────────────────────────────────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 199;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.sidebar-overlay.show {
+  display: block;
+  opacity: 1;
+}
+
+/* ────────────────────────────────────────────────────────────
+   ADMIN LAYOUT — Large (< 1024px)
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  :root {
+    --sidebar-w: 240px !important;
+  }
+  .hide-lg { display: none !important; }
+  .charts-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ────────────────────────────────────────────────────────────
+   ADMIN LAYOUT — Tablet (< 768px)
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Sidebar off-canvas */
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 200;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Main content takes full width */
+  .main {
+    margin-left: 0 !important;
+  }
+
+  /* Show hamburger */
+  .hamburger {
+    display: flex !important;
+  }
+
+  /* Topbar adjustments */
+  .topbar {
+    padding: 0 1rem !important;
+  }
+  .topbar-right {
+    gap: 0.5rem !important;
+  }
+  .topbar-search {
+    display: none;
+  }
+
+  /* Content padding reduction */
+  .content {
+    padding: 1.25rem !important;
+  }
+
+  /* Page header stacks */
+  .page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .page-header h1 {
+    font-size: 1.4rem !important;
+  }
+
+  /* Stats grids — 2 columns */
+  .stats-row,
+  .live-stats,
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Charts grid single column */
+  .charts-grid,
+  .data-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Modal full-width on tablet */
+  .modal,
+  .confirm-inner {
+    width: 94vw !important;
+    margin: 1rem !important;
+    padding: 1.5rem !important;
+  }
+  .modal-footer {
+    flex-direction: column;
+  }
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Tables — hide less important columns */
+  .voters-table th:nth-child(3),
+  .voters-table td:nth-child(3),
+  .voters-table th:nth-child(4),
+  .voters-table td:nth-child(4) {
+    display: none;
+  }
+
+  /* Filter bar wraps */
+  .filter-bar {
+    gap: 0.5rem !important;
+  }
+  .filter-bar select,
+  .filter-bar input {
+    flex: 1;
+    min-width: 0;
+  }
+  .search-wrap {
+    width: 100% !important;
+  }
+  .search-wrap input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Election selector */
+  .election-selector {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .election-selector select {
+    width: 100% !important;
+  }
+
+  /* Hide-md utility */
+  .hide-md { display: none !important; }
+
+  /* Voter topbar */
+  .voter-topbar,
+  .topbar {
+    padding: 0 1rem !important;
+  }
+  .voter-content {
+    padding: 1rem !important;
+  }
+
+  /* Ballot layout — single column */
+  .layout {
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+  .sidebar-col {
+    order: -1;
+  }
+  .sidebar-sticky {
+    position: static !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+    display: flex !important;
+  }
+  .summary-card,
+  .progress-ring,
+  .submit-wrap {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  /* Stepper */
+  .stepper-wrap {
+    padding: 0.875rem 1rem !important;
+    top: 64px !important;
+  }
+  .step-label {
+    display: none !important;
+  }
+
+  /* Countdown segments */
+  .countdown {
+    gap: 0.5rem !important;
+  }
+  .cd-seg {
+    min-width: 70px !important;
+    padding: 0.75rem 0.75rem !important;
+  }
+  .cd-num {
+    font-size: 1.75rem !important;
+  }
+  .cd-colon {
+    font-size: 1.75rem !important;
+  }
+
+  /* Landing card */
+  .landing-card,
+  .form-card {
+    padding: 1.75rem 1.5rem !important;
+  }
+
+  /* Token portal */
+  .token-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Dev footer */
+  .sw-dev-footer {
+    padding: 1rem 1.25rem !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   SMALL PHONES (< 480px) — iPhone SE, Galaxy A32, etc.
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 479px) {
+
+  /* Stats — single column */
+  .stats-row,
+  .live-stats,
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Page header title */
+  .page-header h1 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Topbar — hide non-essential action buttons text */
+  .topbar-right .btn-secondary span,
+  .topbar-right .btn .btn-text {
+    display: none;
+  }
+
+  /* Hide search on very small screens */
+  .topbar-search {
+    display: none !important;
+  }
+
+  /* Token input — shrink for small screens */
+  .token-input {
+    height: 64px !important;
+    font-size: 1.3rem !important;
+    letter-spacing: 0.1em !important;
+  }
+
+  /* Segment preview */
+  .seg {
+    height: 36px !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* Landing page main */
+  .page-main {
+    padding: 2rem 1rem 1.5rem !important;
+  }
+
+  /* Form card */
+  .form-card {
+    padding: 1.25rem 1rem !important;
+    border-radius: 16px !important;
+  }
+
+  /* Ballot candidate list — single column */
+  .candidates-list {
+    grid-template-columns: 1fr !important;
+    padding: 0.75rem !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Candidate option row — compact */
+  .candidate-opt {
+    padding: 0.75rem !important;
+  }
+  .cand-photo {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Submit button — full width */
+  .submit-wrap .btn {
+    font-size: 0.875rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Summary card items */
+  .sidebar-sticky {
+    flex-direction: column !important;
+  }
+  .summary-card,
+  .progress-ring,
+  .submit-wrap {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Tables — horizontal scroll enforced */
+  .table-wrap,
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Voters table — hide more columns */
+  .voters-table th:nth-child(2),
+  .voters-table td:nth-child(2),
+  .voters-table th:nth-child(3),
+  .voters-table td:nth-child(3),
+  .voters-table th:nth-child(4),
+  .voters-table td:nth-child(4),
+  .voters-table th:nth-child(7),
+  .voters-table td:nth-child(7) {
+    display: none;
+  }
+
+  /* Toast — full width */
+  #toast-container {
+    left: 1rem !important;
+    right: 1rem !important;
+  }
+  .toast {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Token chips grid */
+  .token-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Confirm modal actions */
+  .cm-actions {
+    flex-direction: column !important;
+  }
+  .btn-modal-cancel,
+  .btn-modal-confirm {
+    flex: none !important;
+    width: 100% !important;
+  }
+
+  /* Control actions */
+  .control-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .control-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Result bar wrap */
+  .result-bar-wrap {
+    display: none !important;
+  }
+
+  /* Election meta */
+  .election-meta {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Dev footer stacks */
+  .sw-dev-footer {
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 1rem !important;
+  }
+  .sw-dev-footer-copy {
+    text-align: center !important;
+  }
+
+  /* Hide utilities */
+  .hide-xs { display: none !important; }
+}
+
+/* ────────────────────────────────────────────────────────────
+   EXTRA SMALL (< 360px) — very old/small phones
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 359px) {
+  .topbar-right .btn {
+    padding: 0.375rem 0.6rem !important;
+    font-size: 0.72rem !important;
+  }
+  .topbar-right .btn i,
+  .topbar-right .btn [data-lucide] {
+    display: none;
+  }
+  .content {
+    padding: 0.875rem !important;
+  }
+  .token-input {
+    height: 56px !important;
+    font-size: 1.1rem !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   PRINT
+   ──────────────────────────────────────────────────────────── */
+@media print {
+  .sidebar,
+  .topbar,
+  .hamburger,
+  .sidebar-overlay,
+  .btn,
+  .filter-bar,
+  #toast-container,
+  .sw-dev-footer,
+  .modal-overlay { display: none !important; }
+  .main  { margin-left: 0 !important; }
+  .shell { display: block !important; }
+  body   { background: #fff !important; color: #000 !important; }
+  .card,
+  .table-card,
+  .stat-mini,
+  .ls-card { border: 1px solid #ddd !important; box-shadow: none !important; }
+}

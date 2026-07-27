@@ -1,0 +1,26 @@
+{
+  "name": "stackweb-online-voting-system",
+  "version": "1.0.0",
+  "description": "Secure token-based online voting system for academic institutions",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "live-server --port=8080 --open=/index.html",
+    "lint": "eslint src/assets/js/**/*.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit/",
+    "test:e2e": "playwright test tests/e2e/"
+  },
+  "keywords": ["voting", "election", "supabase", "token-based", "academic"],
+  "author": "STACKWEB Team",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "live-server": "^1.2.2",
+    "@playwright/test": "^1.44.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.4",
+    "chart.js": "^4.4.3"
+  }
+}

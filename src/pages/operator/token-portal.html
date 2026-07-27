@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB — Token Generation Portal"/>
+  <title>Token Portal — STACKWEB</title>
+  <link rel="icon" href="../../../public/favicon/favicon.ico"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#4f46e5;--primary-dark:#4338ca;--primary-glow:rgba(79,70,229,0.2);
+      --secondary:#14b8a6;--success:#3fb950;--warning:#d29922;--danger:#f85149;
+      --bg:#0d1117;--bg-card:#161b22;--bg-input:rgba(1,4,9,0.7);
+      --border:#21262d;--text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;
+      --font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;--font-mono:'JetBrains Mono','Courier New',monospace;
+      --radius:12px;--radius-sm:8px;--shadow:0 8px 32px rgba(0,0,0,0.4);--transition:220ms ease;
+    }
+    html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+    a{text-decoration:none;color:inherit;}
+
+    /* Header */
+    .header{background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;position:sticky;top:0;z-index:100;}
+    .header-left{display:flex;align-items:center;gap:0.875rem;}
+    .brand-logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;color:#fff;font-size:0.85rem;}
+    .brand-name{font-family:var(--font-head);font-weight:800;font-size:1rem;}
+    .brand-divider{width:1px;height:20px;background:var(--border);}
+    .portal-label{font-size:0.78rem;color:var(--text-2);font-weight:500;}
+    .header-right{display:flex;align-items:center;gap:0.875rem;}
+    .expiry-badge{background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.25);border-radius:99px;padding:0.3rem 0.875rem;font-size:0.75rem;font-weight:600;color:var(--secondary);}
+    .op-badge{background:rgba(79,70,229,0.12);border:1px solid rgba(79,70,229,0.25);border-radius:99px;padding:0.3rem 0.875rem;font-size:0.75rem;font-weight:600;color:var(--primary);}
+    .btn-logout{display:flex;align-items:center;gap:0.4rem;padding:0.45rem 0.875rem;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border);color:var(--text-2);font-family:var(--font-body);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all var(--transition);}
+    .btn-logout:hover{border-color:var(--danger);color:var(--danger);}
+
+    /* Layout */
+    .page{max-width:820px;margin:0 auto;padding:2rem 1.5rem 5rem;}
+    .page-header{margin-bottom:1.75rem;}
+    .page-title{font-family:var(--font-head);font-size:1.6rem;font-weight:800;margin-bottom:0.3rem;}
+    .page-sub{font-size:0.85rem;color:var(--text-2);}
+
+    /* Mode tabs */
+    .mode-tabs{display:flex;gap:0.625rem;margin-bottom:1.5rem;}
+    .mode-tab{flex:1;padding:0.875rem 1rem;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--bg-card);cursor:pointer;transition:all var(--transition);text-align:center;}
+    .mode-tab:hover{border-color:var(--primary);}
+    .mode-tab.active{border-color:var(--primary);background:rgba(79,70,229,0.08);}
+    .mode-tab-icon{font-size:1.5rem;margin-bottom:0.3rem;}
+    .mode-tab-title{font-weight:700;font-size:0.9rem;color:var(--text-1);}
+    .mode-tab-sub{font-size:0.72rem;color:var(--text-muted);margin-top:0.15rem;}
+    .mode-tab.active .mode-tab-title{color:var(--primary);}
+
+    /* Card */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.25rem;overflow:hidden;}
+    .card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .card-title{font-weight:700;font-size:0.95rem;display:flex;align-items:center;gap:0.5rem;}
+    .card-body{padding:1.5rem;}
+
+    /* Form */
+    .form-group{margin-bottom:1rem;}
+    .form-label{display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem;}
+    .form-control{width:100%;background:var(--bg-input);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-body);font-size:0.875rem;padding:0.65rem 0.875rem;outline:none;transition:all var(--transition);}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow);}
+    .form-control::placeholder{color:var(--text-muted);}
+    .form-hint{font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;}
+    select.form-control{cursor:pointer;}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.65rem 1.35rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.875rem;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;box-shadow:0 4px 14px rgba(79,70,229,0.3);}
+    .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.4);}
+    .btn-primary:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+    .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text-1);}
+    .btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-success{background:rgba(63,185,80,0.15);border:1px solid rgba(63,185,80,0.3);color:var(--success);}
+    .btn-success:hover{background:rgba(63,185,80,0.25);}
+    .btn-lg{padding:0.85rem 1.75rem;font-size:0.95rem;}
+    .btn-xl{padding:1rem 2rem;font-size:1rem;width:100%;justify-content:center;}
+    .btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Quick mode — big token card */
+    .quick-panel{display:block;}
+    .batch-panel{display:none;}
+    .quick-token-card{
+      background:linear-gradient(135deg,rgba(79,70,229,0.12),rgba(20,184,166,0.08));
+      border:2px solid rgba(79,70,229,0.3);
+      border-radius:16px;
+      padding:2.5rem 2rem;
+      text-align:center;
+      margin:1.5rem 0;
+      display:none;
+      animation:fadeUp 0.4s ease;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .qtc-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.625rem;}
+    .qtc-token{font-family:var(--font-mono);font-size:2rem;font-weight:700;color:var(--primary);letter-spacing:0.08em;margin-bottom:0.75rem;word-break:break-all;}
+    .qtc-expiry{font-size:0.8rem;color:var(--text-2);margin-bottom:1.5rem;}
+    .qtc-expiry strong{color:var(--warning);}
+    .qtc-actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+    .btn-tick{background:rgba(63,185,80,0.15);border:1px solid rgba(63,185,80,0.3);color:var(--success);padding:0.65rem 1.35rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.875rem;font-weight:600;cursor:pointer;transition:all var(--transition);}
+    .btn-tick.ticked{background:rgba(63,185,80,0.3);color:#fff;}
+    .btn-tick:hover{background:rgba(63,185,80,0.25);}
+
+    /* Batch mode — token grid */
+    .batch-controls{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+    .batch-count-wrap{display:flex;align-items:center;gap:0.5rem;}
+    .batch-count-wrap .form-control{width:100px;text-align:center;font-family:var(--font-mono);font-weight:700;}
+    .batch-results{display:none;margin-top:1.5rem;}
+    .batch-results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
+    .batch-results-count{font-weight:700;font-size:0.9rem;}
+    .batch-results-count span{color:var(--primary);}
+    .batch-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+    .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.75rem;max-height:480px;overflow-y:auto;padding-right:4px;}
+    .token-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.875rem 1rem;transition:border-color var(--transition);}
+    .token-card:hover{border-color:rgba(79,70,229,0.3);}
+    .token-card.handed{border-color:rgba(63,185,80,0.4);background:rgba(63,185,80,0.04);}
+    .tc-num{font-size:0.68rem;font-weight:700;color:var(--text-muted);margin-bottom:0.3rem;}
+    .tc-val{font-family:var(--font-mono);font-size:0.88rem;font-weight:600;color:var(--primary);letter-spacing:0.04em;margin-bottom:0.4rem;}
+    .tc-expiry{font-size:0.68rem;color:var(--text-muted);margin-bottom:0.625rem;}
+    .tc-actions{display:flex;gap:0.375rem;}
+    .tc-copy{flex:1;padding:0.35rem 0;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:0.75rem;font-weight:600;cursor:pointer;transition:all var(--transition);}
+    .tc-copy:hover{border-color:var(--primary);color:var(--primary);}
+    .tc-hand{padding:0.35rem 0.625rem;border-radius:6px;border:1px solid rgba(63,185,80,0.3);background:rgba(63,185,80,0.08);color:var(--success);font-size:0.75rem;font-weight:600;cursor:pointer;transition:all var(--transition);}
+    .tc-hand:hover,.token-card.handed .tc-hand{background:rgba(63,185,80,0.2);}
+    .token-card.handed .tc-hand::before{content:'<i data-lucide="check"></i> ';}
+
+    /* Status bar */
+    .status-bar{background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.18);border-radius:var(--radius-sm);padding:0.75rem 1rem;font-size:0.8rem;color:var(--text-2);display:flex;gap:0.6rem;align-items:center;margin-bottom:1.25rem;}
+
+    /* Error */
+    .gen-error{font-size:0.82rem;color:var(--danger);display:none;margin-top:0.75rem;padding:0.6rem 0.875rem;background:rgba(248,81,73,0.08);border:1px solid rgba(248,81,73,0.25);border-radius:var(--radius-sm);}
+
+    /* Toast */
+    #toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+    .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;min-width:240px;display:flex;align-items:center;gap:0.6rem;box-shadow:var(--shadow);font-size:0.83rem;animation:toastIn 0.3s ease;}
+    @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .toast.success{border-left:3px solid var(--success);}
+    .toast.error{border-left:3px solid var(--danger);}
+    .toast.info{border-left:3px solid var(--primary);}
+
+    /* Print */
+    @media print{
+      .header,.mode-tabs,.gen-error,.btn-logout,.op-badge,.expiry-badge{display:none!important;}
+      .page{max-width:100%;padding:0;}
+      .token-grid{max-height:none;display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;}
+      .token-card{border:1px solid #ccc;page-break-inside:avoid;}
+      .tc-actions{display:none;}
+      .batch-actions,.batch-controls{display:none!important;}
+      .quick-token-card .qtc-actions{display:none;}
+    }
+
+    @media(max-width:600px){
+      .header{padding:0 1rem;}.page{padding:1.25rem 1rem 3rem;}
+      .page-title{font-size:1.3rem;}.header-right .op-badge{display:none;}
+      .qtc-token{font-size:1.4rem;}
+      .mode-tabs{flex-direction:column;}
+    }
+      
+    
+        
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<header class="header">
+  <div class="header-left">
+    <img src="../../assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="brand-logo-img" />
+    <div class="brand-divider"></div>
+    <div class="portal-label"><i data-lucide="key-round"></i> Token Portal</div>
+  </div>
+  <div class="header-right">
+    <div class="expiry-badge" id="expiry-badge"><i data-lucide="timer"></i> Expiry: Loading…</div>
+    <div class="op-badge"><i data-lucide="alert-circle"></i> Operator</div>
+    <button class="btn-logout" id="btn-logout"><i data-lucide="log-out"></i> Sign Out</button>
+  </div>
+</header>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">Voter Token Station</div>
+    <div class="page-sub">Generate tokens for voters during an active election. Token expiry is set by the administrator.</div>
+  </div>
+
+  <!-- Election selector -->
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i data-lucide="check-square"></i> Election</div></div>
+    <div class="card-body">
+      <div id="election-loading" style="color:var(--text-2);font-size:0.85rem;display:flex;align-items:center;gap:0.5rem">
+        <div style="width:16px;height:16px;border:2px solid rgba(139,148,158,0.3);border-top-color:var(--text-2);border-radius:50%;animation:spin 0.7s linear infinite"></div>
+        Loading elections…
+      </div>
+      <div id="election-empty" style="display:none;color:var(--text-muted);font-size:0.85rem">
+        <i data-lucide="alert-triangle"></i> No active or draft elections found. Contact the administrator.
+      </div>
+      <div id="election-selector" style="display:none">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Select Election</label>
+          <select class="form-control" id="election-select">
+            <option value="">— Choose an election —</option>
+          </select>
+          <div class="form-hint" id="election-hint"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode tabs -->
+  <div class="mode-tabs" id="mode-tabs" style="display:none">
+    <div class="mode-tab active" id="tab-quick" onclick="switchMode('quick')">
+      <div class="mode-tab-icon"><i data-lucide="zap"></i></div>
+      <div class="mode-tab-title">Quick — One Token</div>
+      <div class="mode-tab-sub">Generate one token at a time for each voter in line</div>
+    </div>
+    <div class="mode-tab" id="tab-batch" onclick="switchMode('batch')">
+      <div class="mode-tab-icon"><i data-lucide="package"></i></div>
+      <div class="mode-tab-title">Batch — Multiple Tokens</div>
+      <div class="mode-tab-sub">Generate a set of tokens to distribute all at once</div>
+    </div>
+  </div>
+
+  <!-- ── QUICK MODE ── -->
+  <div class="quick-panel" id="quick-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i data-lucide="zap"></i> Quick Token</div>
+        <span style="font-size:0.75rem;color:var(--text-muted)">One token per voter</span>
+      </div>
+      <div class="card-body">
+        <div class="status-bar" id="quick-status-bar">
+          ℹ Select an election above, then click the button to generate a token for the next voter.
+        </div>
+
+        <!-- Big token card -->
+        <div class="quick-token-card" id="quick-token-card">
+          <div class="qtc-label"><i data-lucide="check-square"></i> Voting Token — Hand to voter</div>
+          <div class="qtc-token" id="qtc-token">SW-XXXX-XXXX-XXXX</div>
+          <div class="qtc-expiry" id="qtc-expiry"></div>
+          <div class="qtc-actions">
+            <button class="btn btn-secondary" id="qtc-copy" onclick="copyQuickToken()"><i data-lucide="clipboard-list"></i> Copy</button>
+            <button class="btn-tick" id="qtc-tick" onclick="tickQuickToken()"><i data-lucide="check-circle-2"></i> Voter Received It</button>
+          </div>
+        </div>
+
+        <div class="gen-error" id="quick-error"></div>
+
+        <button class="btn btn-primary btn-xl" id="btn-quick-generate" disabled>
+          ⚡ Generate Token for Next Voter
+        </button>
+        <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:0.625rem">
+          Tokens expire after <strong id="quick-expiry-note" style="color:var(--secondary)">24 hours</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick session stats -->
+    <div id="quick-stats" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.5rem;display:flex;gap:2rem;font-size:0.85rem;">
+      <div><span style="color:var(--text-muted)">Generated this session:</span> <strong id="qs-generated">0</strong></div>
+      <div><span style="color:var(--text-muted)">Handed out:</span> <strong id="qs-handed" style="color:var(--success)">0</strong></div>
+    </div>
+  </div>
+
+  <!-- ── BATCH MODE ── -->
+  <div class="batch-panel" id="batch-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i data-lucide="package"></i> Batch Generate</div>
+        <span style="font-size:0.75rem;color:var(--text-muted)">Max 500 per batch</span>
+      </div>
+      <div class="card-body">
+        <div class="batch-controls">
+          <div class="batch-count-wrap">
+            <label class="form-label" style="margin:0;white-space:nowrap">Number of tokens:</label>
+            <input type="number" class="form-control" id="batch-count" value="30" min="1" max="500"/>
+          </div>
+          <button class="btn btn-primary btn-lg" id="btn-batch-generate" disabled><i data-lucide="package"></i> Generate Batch</button>
+        </div>
+        <div class="gen-error" id="batch-error"></div>
+
+        <!-- Batch results -->
+        <div class="batch-results" id="batch-results">
+          <div class="batch-results-header">
+            <div class="batch-results-count"><span id="batch-count-display">0</span> tokens — <span id="batch-handed-count" style="color:var(--success)">0</span> handed out</div>
+            <div class="batch-actions">
+              <button class="btn btn-secondary" onclick="copyAllBatch()"><i data-lucide="clipboard-list"></i> Copy All</button>
+              <button class="btn btn-success" onclick="downloadBatchCSV()"><i data-lucide="download"></i> CSV</button>
+              <button class="btn btn-secondary" onclick="window.print()"><i data-lucide="printer"></i> Print</button>
+            </div>
+          </div>
+          <div class="token-grid" id="token-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { supabase, fetchTokenExpiryHours, generateTokens } from '../../assets/js/supabase-client.js';
+
+// ── Session Guard ──────────────────────────────────────────────
+const sess = (() => { try { return JSON.parse(sessionStorage.getItem('op_session')||'{}'); } catch { return {}; } })();
+if (!sess.valid || Date.now() - sess.ts > 8 * 60 * 60 * 1000) {
+  window.location.replace('../admin/index.html');
+}
+
+// ── Toast ──────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icon = type === 'success' ? '<i data-lucide="check-circle-2"></i>' : type === 'error' ? '<i data-lucide="x-circle"></i>' : 'ℹ';
+  t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='0.3s'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+document.getElementById('btn-logout').addEventListener('click', () => {
+  sessionStorage.removeItem('op_session');
+  window.location.replace('../admin/index.html');
+});
+
+// ── State ──────────────────────────────────────────────────────
+let elections = [];
+let selectedElection = null;
+let globalExpiryHrs = 24;
+let currentMode = 'quick';
+let quickGenerated = 0;
+let quickHanded = 0;
+let lastBatchTokens = [];
+let currentQuickToken = null;
+
+// ── Load Expiry from Settings ──────────────────────────────────
+// Formats decimal hours into a human-readable label (e.g. 1.5 → "1 h 30 min")
+function formatExpiryHrs(hrs) {
+  const totalMins = Math.round((hrs || 0) * 60);
+  if (totalMins >= 1440) { const d = Math.floor(totalMins / 1440); return `${d} day${d > 1 ? 's' : ''}`; }
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} min`;
+}
+
+async function loadExpiryHours() {
+  try {
+    globalExpiryHrs = await fetchTokenExpiryHours();
+  } catch { globalExpiryHrs = 24; }
+  const label = formatExpiryHrs(globalExpiryHrs);
+  document.getElementById('expiry-badge').innerHTML = `<i data-lucide="timer"></i> Expiry: ${label}`;
+  document.getElementById('quick-expiry-note').textContent = label;
+  window.initIcons?.();
+}
+
+// ── Load Elections ─────────────────────────────────────────────
+// NOTE: Operators are anonymous users. The elections table RLS only allows
+// anonymous reads for status='active'/'closed'. We use the
+// get_elections_for_tokens() RPC (SECURITY DEFINER, GRANTED TO anon)
+// which returns draft/active/paused elections for token generation.
+async function loadElections() {
+  try {
+    const { data: allElections, error } = await supabase.rpc('get_elections_for_tokens');
+    if (error) throw error;
+    elections = allElections || [];
+    document.getElementById('election-loading').style.display = 'none';
+
+    if (!elections.length) {
+      document.getElementById('election-empty').style.display = 'block';
+      return;
+    }
+
+    const sel = document.getElementById('election-select');
+    elections.forEach(e => sel.add(new Option(e.name, e.id)));
+    document.getElementById('election-selector').style.display = 'block';
+
+    sel.addEventListener('change', () => {
+      selectedElection = elections.find(e => e.id === sel.value) || null;
+      const hint = document.getElementById('election-hint');
+      if (selectedElection) {
+        const labels = { active:'<i data-lucide="activity"></i> Active — voting is open', draft:' Draft — voting not started', paused:' Paused' };
+        hint.innerHTML = labels[selectedElection.status] || selectedElection.status;
+        document.getElementById('mode-tabs').style.display = 'flex';
+        document.getElementById('btn-quick-generate').disabled = false;
+        document.getElementById('btn-batch-generate').disabled = false;
+        document.getElementById('quick-status-bar').innerHTML =
+          `<i data-lucide="check-square"></i> Ready — <strong>${selectedElection.name}</strong>. Click the button to generate the first token.`;
+        document.getElementById('quick-stats').style.display = 'flex';
+      } else {
+        hint.textContent = '';
+        document.getElementById('mode-tabs').style.display = 'none';
+        document.getElementById('btn-quick-generate').disabled = true;
+        document.getElementById('btn-batch-generate').disabled = true;
+      }
+      document.getElementById('quick-token-card').style.display = 'none';
+      document.getElementById('batch-results').style.display = 'none';
+    });
+  } catch(err) {
+    document.getElementById('election-loading').style.display = 'none';
+    document.getElementById('election-empty').style.display = 'block';
+    document.getElementById('election-empty').innerHTML = '<i data-lucide="alert-triangle"></i> Failed to load elections: ' + err.message; window.initIcons?.();
+  }
+}
+
+// ── Mode Switch ────────────────────────────────────────────────
+window.switchMode = function(mode) {
+  currentMode = mode;
+  document.getElementById('quick-panel').style.display = mode === 'quick' ? 'block' : 'none';
+  document.getElementById('batch-panel').style.display = mode === 'batch' ? 'block' : 'none';
+  document.getElementById('tab-quick').classList.toggle('active', mode === 'quick');
+  document.getElementById('tab-batch').classList.toggle('active', mode === 'batch');
+};
+
+// ── Format expiry countdown ────────────────────────────────────
+function formatExpiry(expiresAt) {
+  const ms = new Date(expiresAt) - new Date();
+  if (ms <= 0) return 'Expired';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const dateStr = new Date(expiresAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+  return `Expires ${h}h ${m}m from now (${dateStr})`;
+}
+
+// ── QUICK: Generate one token ──────────────────────────────────
+document.getElementById('btn-quick-generate').addEventListener('click', async () => {
+  if (!selectedElection) return;
+  const errEl = document.getElementById('quick-error');
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('btn-quick-generate');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating…';
+
+  try {
+    const results = await generateTokens(selectedElection.id, [{ name: 'Voter', email: null, class: null }], globalExpiryHrs);
+    const voter = results[0];
+    currentQuickToken = voter;
+
+    document.getElementById('qtc-token').textContent = voter.token;
+    document.getElementById('qtc-expiry').innerHTML = `<strong>${formatExpiry(voter.expires_at)}</strong>`;
+    const card = document.getElementById('quick-token-card');
+    card.style.display = 'block';
+    // Reset tick state
+    const tick = document.getElementById('qtc-tick');
+    tick.classList.remove('ticked');
+    tick.innerHTML = '<i data-lucide="check-circle-2"></i> Voter Received It'; window.initIcons?.();;
+
+    quickGenerated++;
+    document.getElementById('qs-generated').textContent = quickGenerated;
+
+    document.getElementById('quick-status-bar').innerHTML =
+      `<i data-lucide="check-circle-2"></i> Token ready — show or read it to the voter, then click <strong>Voter Received It</strong> and generate the next one.`;
+    toast('Token generated!', 'success');
+  } catch(err) {
+    errEl.innerHTML = '<i data-lucide="alert-triangle"></i> ' + err.message;
+    window.initIcons?.();
+    errEl.style.display = 'block';
+    toast('Failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="zap"></i> Generate Token for Next Voter'; window.initIcons?.();
+  }
+});
+
+window.copyQuickToken = async function() {
+  if (!currentQuickToken) return;
+  try {
+    await navigator.clipboard.writeText(currentQuickToken.token);
+    toast('Token copied!', 'success');
+  } catch { toast('Copy failed — select manually.', 'error'); }
+};
+
+window.tickQuickToken = function() {
+  const tick = document.getElementById('qtc-tick');
+  if (!tick.classList.contains('ticked')) {
+    tick.classList.add('ticked');
+    tick.innerHTML = '<i data-lucide="check"></i> Handed Out'; window.initIcons?.();;
+    quickHanded++;
+    document.getElementById('qs-handed').textContent = quickHanded;
+    toast('Marked as handed out. Ready for next voter!', 'success');
+  }
+};
+
+// ── BATCH: Generate tokens ─────────────────────────────────────
+document.getElementById('btn-batch-generate').addEventListener('click', async () => {
+  if (!selectedElection) return;
+  const errEl = document.getElementById('batch-error');
+  errEl.style.display = 'none';
+
+  const count = parseInt(document.getElementById('batch-count').value, 10);
+  if (!count || count < 1 || count > 500) {
+    errEl.innerHTML = '<i data-lucide="alert-triangle"></i> Enter a number between 1 and 500.'; window.initIcons?.();;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('btn-batch-generate');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating…';
+
+  try {
+    const voterList = Array.from({ length: count }, (_, i) => ({ name: `Voter ${i+1}`, email: null, class: null }));
+    lastBatchTokens = await generateTokens(selectedElection.id, voterList, globalExpiryHrs);
+    renderBatch(lastBatchTokens);
+    toast(`${lastBatchTokens.length} tokens generated!`, 'success');
+  } catch(err) {
+    errEl.innerHTML = '<i data-lucide="alert-triangle"></i> ' + err.message;
+    window.initIcons?.();
+    errEl.style.display = 'block';
+    toast('Failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="package"></i> Generate Batch';
+  }
+});
+
+function renderBatch(tokens) {
+  const grid = document.getElementById('token-grid');
+  grid.innerHTML = '';
+  tokens.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'token-card';
+    div.id = `tc-${t.id}`;
+    div.innerHTML = `
+      <div class="tc-num">#${i+1}</div>
+      <div class="tc-val">${t.token}</div>
+      <div class="tc-expiry">${formatExpiry(t.expires_at)}</div>
+      <div class="tc-actions">
+        <button class="tc-copy" onclick="copyBatchToken('${t.token}')"><i data-lucide="clipboard-list"></i> Copy</button>
+        <button class="tc-hand" onclick="tickBatchToken('${t.id}', this)">Handed Out</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+  document.getElementById('batch-count-display').textContent = tokens.length;
+  document.getElementById('batch-handed-count').textContent = '0';
+  document.getElementById('batch-results').style.display = 'block';
+}
+
+window.copyBatchToken = async function(token) {
+  try { await navigator.clipboard.writeText(token); toast('Copied!', 'success'); }
+  catch { toast('Copy failed.', 'error'); }
+};
+
+let batchHandedCount = 0;
+window.tickBatchToken = function(id, btn) {
+  const card = document.getElementById(`tc-${id}`);
+  if (card && !card.classList.contains('handed')) {
+    card.classList.add('handed');
+    batchHandedCount++;
+    document.getElementById('batch-handed-count').textContent = batchHandedCount;
+  }
+};
+
+window.copyAllBatch = async function() {
+  if (!lastBatchTokens.length) return;
+  const text = lastBatchTokens.map(t => t.token).join('\n');
+  try { await navigator.clipboard.writeText(text); toast('All tokens copied!', 'success'); }
+  catch { toast('Copy failed.', 'error'); }
+};
+
+window.downloadBatchCSV = function() {
+  if (!lastBatchTokens.length) return;
+  const elName = (selectedElection?.name || 'election').replace(/[^a-z0-9]/gi,'_');
+  const date = new Date().toISOString().slice(0,10);
+  const rows = ['#,Token,Expires At,Status', ...lastBatchTokens.map((t,i) =>
+    `${i+1},${t.token},${t.expires_at ? new Date(t.expires_at).toLocaleString() : ''},Unused`)];
+  const blob = new Blob([rows.join('\n')], { type:'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `tokens_${elName}_${date}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('CSV downloaded!', 'success');
+};
+
+// ── Init ───────────────────────────────────────────────────────
+await Promise.all([loadExpiryHours(), loadElections()]);
+</script>
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../../assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

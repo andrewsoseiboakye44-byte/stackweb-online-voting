@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB — Voter Management. View, manage and export all registered voters and token status."/>
+  <title>Voter Management — STACKWEB Admin</title>
+  <link rel="icon" href="../../../public/favicon/favicon.ico"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Lucide icon sizing ─────────────────────────────────── */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--primary:#4f46e5;--primary-dark:#4338ca;--primary-glow:rgba(79,70,229,0.22);--secondary:#14b8a6;--success:#3fb950;--warning:#d29922;--danger:#f85149;--bg:#0d1117;--bg-card:#161b22;--bg-sidebar:#010409;--border:#21262d;--text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;--font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;--font-mono:'JetBrains Mono',monospace;--radius:12px;--radius-sm:8px;--radius-lg:16px;--sidebar-w:260px;--topbar-h:64px;--shadow:0 4px 20px rgba(0,0,0,0.4);--transition:220ms ease;}
+    html,body{height:100%;}body{font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}ul{list-style:none;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+    .shell{display:flex;min-height:100vh;}
+    .sidebar{width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;transition:transform var(--transition);}
+    .sidebar-brand{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
+    .brand-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;color:#fff;}
+    .brand-name{font-family:var(--font-head);font-weight:800;font-size:1.05rem;}.brand-sub{font-size:0.68rem;color:var(--text-muted);}
+    .sidebar-nav{flex:1;padding:0.75rem 0;}
+    .nav-section{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:0.875rem 1.25rem 0.375rem;}
+    .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.25rem;color:var(--text-2);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all var(--transition);position:relative;}
+    .nav-item:hover{color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-item.active{color:var(--primary);background:rgba(79,70,229,0.08);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);border-radius:0 2px 2px 0;}
+    .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+    .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);}
+    .user-row{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;border-radius:var(--radius-sm);}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.875rem;}
+    .user-name{font-size:0.8rem;font-weight:600;}.user-role{font-size:0.7rem;color:var(--text-muted);}
+    .icon-btn{width:28px;height:28px;border-radius:6px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.75rem;transition:all var(--transition);}
+    .icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{height:var(--topbar-h);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;}
+    .topbar-left{display:flex;align-items:center;gap:1rem;}
+    .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-1);border-radius:2px;}
+    .page-title{font-size:1.05rem;font-weight:700;}.breadcrumb{font-size:0.72rem;color:var(--text-muted);}
+    .topbar-right{display:flex;gap:0.75rem;align-items:center;}
+    .content{padding:2rem;flex:1;}
+    .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);white-space:nowrap;text-decoration:none;}
+    .btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);}
+    .btn-secondary{background:transparent;color:var(--text-1);border:1px solid var(--border);}.btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-danger{background:var(--danger);color:#fff;}.btn-sm{padding:0.375rem 0.75rem;font-size:0.78rem;}
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;}
+    .page-header h1{font-family:var(--font-head);font-size:1.75rem;font-weight:800;}
+    .page-header p{font-size:0.85rem;color:var(--text-2);margin-top:0.25rem;}
+    /* Stats */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem;}
+    .stat-mini{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center;}
+    .sm-num{font-family:var(--font-head);font-size:1.6rem;font-weight:800;}
+    .sm-lbl{font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;}
+    /* Filter */
+    .filter-bar{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;}
+    .filter-bar input,.filter-bar select{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-size:0.82rem;padding:0.5rem 0.875rem;outline:none;transition:border-color var(--transition);}
+    .filter-bar input:focus,.filter-bar select:focus{border-color:var(--primary);}
+    .filter-bar input::placeholder{color:var(--text-muted);}
+    .search-wrap{position:relative;}
+    .search-wrap input{padding-left:1.875rem;min-width:260px;}
+    .search-icon{position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;pointer-events:none;}
+    /* Table */
+    .table-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+    .table-wrap{overflow-x:auto;}
+    .voters-table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+    .voters-table th{background:var(--bg);padding:0.75rem 1rem;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+    .voters-table td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+    .voters-table tbody tr:last-child td{border-bottom:none;}
+    .voters-table tbody tr:hover{background:rgba(255,255,255,0.02);}
+    .status-badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.6rem;border-radius:99px;font-size:0.68rem;font-weight:700;}
+    .s-unused{background:rgba(79,70,229,0.1);color:var(--primary);border:1px solid rgba(79,70,229,0.25);}
+    .s-used{background:rgba(63,185,80,0.1);color:var(--success);border:1px solid rgba(63,185,80,0.25);}
+    .s-revoked{background:rgba(248,81,73,0.1);color:var(--danger);border:1px solid rgba(248,81,73,0.25);}
+    .s-expired{background:rgba(139,148,158,0.1);color:var(--text-2);border:1px solid var(--border);}
+    .token-mono{font-family:var(--font-mono);font-size:0.75rem;color:var(--primary);}
+    .table-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;}
+    .tf-count{font-size:0.78rem;color:var(--text-muted);}
+    /* Toast */
+    #toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+    .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;min-width:240px;display:flex;align-items:center;gap:0.6rem;box-shadow:var(--shadow);font-size:0.83rem;animation:toastIn 0.3s ease;}
+    @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .toast.success{border-left:3px solid var(--success);}.toast.error{border-left:3px solid var(--danger);}
+    @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.hamburger{display:flex;}.content{padding:1.25rem;}.stats-row{grid-template-columns:1fr 1fr;}.page-header{flex-direction:column;}.search-wrap{width:100%;}.search-wrap input{width:100%;min-width:0;}.topbar{padding:0 1rem;}#toast-container{left:1rem;right:1rem;max-width:calc(100vw - 2rem);}#toast-container .toast{min-width:0;width:100%;}}
+    @media(max-width:479px){.stats-row{grid-template-columns:1fr 1fr;}.filter-bar{flex-direction:column;align-items:stretch;}.filter-bar select,.filter-bar input{width:100%;min-width:0;}.topbar-right .btn-secondary span:not([data-lucide]){display:none;}.content{padding:0.875rem;}}
+    /* Sidebar overlay */
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);z-index:199;opacity:0;transition:opacity 220ms ease;}
+    .sidebar-overlay.show{display:block;opacity:1;}
+
+    
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+<div id="toast-container"></div>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><img src="../../assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sidebar-dev-logo" /></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html"         class="nav-item"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Dashboard</a>
+      <a href="manage-elections.html"  class="nav-item"><span class="nav-icon"><i data-lucide="check-square"></i></span>  Elections</a>
+      <a href="manage-candidates.html" class="nav-item"><span class="nav-icon"><i data-lucide="user"></i></span> Candidates</a>
+      <a href="voter-management.html"  class="nav-item active"><span class="nav-icon"><i data-lucide="users"></i></span> Voters</a>
+
+      <div class="nav-section">Voting</div>
+      <a href="token-generator.html"   class="nav-item"><span class="nav-icon"><i data-lucide="key-round"></i></span> Token Generator</a>
+      <a href="voting-control.html"    class="nav-item"><span class="nav-icon"><i data-lucide="settings"></i></span> Voting Control</a>
+      <a href="analytics.html"         class="nav-item"><span class="nav-icon"><i data-lucide="trending-up"></i></span> Analytics</a>
+
+      <div class="nav-section">System</div>
+      <a href="audit-logs.html"        class="nav-item"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Audit Logs</a>
+      <a href="settings.html"          class="nav-item"><span class="nav-icon"><i data-lucide="wrench"></i></span>  Settings</a>
+      <a href="help.html"              class="nav-item"><span class="nav-icon"><i data-lucide="help-circle"></i></span> Help Center</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div><div class="user-name" id="user-name">Admin</div><div class="user-role">Administrator</div></div>
+        <div style="margin-left:auto"><button class="icon-btn" id="logout-btn"><i data-lucide="log-out"></i></button></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <div><div class="page-title">Voter Management</div><div class="breadcrumb">Dashboard / Voters</div></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" id="btn-export"><i data-lucide="arrow-down"></i> Export CSV</button>
+        <a href="token-generator.html" class="btn btn-primary btn-sm"><i data-lucide="key-round"></i> Token Generator</a>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header">
+        <div><h1>Voter Management</h1><p>View and manage all registered voters, token usage, and participation status.</p></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-mini"><div class="sm-num" id="st-total">—</div><div class="sm-lbl">Total Voters</div></div>
+        <div class="stat-mini"><div class="sm-num" style="color:var(--primary)" id="st-unused">—</div><div class="sm-lbl">Unused Tokens</div></div>
+        <div class="stat-mini"><div class="sm-num" style="color:var(--success)" id="st-voted">—</div><div class="sm-lbl">Voted</div></div>
+        <div class="stat-mini"><div class="sm-num" style="color:var(--danger)" id="st-revoked">—</div><div class="sm-lbl">Revoked</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-wrap"><span class="search-icon"><i data-lucide="search"></i></span><input type="text" id="search-input" placeholder="Search name, email, token…"/></div>
+        <select id="filter-election"><option value="all">All Elections</option></select>
+        <select id="filter-status"><option value="all">All Statuses</option><option value="unused">Unused</option><option value="used">Voted</option><option value="revoked">Revoked</option><option value="expired">Expired</option></select>
+        <span style="font-size:0.78rem;color:var(--text-muted);margin-left:auto" id="count-label"></span>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="voters-table">
+            <thead><tr><th>Student Name</th><th>Email</th><th>Class</th><th>Election</th><th>Token</th><th>Status</th><th>Used At</th><th>Action</th></tr></thead>
+            <tbody id="voters-tbody"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">Loading voters…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span class="tf-count" id="tf-count">—</span>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn btn-secondary btn-sm" id="btn-prev" disabled><i data-lucide="arrow-left"></i> Prev</button>
+            <span style="font-size:0.78rem;color:var(--text-muted);align-self:center" id="page-info">Page 1</span>
+            <button class="btn btn-secondary btn-sm" id="btn-next">Next <i data-lucide="arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script type="module">
+import { requireAdmin } from '../../assets/js/auth.js';
+import { supabase, fetchElections, revokeToken } from '../../assets/js/supabase-client.js';
+import { toCSV, downloadFile, debounce } from '../../assets/js/main.js';
+
+let allVoters=[], elections=[], page=1; const PAGE_SIZE=25;
+
+async function init(){
+  const profile=await requireAdmin(); if(!profile)return;
+  document.getElementById('user-avatar').textContent=(profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
+  document.getElementById('user-name').textContent=profile.full_name||profile.email||'Admin';
+  elections=await fetchElections();
+  const sel=document.getElementById('filter-election');
+  elections.forEach(e=>sel.add(new Option(e.name,e.id)));
+  await loadVoters();
+}
+
+async function loadVoters(){
+  const{data}=await supabase.from('voters').select('*,elections(name)').order('created_at',{ascending:false});
+  allVoters=data||[];
+  updateStats();
+  applyFilters();
+}
+
+function updateStats(){
+  document.getElementById('st-total').textContent=allVoters.length.toLocaleString();
+  document.getElementById('st-unused').textContent=allVoters.filter(v=>v.status==='unused').length.toLocaleString();
+  document.getElementById('st-voted').textContent=allVoters.filter(v=>v.status==='used').length.toLocaleString();
+  document.getElementById('st-revoked').textContent=allVoters.filter(v=>v.status==='revoked').length.toLocaleString();
+}
+
+function applyFilters(){
+  const search=document.getElementById('search-input').value.toLowerCase();
+  const elId=document.getElementById('filter-election').value;
+  const status=document.getElementById('filter-status').value;
+  const filtered=allVoters.filter(v=>{
+    const ms=status==='all'||v.status===status;
+    const me=elId==='all'||v.election_id===elId;
+    const mq=!search||v.student_name?.toLowerCase().includes(search)||v.email?.toLowerCase().includes(search)||v.token?.toLowerCase().includes(search);
+    return ms&&me&&mq;
+  });
+  renderTable(filtered);
+}
+
+function renderTable(voters){
+  document.getElementById('count-label').textContent=`${voters.length} voter${voters.length!==1?'s':''}`;
+  const total=voters.length, pages=Math.ceil(total/PAGE_SIZE)||1;
+  if(page>pages)page=1;
+  if(page<1)page=1;
+  const slice=voters.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+  const from = total===0 ? 0 : (page-1)*PAGE_SIZE+1;
+  const to   = Math.min(page*PAGE_SIZE, total);
+  document.getElementById('tf-count').textContent=total===0?'No voters':'Showing '+from+'–'+to+' of '+total;
+  document.getElementById('page-info').textContent=`Page ${page} of ${Math.max(1,pages)}`;
+  document.getElementById('btn-prev').disabled=page<=1;
+  document.getElementById('btn-next').disabled=page>=pages||total===0;
+
+  const tbody=document.getElementById('voters-tbody');
+  if(!slice.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">No voters found</td></tr>';return;}
+  tbody.innerHTML=slice.map(v=>`
+    <tr>
+      <td style="font-weight:600">${v.student_name||'—'}</td>
+      <td style="font-size:0.78rem;color:var(--text-muted)">${v.email||'—'}</td>
+      <td>${v.class||'—'}</td>
+      <td style="font-size:0.78rem;color:var(--text-muted)">${v.elections?.name||'—'}</td>
+      <td><span class="token-mono">${v.token}</span></td>
+      <td><span class="status-badge s-${v.status}">${v.status}</span></td>
+      <td style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">${v.used_at?new Date(v.used_at).toLocaleString():'—'}</td>
+      <td>${v.status==='unused'?`<button class="btn btn-secondary btn-sm" onclick="doRevoke('${v.id}')">Revoke</button>`:'—'}</td>
+    </tr>`).join('');
+  if(window.lucide)window.lucide.createIcons();
+}
+
+window.doRevoke=async function(id){
+  if(!confirm('Revoke this token?'))return;
+  try{await revokeToken(id);toast('Token revoked.','success');await loadVoters();}
+  catch(err){toast(err.message,'error');}
+};
+
+['search-input','filter-election','filter-status'].forEach(id=>{
+  document.getElementById(id).addEventListener(id==='search-input'?'input':'change',debounce(()=>{page=1;applyFilters();},200));
+});
+
+document.getElementById('btn-prev').addEventListener('click',()=>{page--;applyFilters();});
+document.getElementById('btn-next').addEventListener('click',()=>{page++;applyFilters();});
+
+document.getElementById('btn-export').addEventListener('click',()=>{
+  if(!allVoters.length){toast('No data to export.','error');return;}
+  const csv=toCSV(allVoters,['student_name','email','class','token','status','used_at']);
+  downloadFile(csv,'voters-export.csv','text/csv');toast('Exported!','success');
+});
+
+function toast(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span>${type==='success'?'<i data-lucide="check-circle-2"></i>':'<i data-lucide="x-circle"></i>'}</span><span>${msg}</span>`;c.appendChild(t);if(window.lucide)window.lucide.createIcons();setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3500);}
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+  const ov=document.getElementById('sidebar-overlay');
+  if(document.getElementById('sidebar').classList.contains('open')){ov.classList.add('show');}else{ov.classList.remove('show');}
+});
+document.getElementById('sidebar-overlay').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+});
+document.getElementById('logout-btn').addEventListener('click',()=>import('../../assets/js/auth.js').then(m=>m.adminLogout()));
+init();
+</script>
+<!-- Lucide Icons — pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return;
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>

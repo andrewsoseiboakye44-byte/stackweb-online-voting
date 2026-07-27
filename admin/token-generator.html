@@ -1,0 +1,870 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="STACKWEB Token Generator — Generate, distribute and manage voter access tokens." />
+  <title>Token Generator — STACKWEB Admin</title>
+  <link rel="icon" href="../public/favicon/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Lucide icon sizing ───────────────────────────────────── */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#4f46e5;--primary-dark:#4338ca;--primary-glow:rgba(79,70,229,0.22);
+      --secondary:#14b8a6;--success:#3fb950;--warning:#d29922;--danger:#f85149;
+      --bg:#0d1117;--bg-card:#161b22;--bg-sidebar:#010409;
+      --border:#21262d;--text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;
+      --font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;--font-mono:'JetBrains Mono',monospace;
+      --radius:12px;--radius-sm:8px;--radius-lg:16px;
+      --sidebar-w:260px;--topbar-h:64px;--shadow:0 4px 20px rgba(0,0,0,0.4);--transition:220ms ease;
+    }
+    html,body{height:100%;}
+    body{font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}ul{list-style:none;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+    .shell{display:flex;min-height:100vh;}
+    /* Sidebar */
+    .sidebar{width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;transition:transform var(--transition);}
+    .sidebar-brand{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;flex-shrink:0;}
+    .brand-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;font-size:1rem;color:#fff;}
+    .brand-name{font-family:var(--font-head);font-weight:800;font-size:1.05rem;}.brand-sub{font-size:0.68rem;color:var(--text-muted);}
+    .sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
+    .nav-section{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:0.875rem 1.25rem 0.375rem;}
+    .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.25rem;color:var(--text-2);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all var(--transition);position:relative;}
+    .nav-item:hover{color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-item.active{color:var(--primary);background:rgba(79,70,229,0.08);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);border-radius:0 2px 2px 0;}
+    .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+    .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);flex-shrink:0;}
+    .user-row{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;border-radius:var(--radius-sm);}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.875rem;flex-shrink:0;}
+    .user-name{font-size:0.8rem;font-weight:600;}.user-role{font-size:0.7rem;color:var(--text-muted);}
+    .icon-btn{width:28px;height:28px;border-radius:6px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.75rem;transition:all var(--transition);}
+    .icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+    /* Main */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{height:var(--topbar-h);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;}
+    .topbar-left{display:flex;align-items:center;gap:1rem;}
+    .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-1);border-radius:2px;}
+    .page-title{font-size:1.05rem;font-weight:700;}.breadcrumb{font-size:0.72rem;color:var(--text-muted);}
+    .topbar-right{display:flex;gap:0.75rem;align-items:center;}
+    .topbar-btn{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.9rem;transition:all var(--transition);}
+    .topbar-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .content{padding:2rem;flex:1;}
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);white-space:nowrap;text-decoration:none;}
+    .btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 0 20px var(--primary-glow);}
+    .btn-secondary{background:transparent;color:var(--text-1);border:1px solid var(--border);}.btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-danger{background:var(--danger);color:#fff;}.btn-success{background:var(--success);color:#fff;}
+    .btn-sm{padding:0.375rem 0.75rem;font-size:0.78rem;}
+    .btn-xl{padding:1rem 2rem;font-size:1rem;width:100%;justify-content:center;}
+    /* Page header */
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;}
+    .page-header h1{font-family:var(--font-head);font-size:1.75rem;font-weight:800;}
+    .page-header p{font-size:0.85rem;color:var(--text-2);margin-top:0.25rem;}
+    /* Tabs */
+    .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem;}
+    .tab-btn{padding:0.75rem 1.5rem;background:none;border:none;color:var(--text-2);font-family:var(--font-body);font-size:0.875rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--transition);}
+    .tab-btn:hover{color:var(--text-1);}
+    .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+    .tab-panel{display:none;}.tab-panel.active{display:block;}
+    /* Card */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;}
+    .card-header{margin-bottom:1.5rem;}.card-title{font-family:var(--font-head);font-size:1.05rem;font-weight:700;}.card-sub{font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;}
+    /* Form */
+    .form-group{margin-bottom:1.25rem;}
+    .form-label{display:block;font-size:0.8rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem;}
+    .form-label .req{color:var(--danger);}
+    .form-control{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-body);font-size:0.875rem;padding:0.65rem 0.875rem;outline:none;transition:all var(--transition);}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,0.15);}
+    .form-control::placeholder{color:var(--text-muted);}
+    select.form-control{cursor:pointer;}
+    .form-hint{font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    /* Radio group */
+    .radio-group{display:flex;gap:0.75rem;flex-wrap:wrap;}
+    .radio-opt{flex:1;min-width:150px;}
+    .radio-opt input{display:none;}
+    .radio-opt label{display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1rem;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition);font-size:0.85rem;font-weight:500;}
+    .radio-opt input:checked+label{border-color:var(--primary);background:rgba(79,70,229,0.08);color:var(--primary);}
+    .radio-opt-icon{font-size:1.25rem;}
+    /* Number input */
+    .number-wrap{position:relative;display:flex;align-items:center;}
+    .number-wrap input{text-align:center;font-family:var(--font-mono);font-size:1.1rem;font-weight:600;padding-left:3rem;padding-right:3rem;}
+    .num-btn{position:absolute;width:36px;height:36px;background:var(--border);border:none;cursor:pointer;color:var(--text-1);font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background var(--transition);}
+    .num-btn:hover{background:var(--primary);}
+    .num-btn.dec{left:4px;border-radius:6px 0 0 6px;}
+    .num-btn.inc{right:4px;border-radius:0 6px 6px 0;}
+    /* Progress */
+    .progress-wrap{margin:1.5rem 0;display:none;}
+    .progress-wrap.show{display:block;}
+    .progress-header{display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.5rem;}
+    .progress-label{font-weight:600;}
+    .progress-pct{color:var(--primary);font-family:var(--font-mono);}
+    .progress-bar-outer{height:8px;background:var(--border);border-radius:99px;overflow:hidden;}
+    .progress-bar-inner{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:99px;transition:width 0.3s ease;width:0%;}
+    /* Result box */
+    .result-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-top:1rem;display:none;}
+    .result-box.show{display:block;}
+    .result-title{font-weight:700;font-size:0.875rem;margin-bottom:0.75rem;}
+    .token-sample{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.5rem;max-height:200px;overflow-y:auto;}
+    .token-chip{font-family:var(--font-mono);font-size:0.75rem;padding:0.375rem 0.625rem;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:6px;color:var(--primary);}
+    /* CSV upload */
+    .csv-drop{border:2px dashed var(--border);border-radius:var(--radius);padding:3rem 2rem;text-align:center;cursor:pointer;transition:all var(--transition);position:relative;}
+    .csv-drop:hover,.csv-drop.drag-over{border-color:var(--primary);background:rgba(79,70,229,0.04);}
+    .csv-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .csv-drop-icon{font-size:3rem;opacity:0.3;margin-bottom:0.75rem;}
+    .csv-drop-title{font-weight:700;margin-bottom:0.375rem;}
+    .csv-drop-hint{font-size:0.8rem;color:var(--text-muted);}
+    /* Preview table */
+    .preview-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:1rem;display:none;}
+    .preview-table.show{display:table;}
+    .preview-table th{background:var(--bg);padding:0.6rem 0.875rem;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);border-bottom:1px solid var(--border);}
+    .preview-table td{padding:0.6rem 0.875rem;border-bottom:1px solid var(--border);}
+    .preview-table tr:last-child td{border-bottom:none;}
+    /* Status table */
+    .status-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+    .status-table th{background:var(--bg);padding:0.65rem 1rem;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);border-bottom:1px solid var(--border);}
+    .status-table td{padding:0.65rem 1rem;border-bottom:1px solid var(--border);}
+    .status-table tbody tr:hover{background:rgba(255,255,255,0.02);}
+    .status-badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.6rem;border-radius:99px;font-size:0.68rem;font-weight:700;}
+    .s-unused  {background:rgba(79,70,229,0.1);color:var(--primary);border:1px solid rgba(79,70,229,0.25);}
+    .s-used    {background:rgba(63,185,80,0.1);color:var(--success);border:1px solid rgba(63,185,80,0.25);}
+    .s-expired {background:rgba(139,148,158,0.1);color:var(--text-2);border:1px solid var(--border);}
+    .s-revoked {background:rgba(248,81,73,0.1);color:var(--danger);border:1px solid rgba(248,81,73,0.25);}
+    .table-wrap{overflow-x:auto;}
+    .filter-bar{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;}
+    .filter-bar input,.filter-bar select{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-size:0.82rem;padding:0.45rem 0.75rem;outline:none;transition:border-color var(--transition);}
+    .filter-bar input:focus,.filter-bar select:focus{border-color:var(--primary);}
+    .filter-bar input::placeholder{color:var(--text-muted);}
+    .search-wrap{position:relative;}
+    .search-wrap input{padding-left:1.875rem;min-width:220px;}
+    .search-icon{position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;pointer-events:none;}
+    /* Toast */
+    #toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+    .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;min-width:260px;display:flex;align-items:center;gap:0.6rem;box-shadow:var(--shadow);font-size:0.83rem;animation:toastIn 0.3s ease;}
+    @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .toast.success{border-left:3px solid var(--success);}.toast.error{border-left:3px solid var(--danger);}
+    /* Stats row */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem;}
+    .stat-mini{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center;}
+    .stat-mini-num{font-family:var(--font-head);font-size:1.5rem;font-weight:800;}
+    .stat-mini-lbl{font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;}
+    /* Responsive */
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}
+      .main{margin-left:0;}.hamburger{display:flex;}.content{padding:1.25rem;}
+      .stats-row{grid-template-columns:1fr 1fr;}.form-row{grid-template-columns:1fr;}
+      .tabs{overflow-x:auto;}.tab-btn{white-space:nowrap;}
+      .page-header{flex-direction:column;}.topbar{padding:0 1rem;}
+      #toast-container{left:1rem;right:1rem;max-width:calc(100vw - 2rem);}#toast-container .toast{min-width:0;width:100%;}
+    }
+    @media(max-width:480px){.stats-row{grid-template-columns:1fr 1fr;}
+      .radio-group{flex-direction:column;}.tab-btn{padding:0.6rem 0.875rem;font-size:0.78rem;}}
+    /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+    /* ── Quick Generate ─────────────────────────────────────── */
+    .expiry-info-bar{display:flex;align-items:center;gap:0.5rem;background:rgba(20,184,166,0.08);border:1px solid rgba(20,184,166,0.2);border-radius:var(--radius-sm);padding:0.65rem 1rem;font-size:0.82rem;color:var(--secondary);margin:1rem 0;flex-wrap:wrap;}
+    .expiry-info-bar a{color:var(--primary);text-decoration:none;}
+    .quick-token-card{background:linear-gradient(135deg,rgba(79,70,229,0.07),rgba(20,184,166,0.04));border:2px solid var(--primary);border-radius:var(--radius-lg);padding:2rem;text-align:center;margin-top:1.5rem;animation:fadeIn 0.3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .qtc-label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;}
+    .qtc-token{font-family:var(--font-mono);font-size:2rem;font-weight:700;color:var(--primary);letter-spacing:0.12em;margin:0.75rem 0;word-break:break-all;}
+    .qtc-expiry{font-size:0.78rem;color:var(--text-muted);margin-bottom:1.25rem;}
+    .qtc-actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+    .qstats-row{display:flex;gap:1rem;margin:1.25rem 0;}
+    .qstat{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.875rem;text-align:center;}
+    .qstat-num{font-family:var(--font-head);font-size:1.5rem;font-weight:800;color:var(--primary);}
+    .qstat-lbl{font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;}
+    @media(max-width:600px){.qtc-token{font-size:1.4rem;letter-spacing:0.06em;}.qstats-row{flex-direction:column;}}
+  </style>
+</head>
+<body>
+<div id="toast-container"></div>`n<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sidebar-dev-logo" /></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html"         class="nav-item"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Dashboard</a>
+      <a href="manage-elections.html"  class="nav-item"><span class="nav-icon"><i data-lucide="check-square"></i></span> Elections</a>
+      <a href="manage-candidates.html" class="nav-item"><span class="nav-icon"><i data-lucide="user"></i></span> Candidates</a>
+      <a href="voter-management.html"  class="nav-item"><span class="nav-icon"><i data-lucide="users"></i></span> Voters</a>
+      <div class="nav-section">Voting</div>
+      <a href="token-generator.html"   class="nav-item active"><span class="nav-icon"><i data-lucide="key-round"></i></span> Token Generator</a>
+      <a href="voting-control.html"    class="nav-item"><span class="nav-icon"><i data-lucide="settings"></i></span> Voting Control</a>
+      <a href="analytics.html"         class="nav-item"><span class="nav-icon"><i data-lucide="trending-up"></i></span> Analytics</a>
+      <div class="nav-section">System</div>
+      <a href="audit-logs.html"        class="nav-item"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Audit Logs</a>
+      <a href="settings.html"          class="nav-item"><span class="nav-icon"><i data-lucide="wrench"></i></span> Settings</a>
+      <a href="help.html"              class="nav-item"><span class="nav-icon"><i data-lucide="help-circle"></i></span> Help Center</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div><div class="user-name" id="user-name">Admin</div><div class="user-role">Administrator</div></div>
+        <div style="margin-left:auto"><button class="icon-btn" id="logout-btn"><i data-lucide="log-out"></i></button></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <div><div class="page-title">Token Generator</div><div class="breadcrumb">Dashboard / Tokens</div></div>
+      </div>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="topbar-btn"><i data-lucide="bar-chart-2"></i></a>
+        <button class="btn btn-secondary" id="btn-export-all"><i data-lucide="arrow-down"></i> Export All</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-header">
+        <div>
+          <h1>Token Generator</h1>
+          <p>Generate unique one-time voting tokens. Distribute via email or download as CSV/PDF.</p>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-mini"><div class="stat-mini-num" id="s-total">—</div><div class="stat-mini-lbl">Total Tokens</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" style="color:var(--primary)" id="s-unused">—</div><div class="stat-mini-lbl">Unused</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" style="color:var(--success)" id="s-used">—</div><div class="stat-mini-lbl">Used (voted)</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" style="color:var(--danger)" id="s-revoked">—</div><div class="stat-mini-lbl">Revoked</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="quick"><i data-lucide="zap"></i> Quick Generate</button>
+        <button class="tab-btn" data-tab="generate"><i data-lucide="layers"></i> Batch Generate</button>
+        <button class="tab-btn" data-tab="bulk"><i data-lucide="folder-open"></i> Bulk Upload (CSV)</button>
+        <button class="tab-btn" data-tab="status"><i data-lucide="clipboard-list"></i> Token Status</button>
+      </div>
+
+      <!-- ── TAB 0: Quick Generate ── -->
+      <div class="tab-panel active" id="tab-quick">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i data-lucide="zap"></i> Quick Generate — One Token at a Time</div>
+            <div class="card-sub">Generate a token per voter and hand it to them directly. Perfect for on-site voting sessions where voters arrive in person.</div>
+          </div>
+
+          <div class="expiry-info-bar">
+            <i data-lucide="timer"></i>&nbsp;Token Expiry:&nbsp;<strong id="quick-expiry-label">Loading…</strong>
+            <span style="margin-left:auto;font-size:0.78rem">(admin-set — <a href="settings.html">change in Settings</a>)</span>
+          </div>
+
+          <div class="form-group" style="margin-top:1.25rem">
+            <label class="form-label">Election <span class="req">*</span></label>
+            <select class="form-control" id="q-election"><option value="">Select election…</option></select>
+            <div class="form-hint">Select the active election, then generate one token per voter as they arrive.</div>
+          </div>
+
+          <div class="qstats-row" id="q-stats-row" style="display:none">
+            <div class="qstat"><div class="qstat-num" id="q-stat-given">0</div><div class="qstat-lbl">Tokens Given</div></div>
+            <div class="qstat"><div class="qstat-num" id="q-stat-session" style="color:var(--success)">0</div><div class="qstat-lbl">This Session</div></div>
+          </div>
+
+          <div style="text-align:center;margin:2rem 0 1.5rem">
+            <button class="btn btn-primary btn-xl" id="btn-quick-gen" disabled>
+              <i data-lucide="zap"></i> Generate Token for Next Voter
+            </button>
+          </div>
+
+          <div class="quick-token-card" id="quick-token-display" style="display:none">
+            <div class="qtc-label">Hand this token to the voter</div>
+            <div class="qtc-token" id="quick-token-value">SW-XXXX-XXXX-XXXX</div>
+            <div class="qtc-expiry" id="quick-token-expiry"></div>
+            <div class="qtc-actions">
+              <button class="btn btn-secondary" id="btn-quick-copy"><i data-lucide="copy"></i> Copy Token</button>
+              <button class="btn btn-primary" id="btn-quick-next"><i data-lucide="zap"></i> Next Voter &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 1: Batch Generate ── -->
+      <div class="tab-panel" id="tab-generate">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i data-lucide="layers"></i> Batch Generate</div>
+            <div class="card-sub">Generate multiple tokens at once — download as CSV, email, or print.</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Election <span class="req">*</span></label>
+              <select class="form-control" id="g-election"><option value="">Select election…</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number of Tokens <span class="req">*</span></label>
+              <div class="number-wrap">
+                <button class="num-btn dec" id="dec-btn">−</button>
+                <input type="number" class="form-control" id="g-count" value="50" min="1" max="1000" />
+                <button class="num-btn inc" id="inc-btn">+</button>
+              </div>
+              <div class="form-hint">Max 1,000 tokens per batch.</div>
+            </div>
+          </div>
+
+          <div class="expiry-info-bar">
+            <i data-lucide="timer"></i>&nbsp;Token Expiry:&nbsp;<strong id="g-expiry-label">Loading…</strong>
+            <span style="margin-left:auto;font-size:0.78rem;color:var(--text-muted)">(admin-controlled — <a href="settings.html">change in Settings</a>)</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Distribution Method</label>
+            <div class="radio-group">
+              <div class="radio-opt">
+                <input type="radio" name="distrib" id="r-csv" value="csv" checked />
+                <label for="r-csv"><span class="radio-opt-icon"><i data-lucide="download"></i></span><div><div>Download as CSV</div><div style="font-size:0.72rem;color:var(--text-muted)">Excel-compatible file</div></div></label>
+              </div>
+              <div class="radio-opt">
+                <input type="radio" name="distrib" id="r-email" value="email" />
+                <label for="r-email"><span class="radio-opt-icon"><i data-lucide="mail"></i></span><div><div>Email to Voters</div><div style="font-size:0.72rem;color:var(--text-muted)">Requires voter emails</div></div></label>
+              </div>
+              <div class="radio-opt">
+                <input type="radio" name="distrib" id="r-print" value="print" />
+                <label for="r-print"><span class="radio-opt-icon"><i data-lucide="printer"></i></span><div><div>Print-ready PDF</div><div style="font-size:0.72rem;color:var(--text-muted)">Cut-out token cards</div></div></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-header">
+              <span class="progress-label" id="progress-label">Generating tokens…</span>
+              <span class="progress-pct" id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+          </div>
+
+          <!-- Result -->
+          <div class="result-box" id="result-box">
+            <div class="result-title" id="result-title"><i data-lucide="check-circle-2"></i> 50 tokens generated!</div>
+            <div id="result-expiry" style="font-size:0.78rem;color:var(--secondary);margin-bottom:0.75rem"></div>
+            <div class="token-sample" id="token-sample"></div>
+            <details style="margin-top:0.75rem">
+              <summary style="font-size:0.78rem;color:var(--text-muted);cursor:pointer">Show all tokens</summary>
+              <div class="token-sample" id="token-sample-all" style="margin-top:0.5rem;max-height:300px"></div>
+            </details>
+          </div>
+
+          <div style="display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btn-generate"><i data-lucide="key-round"></i> Generate Tokens</button>
+            <button class="btn btn-secondary" id="btn-revoke-unused"><i data-lucide="ban"></i> Revoke All Unused</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 2: Bulk Upload ── -->
+      <div class="tab-panel" id="tab-bulk">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Bulk Upload via CSV</div>
+            <div class="card-sub">Upload a voter list CSV to create accounts and generate tokens automatically.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Election <span class="req">*</span></label>
+            <select class="form-control" id="b-election"><option value="">Select election…</option></select>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+            <div class="form-label" style="margin:0">Upload CSV File</div>
+            <button class="btn btn-secondary btn-sm" id="btn-template"><i data-lucide="arrow-down"></i> Download Template</button>
+          </div>
+
+          <div class="csv-drop" id="csv-drop">
+            <input type="file" id="csv-file" accept=".csv,text/csv" />
+            <div class="csv-drop-icon"><i data-lucide="folder-open"></i></div>
+            <div class="csv-drop-title">Drop CSV file here</div>
+            <div class="csv-drop-hint">or <strong style="color:var(--primary)">click to browse</strong><br>Required columns: <code style="font-size:0.72rem">student_name, email, class</code></div>
+          </div>
+
+          <table class="preview-table" id="preview-table">
+            <thead><tr><th>#</th><th>Student Name</th><th>Email</th><th>Class</th><th>Status</th></tr></thead>
+            <tbody id="preview-tbody"></tbody>
+          </table>
+
+          <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap;" id="bulk-actions">
+            <button class="btn btn-primary" id="btn-bulk-upload"><i data-lucide="upload"></i> Upload &amp; Generate Tokens</button>
+            <button class="btn btn-secondary" id="btn-clear-csv">✕ Clear</button>
+            <span style="font-size:0.82rem;color:var(--text-muted);align-self:center" id="csv-row-count"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 3: Token Status ── -->
+      <div class="tab-panel" id="tab-status">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Token Status</div>
+            <div class="card-sub">Search, view, and manage all voter tokens.</div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <span class="search-icon"><i data-lucide="search"></i></span>
+              <input type="text" id="token-search" placeholder="Search name or token…" />
+            </div>
+            <select id="token-filter-election"><option value="all">All Elections</option></select>
+            <select id="token-filter-status">
+              <option value="all">All Statuses</option>
+              <option value="unused">Unused</option>
+              <option value="used">Used</option>
+              <option value="revoked">Revoked</option>
+              <option value="expired">Expired</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" id="btn-export-csv"><i data-lucide="arrow-down"></i> CSV</button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="status-table">
+              <thead><tr><th>Token</th><th>Student</th><th>Class</th><th>Election</th><th>Status</th><th>Expires At</th><th>Used At</th><th>Action</th></tr></thead>
+              <tbody id="token-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)"><i data-lucide="loader-2"></i> Loading tokens…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script type="module">
+import { requireAdmin } from '../src/assets/js/auth.js';
+import { supabase, fetchElections, generateTokens, generateTokenString, fetchVoters, revokeToken, revokeAllUnusedTokens, fetchTokenExpiryHours, extendTokenExpiry } from '../src/assets/js/supabase-client.js';
+import { showToast, parseCSV, toCSV, downloadFile, debounce } from '../src/assets/js/main.js';
+
+let elections=[], allVoters=[], csvRows=[], globalExpiryHrs=24;
+
+async function init(){
+  const profile=await requireAdmin(); if(!profile)return;
+  document.getElementById('user-avatar').textContent=(profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
+  document.getElementById('user-name').textContent=profile.full_name||profile.email||'Admin';
+  elections=await fetchElections();
+  populateElectionSelects();
+  await loadTokenStats();
+  await loadTokens();
+  // Load global expiry — admin-controlled via Settings, no per-batch override
+  globalExpiryHrs = await fetchTokenExpiryHours();
+  const _expiryLabel = formatExpiryHrs(globalExpiryHrs);
+  const _glEl = document.getElementById('g-expiry-label');
+  const _qEl  = document.getElementById('quick-expiry-label');
+  if (_glEl) _glEl.textContent = _expiryLabel;
+  if (_qEl)  _qEl.textContent  = _expiryLabel;
+  // Wire quick election selector
+  document.getElementById('q-election').addEventListener('change', () => {
+    const hasEl = !!document.getElementById('q-election').value;
+    document.getElementById('btn-quick-gen').disabled = !hasEl;
+    if (hasEl) document.getElementById('q-stats-row').style.display = 'flex';
+    document.getElementById('quick-token-display').style.display = 'none';
+  });
+}
+
+// Formats decimal hours into a human-readable label (e.g. 1.5 → "1 h 30 min")
+function formatExpiryHrs(hrs) {
+  const totalMins = Math.round((hrs || 0) * 60);
+  if (totalMins >= 1440) { const d = Math.floor(totalMins / 1440); return `${d} day${d > 1 ? 's' : ''}`; }
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} min`;
+}
+
+function populateElectionSelects(){
+  ['q-election','g-election','b-election','token-filter-election'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    if(id==='token-filter-election') sel.innerHTML='<option value="all">All Elections</option>';
+    else sel.innerHTML='<option value="">Select election…</option>';
+    elections.forEach(e=>sel.add(new Option(e.name,e.id)));
+  });
+}
+
+async function loadTokenStats(){
+  try{
+    const {data}=await supabase.from('voters').select('status');
+    const total=data?.length||0;
+    const unused =(data||[]).filter(v=>v.status==='unused').length;
+    const used   =(data||[]).filter(v=>v.status==='used').length;
+    const revoked=(data||[]).filter(v=>v.status==='revoked').length;
+    document.getElementById('s-total').textContent=total.toLocaleString();
+    document.getElementById('s-unused').textContent=unused.toLocaleString();
+    document.getElementById('s-used').textContent=used.toLocaleString();
+    document.getElementById('s-revoked').textContent=revoked.toLocaleString();
+  }catch{}
+}
+
+async function loadTokens(search='',elId='all',status='all'){
+  const tbody=document.getElementById('token-tbody');
+  tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--text-muted)"><i data-lucide="loader-2"></i> Loading…</td></tr>';
+  try{
+    let q=supabase.from('voters').select('*,elections(name)').order('created_at',{ascending:false}).limit(200);
+    if(elId!=='all') q=q.eq('election_id',elId);
+    if(status!=='all') q=q.eq('status',status);
+    const{data,error}=await q; if(error)throw error;
+    allVoters=data||[];
+    const filtered=search?allVoters.filter(v=>v.student_name.toLowerCase().includes(search.toLowerCase())||v.token.toLowerCase().includes(search.toLowerCase())):allVoters;
+    if(!filtered.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">No tokens found</td></tr>';return;}
+    tbody.innerHTML=filtered.map(v=>`
+      <tr>
+        <td><span style="font-family:var(--font-mono);font-size:0.78rem;color:var(--primary)">${v.token}</span></td>
+        <td>${v.student_name}</td>
+        <td>${v.class||'—'}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted)">${v.elections?.name||'—'}</td>
+        <td><span class="status-badge s-${v.status}">${v.status}</span></td>
+        <td style="font-size:0.75rem;color:var(--text-muted)">${v.expires_at?new Date(v.expires_at).toLocaleString([],{dateStyle:'short',timeStyle:'short'}):'—'}</td>
+        <td style="font-size:0.75rem;color:var(--text-muted)">${v.used_at?new Date(v.used_at).toLocaleString():'—'}</td>
+        <td>${v.status==='unused'?`<button class="btn btn-secondary btn-sm" onclick="revokeOne('${v.id}')">Revoke</button><button class="btn btn-secondary btn-sm" style="margin-left:0.25rem" onclick="extendOne('${v.id}')">+24h</button>`:'—'}</td>
+      </tr>`).join('');
+  }catch(err){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--danger)">${err.message}</td></tr>`;}
+}
+
+window.revokeOne=async function(id){
+  try{await revokeToken(id);toast('Token revoked.','success');await loadTokens();await loadTokenStats();}
+  catch(err){toast(err.message,'error');}
+};
+
+window.extendOne = async function(id) {
+  // Show a clean inline dialog instead of a raw browser prompt
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:9000;';
+  overlay.innerHTML = `
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;width:min(380px,92vw);box-shadow:0 24px 64px rgba(0,0,0,0.7);">
+      <div style="font-family:var(--font-head);font-weight:700;font-size:1.05rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+        <i data-lucide="timer"></i> Extend Token Expiry
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-2);margin-bottom:1.25rem;">Set how much extra time to add from now.</p>
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+        <div style="flex:1;">
+          <label style="font-size:0.75rem;color:var(--text-2);display:block;margin-bottom:0.3rem;">Hours</label>
+          <input id="_ext-h" type="number" min="0" max="720" value="24"
+            style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-size:0.9rem;padding:0.55rem 0.75rem;outline:none;font-family:var(--font-mono);" />
+        </div>
+        <div style="padding-top:1.2rem;font-weight:700;color:var(--text-muted);">:</div>
+        <div style="flex:1;">
+          <label style="font-size:0.75rem;color:var(--text-2);display:block;margin-bottom:0.3rem;">Minutes</label>
+          <input id="_ext-m" type="number" min="0" max="59" value="0"
+            style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-size:0.9rem;padding:0.55rem 0.75rem;outline:none;font-family:var(--font-mono);" />
+        </div>
+      </div>
+      <div id="_ext-preview" style="font-size:0.78rem;color:var(--secondary);margin-bottom:1.25rem;min-height:1.2em;"></div>
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+        <button id="_ext-cancel" class="btn btn-secondary btn-sm">Cancel</button>
+        <button id="_ext-ok" class="btn btn-primary btn-sm"><i data-lucide="timer"></i> Extend</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  window.initIcons?.();
+
+  // Live preview
+  const updatePreview = () => {
+    const h = parseInt(document.getElementById('_ext-h').value) || 0;
+    const m = parseInt(document.getElementById('_ext-m').value) || 0;
+    const totalMins = h * 60 + m;
+    const el = document.getElementById('_ext-preview');
+    if (totalMins < 1) { el.textContent = ''; return; }
+    const newExpiry = new Date(Date.now() + totalMins * 60000);
+    const label = h > 0 && m > 0 ? `${h}h ${m}min` : h > 0 ? `${h}h` : `${m}min`;
+    el.textContent = `New expiry: ${newExpiry.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })} (+${label})`;
+  };
+  document.getElementById('_ext-h').addEventListener('input', updatePreview);
+  document.getElementById('_ext-m').addEventListener('input', updatePreview);
+  updatePreview();
+
+  document.getElementById('_ext-cancel').addEventListener('click', () => overlay.remove());
+  document.getElementById('_ext-ok').addEventListener('click', async () => {
+    const h = parseInt(document.getElementById('_ext-h').value) || 0;
+    const m = parseInt(document.getElementById('_ext-m').value) || 0;
+    const totalMins = h * 60 + m;
+    if (totalMins < 1) { toast('Please enter at least 1 minute.', 'error'); return; }
+    overlay.remove();
+    const hrsDecimal = totalMins / 60;
+    const label = h > 0 && m > 0 ? `${h}h ${m}min` : h > 0 ? `${h}h` : `${m}min`;
+    try {
+      await extendTokenExpiry(id, hrsDecimal);
+      toast(`Token expiry extended by ${label}.`, 'success');
+      await loadTokens();
+    } catch(err) { toast(err.message, 'error'); }
+  });
+};
+
+// ── Token Search/Filter ─────────────────────────────────────
+function applyTokenFilters(){
+  const s=document.getElementById('token-search').value;
+  const e=document.getElementById('token-filter-election').value;
+  const st=document.getElementById('token-filter-status').value;
+  loadTokens(s,e,st);
+}
+document.getElementById('token-search').addEventListener('input',debounce(applyTokenFilters,300));
+document.getElementById('token-filter-election').addEventListener('change',applyTokenFilters);
+document.getElementById('token-filter-status').addEventListener('change',applyTokenFilters);
+
+// ── Batch Generate ─────────────────────────────────────────
+document.getElementById('btn-generate').addEventListener('click',async()=>{
+  const elId=document.getElementById('g-election').value;
+  const count=parseInt(document.getElementById('g-count').value)||50;
+  const distrib=document.querySelector('input[name=distrib]:checked')?.value||'csv';
+  if(!elId){toast('Select an election first.','error');return;}
+  if(count<1||count>1000){toast('Token count must be 1–1000.','error');return;}
+
+  const progressWrap=document.getElementById('progress-wrap');
+  const progressBar=document.getElementById('progress-bar');
+  const progressPct=document.getElementById('progress-pct');
+  const progressLabel=document.getElementById('progress-label');
+  const resultBox=document.getElementById('result-box');
+
+  progressWrap.classList.add('show');resultBox.classList.remove('show');
+
+  let pct=0;
+  const tick=setInterval(()=>{pct=Math.min(pct+2,90);progressBar.style.width=pct+'%';progressPct.textContent=pct+'%';},80);
+
+  try{
+    const voters=Array.from({length:count},(_,i)=>({name:`Voter ${i+1}`,email:null,class:null}));
+    const generated=await generateTokens(elId,voters,globalExpiryHrs);
+    clearInterval(tick);
+    progressBar.style.width='100%';progressPct.textContent='100%';
+    progressLabel.innerHTML='<i data-lucide="check-circle-2"></i> Tokens generated!'; window.initIcons?.();;
+
+    document.getElementById('result-title').innerHTML=`<i data-lucide="check-circle-2"></i> ${generated.length} tokens generated successfully!`;
+    const expDt=generated[0]?.expires_at?new Date(generated[0].expires_at).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'N/A';
+    document.getElementById('result-expiry').innerHTML=`<i data-lucide="timer"></i> Expire at: ${expDt}`;
+    document.getElementById('token-sample').innerHTML=generated.slice(0,20).map(v=>`<div class="token-chip">${v.token}</div>`).join('');
+    document.getElementById('token-sample-all').innerHTML=generated.map(v=>`<div class="token-chip">${v.token}</div>`).join('');
+    resultBox.classList.add('show');
+
+    if(distrib==='csv'){
+      const csv=toCSV(generated,['token','student_name','class','status']);
+      downloadFile(csv,`tokens-${Date.now()}.csv`,'text/csv');
+      toast('Tokens generated and CSV downloaded!','success');
+    } else if(distrib==='email'){
+      toast(`${generated.length} tokens generated. Email distribution requires SMTP setup in Settings.`,'info');
+    } else {
+      toast('Tokens generated. Print functionality coming soon!','info');
+    }
+
+    await loadTokenStats();
+  }catch(err){
+    clearInterval(tick);progressWrap.classList.remove('show');
+    toast('Failed: '+err.message,'error');
+  }
+});
+
+// Number inc/dec
+document.getElementById('inc-btn').addEventListener('click',()=>{const i=document.getElementById('g-count');i.value=Math.min(1000,parseInt(i.value||0)+10);});
+document.getElementById('dec-btn').addEventListener('click',()=>{const i=document.getElementById('g-count');i.value=Math.max(1,parseInt(i.value||0)-10);});
+
+// ── Quick Generate ──────────────────────────────────────────
+let quickSessionCount = 0;
+document.getElementById('btn-quick-gen').addEventListener('click', async () => {
+  const elId = document.getElementById('q-election').value;
+  if (!elId) { toast('Select an election first.', 'error'); return; }
+  const btn = document.getElementById('btn-quick-gen');
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader-2"></i> Generating…'; window.initIcons?.();
+  try {
+    const [result] = await generateTokens(elId, [{ name: 'Voter', email: null, class: null }], globalExpiryHrs);
+    quickSessionCount++;
+    document.getElementById('q-stat-given').textContent = quickSessionCount;
+    document.getElementById('q-stat-session').textContent = quickSessionCount;
+    document.getElementById('quick-token-value').textContent = result.token;
+    const expDt = result.expires_at
+      ? new Date(result.expires_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+      : '';
+    document.getElementById('quick-token-expiry').textContent = expDt ? `Expires: ${expDt}` : '';
+    document.getElementById('quick-token-display').style.display = 'block';
+    await loadTokenStats();
+    toast('Token generated!', 'success');
+  } catch(err) { toast('Failed: ' + err.message, 'error'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="zap"></i> Generate Token for Next Voter'; window.initIcons?.();
+  }
+});
+
+document.getElementById('btn-quick-copy').addEventListener('click', () => {
+  const tok = document.getElementById('quick-token-value').textContent;
+  navigator.clipboard.writeText(tok)
+    .then(() => toast('Token copied to clipboard!', 'success'))
+    .catch(() => toast('Copy failed — token: ' + tok, 'error'));
+});
+
+document.getElementById('btn-quick-next').addEventListener('click', () => {
+  document.getElementById('quick-token-display').style.display = 'none';
+  document.getElementById('btn-quick-gen').click();
+});
+
+// Revoke all unused
+document.getElementById('btn-revoke-unused').addEventListener('click',async()=>{
+  const elId=document.getElementById('g-election').value;
+  if(!elId){toast('Select an election first.','error');return;}
+  if(!confirm('Revoke ALL unused tokens for this election? This cannot be undone.'))return;
+  try{await revokeAllUnusedTokens(elId);toast('All unused tokens revoked.','success');await loadTokens();await loadTokenStats();}
+  catch(err){toast(err.message,'error');}
+});
+
+// ── CSV Bulk Upload ────────────────────────────────────────
+document.getElementById('btn-template').addEventListener('click',()=>{
+  downloadFile('student_name,email,class\nJane Smith,jane@school.edu,Form 3A\nJohn Doe,john@school.edu,Form 3B','voter-template.csv','text/csv');
+  toast('Template downloaded!','success');
+});
+
+const csvDrop=document.getElementById('csv-drop');
+const csvFileInput=document.getElementById('csv-file');
+csvDrop.addEventListener('dragover',e=>{e.preventDefault();csvDrop.classList.add('drag-over');});
+csvDrop.addEventListener('dragleave',()=>csvDrop.classList.remove('drag-over'));
+csvDrop.addEventListener('drop',e=>{e.preventDefault();csvDrop.classList.remove('drag-over');handleCSV(e.dataTransfer.files[0]);});
+csvFileInput.addEventListener('change',e=>handleCSV(e.target.files[0]));
+
+function handleCSV(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    csvRows=parseCSV(e.target.result);
+    if(!csvRows.length){toast('CSV is empty or invalid.','error');return;}
+    renderCSVPreview(csvRows);
+    document.getElementById('csv-row-count').textContent=`${csvRows.length} rows ready`;
+    document.getElementById('bulk-actions').style.display='flex';
+  };
+  reader.readAsText(file);
+}
+
+function renderCSVPreview(rows){
+  const tbody=document.getElementById('preview-tbody');
+  const table=document.getElementById('preview-table');
+  table.classList.add('show');
+  tbody.innerHTML=rows.slice(0,5).map((r,i)=>`
+    <tr><td>${i+1}</td><td>${r.student_name||'—'}</td><td>${r.email||'—'}</td><td>${r.class||'—'}</td><td><span style="color:var(--success);font-size:0.75rem"><i data-lucide="check-circle-2"></i> Valid</span></td></tr>
+  `).join('')+(rows.length>5?`<tr><td colspan="5" style="text-align:center;color:var(--text-muted);font-size:0.78rem">…and ${rows.length-5} more rows</td></tr>`:'');
+}
+
+document.getElementById('btn-bulk-upload').addEventListener('click',async()=>{
+  const elId=document.getElementById('b-election').value;
+  if(!elId){toast('Select an election first.','error');return;}
+  if(!csvRows.length){toast('No CSV data. Please upload a file.','error');return;}
+  const btn=document.getElementById('btn-bulk-upload');btn.disabled=true;btn.textContent='Uploading…';
+  try{
+    const voters=csvRows.map(r=>({name:r.student_name||'Unknown',email:r.email||null,class:r.class||null}));
+    const result=await generateTokens(elId,voters);
+    toast(`${result.length} tokens created and assigned!`,'success');
+    csvRows=[];document.getElementById('preview-table').classList.remove('show');
+    document.getElementById('bulk-actions').style.display='none';
+    csvFileInput.value='';await loadTokenStats();
+  }catch(err){toast(err.message,'error');}
+  finally{btn.disabled=false;btn.innerHTML='<i data-lucide="upload"></i> Upload &amp; Generate Tokens'; window.initIcons?.();;}
+});
+
+document.getElementById('btn-clear-csv').addEventListener('click',()=>{csvRows=[];document.getElementById('preview-table').classList.remove('show');document.getElementById('bulk-actions').style.display='none';csvFileInput.value='';});
+
+// Export
+document.getElementById('btn-export-all').addEventListener('click',()=>{
+  if(!allVoters.length){toast('No data to export.','error');return;}
+  const csv=toCSV(allVoters,['token','student_name','email','class','status','used_at']);
+  downloadFile(csv,'all-tokens.csv','text/csv');toast('Exported!','success');
+});
+document.getElementById('btn-export-csv').addEventListener('click',()=>{
+  const visible=allVoters;
+  if(!visible.length){toast('No tokens to export.','error');return;}
+  const csv=toCSV(visible,['token','student_name','class','status','used_at']);
+  downloadFile(csv,'tokens-export.csv','text/csv');toast('Exported!','success');
+});
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn,.tab-panel').forEach(el=>el.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Toast
+function toast(msg,type='info'){
+  const c=document.getElementById('toast-container'),t=document.createElement('div');
+  t.className=`toast ${type}`;t.innerHTML=`<span>${type==='success'?'<i data-lucide="check-circle-2"></i>':'<i data-lucide="x-circle"></i>'}</span><span>${msg}</span>`;
+  c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3500);
+}
+window.showToast=toast;
+
+document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('logout-btn').addEventListener('click',()=>import('../src/assets/js/auth.js').then(m=>m.adminLogout()));
+
+init();
+</script>
+
+  <!-- ── STACKWEB Developers Footer ── -->
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons – pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return;
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

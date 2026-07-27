@@ -1,0 +1,675 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="STACKWEB — Manage Elections. Create, edit, and control all elections." />
+  <title>Manage Elections — STACKWEB Admin</title>
+  <link rel="icon" href="../public/favicon/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary:#4f46e5; --primary-dark:#4338ca; --primary-glow:rgba(79,70,229,0.22);
+      --secondary:#14b8a6; --success:#3fb950; --warning:#d29922; --danger:#f85149; --accent:#f59e0b;
+      --bg:#0d1117; --bg-card:#161b22; --bg-hover:#1c2128; --bg-sidebar:#010409;
+      --border:#21262d; --text-1:#e6edf3; --text-2:#8b949e; --text-muted:#484f58;
+      --font-body:'Inter',sans-serif; --font-head:'Poppins',sans-serif;
+      --radius:12px; --radius-sm:8px; --radius-lg:16px;
+      --sidebar-w:260px; --topbar-h:64px;
+      --shadow:0 4px 20px rgba(0,0,0,0.4); --transition:220ms ease;
+    }
+    html,body{height:100%;} body{font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;} ul{list-style:none;}
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+    /* Layout */
+    .shell{display:flex;min-height:100vh;}
+    /* Sidebar (shared across admin pages) */
+    .sidebar{width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;transition:transform var(--transition);}
+    .sidebar-brand{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;flex-shrink:0;}
+    .brand-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;font-size:1rem;color:#fff;box-shadow:0 0 16px rgba(79,70,229,0.4);}
+    .brand-name{font-family:var(--font-head);font-weight:800;font-size:1.05rem;} .brand-sub{font-size:0.68rem;color:var(--text-muted);}
+    .sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
+    .nav-section{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:0.875rem 1.25rem 0.375rem;}
+    .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.25rem;color:var(--text-2);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all var(--transition);position:relative;}
+    .nav-item:hover{color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-item.active{color:var(--primary);background:rgba(79,70,229,0.08);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);border-radius:0 2px 2px 0;}
+    .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+    .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);flex-shrink:0;}
+    .user-row{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;border-radius:var(--radius-sm);cursor:pointer;transition:background var(--transition);}
+    .user-row:hover{background:rgba(255,255,255,0.04);}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.875rem;flex-shrink:0;}
+    .user-name{font-size:0.8rem;font-weight:600;} .user-role{font-size:0.7rem;color:var(--text-muted);}
+    .icon-btn{width:28px;height:28px;border-radius:6px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.75rem;transition:all var(--transition);}
+    .icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+    /* Main */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{height:var(--topbar-h);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;}
+    .topbar-left{display:flex;align-items:center;gap:1rem;}
+    .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-1);border-radius:2px;}
+    .page-title{font-size:1.05rem;font-weight:700;} .breadcrumb{font-size:0.72rem;color:var(--text-muted);}
+    .topbar-right{display:flex;align-items:center;gap:0.75rem;}
+    .topbar-btn{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.9rem;transition:all var(--transition);}
+    .topbar-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .content{padding:2rem;flex:1;}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);white-space:nowrap;text-decoration:none;}
+    .btn-primary{background:var(--primary);color:#fff;} .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 0 20px var(--primary-glow);}
+    .btn-secondary{background:transparent;color:var(--text-1);border:1px solid var(--border);} .btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-danger{background:var(--danger);color:#fff;} .btn-success{background:var(--success);color:#fff;} .btn-warning{background:var(--warning);color:#000;}
+    .btn-sm{padding:0.375rem 0.75rem;font-size:0.78rem;}
+    .btn-icon{width:32px;height:32px;padding:0;justify-content:center;border:1px solid var(--border);background:var(--bg);color:var(--text-2);border-radius:var(--radius-sm);}
+    .btn-icon:hover{border-color:var(--primary);color:var(--primary);}
+
+    /* Page header */
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;}
+    .page-header h1{font-family:var(--font-head);font-size:1.75rem;font-weight:800;}
+    .page-header p{font-size:0.85rem;color:var(--text-2);margin-top:0.25rem;}
+    .header-actions{display:flex;gap:0.75rem;flex-wrap:wrap;}
+
+    /* Filter bar */
+    .filter-bar{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;}
+    .filter-bar input,.filter-bar select{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-body);font-size:0.82rem;padding:0.5rem 0.875rem;outline:none;transition:border-color var(--transition);}
+    .filter-bar input:focus,.filter-bar select:focus{border-color:var(--primary);}
+    .filter-bar input::placeholder{color:var(--text-muted);}
+    .filter-bar .search-wrap{position:relative;flex:1;max-width:320px;}
+    .filter-bar .search-wrap input{width:100%;padding-left:2rem;}
+    .filter-bar .search-icon{position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;pointer-events:none;}
+    .filter-count{font-size:0.78rem;color:var(--text-muted);margin-left:auto;}
+
+    /* Elections grid */
+    .elections-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem;}
+    .election-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;transition:all var(--transition);position:relative;overflow:hidden;}
+    .election-card:hover{border-color:rgba(79,70,229,0.4);transform:translateY(-2px);box-shadow:var(--shadow);}
+    .election-card.status-active{border-top:3px solid var(--success);}
+    .election-card.status-paused{border-top:3px solid var(--warning);}
+    .election-card.status-closed{border-top:3px solid var(--text-muted);}
+    .election-card.status-draft {border-top:3px solid var(--primary);}
+    .ec-header{display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;}
+    .ec-title{font-family:var(--font-head);font-weight:700;font-size:1.05rem;line-height:1.2;}
+    .ec-type{font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:0.2rem;}
+    .status-badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.25rem 0.65rem;border-radius:99px;font-size:0.7rem;font-weight:700;flex-shrink:0;}
+    .status-active{background:rgba(63,185,80,0.12);color:var(--success);border:1px solid rgba(63,185,80,0.3);}
+    .status-paused{background:rgba(210,153,34,0.12);color:var(--warning);border:1px solid rgba(210,153,34,0.3);}
+    .status-closed{background:rgba(139,148,158,0.1);color:var(--text-2);border:1px solid var(--border);}
+    .status-draft {background:rgba(79,70,229,0.1);color:var(--primary);border:1px solid rgba(79,70,229,0.3);}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .ec-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;}
+    .ec-stat{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.5rem 0.625rem;text-align:center;}
+    .ec-stat-num{font-family:var(--font-head);font-weight:700;font-size:1.1rem;}
+    .ec-stat-lbl{font-size:0.65rem;color:var(--text-muted);}
+    .ec-turnout{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+    .ec-turnout-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:99px;transition:width 0.5s ease;}
+    .ec-turnout-label{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted);margin-bottom:0.35rem;}
+    .ec-meta{font-size:0.75rem;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:0.5rem;}
+    .ec-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+    .ec-actions .btn{flex:1;justify-content:center;}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:5rem 2rem;grid-column:1/-1;}
+    .empty-icon{font-size:4rem;opacity:0.15;margin-bottom:1rem;}
+    .empty-title{font-family:var(--font-head);font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;}
+    .empty-sub{font-size:0.875rem;color:var(--text-muted);margin-bottom:1.5rem;}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity var(--transition);}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);width:min(580px,94vw);max-height:90vh;overflow-y:auto;transform:scale(0.95);transition:transform var(--transition);box-shadow:0 24px 64px rgba(0,0,0,0.7);}
+    .modal-overlay.open .modal{transform:scale(1);}
+    .modal-header{padding:1.5rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:1;}
+    .modal-title{font-family:var(--font-head);font-size:1.15rem;font-weight:700;}
+    .modal-close{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.25rem;transition:color var(--transition);padding:4px;}
+    .modal-close:hover{color:var(--text-1);}
+    .modal-body{padding:1.75rem;}
+    .modal-footer{padding:1.25rem 1.75rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;justify-content:flex-end;}
+
+    /* Form */
+    .form-group{margin-bottom:1.25rem;}
+    .form-label{display:block;font-size:0.8rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem;}
+    .form-label span.req{color:var(--danger);}
+    .form-control{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-body);font-size:0.875rem;padding:0.65rem 0.875rem;outline:none;transition:all var(--transition);}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,0.15);}
+    .form-control::placeholder{color:var(--text-muted);}
+    textarea.form-control{resize:vertical;min-height:80px;}
+    select.form-control{cursor:pointer;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .form-hint{font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:0.625rem 0;}
+    .toggle-label{font-size:0.85rem;color:var(--text-1);}
+    .toggle-sub{font-size:0.72rem;color:var(--text-muted);}
+    .toggle-switch{position:relative;width:42px;height:24px;flex-shrink:0;}
+    .toggle-switch input{opacity:0;width:0;height:0;}
+    .toggle-track{position:absolute;inset:0;background:var(--border);border-radius:99px;cursor:pointer;transition:background 0.3s;}
+    .toggle-switch input:checked+.toggle-track{background:var(--primary);}
+    .toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform 0.3s;}
+    .toggle-switch input:checked+.toggle-track::after{transform:translateX(18px);}
+
+    /* Error/success banners */
+    .alert{padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.83rem;display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;}
+    .alert-error  {background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);color:var(--danger);}
+    .alert-success{background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.3);color:var(--success);}
+
+    /* Toast */
+    #toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+    .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;min-width:260px;display:flex;align-items:center;gap:0.6rem;box-shadow:var(--shadow);font-size:0.83rem;animation:toastIn 0.3s ease;}
+    @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .toast.success{border-left:3px solid var(--success);}.toast.error{border-left:3px solid var(--danger);}
+
+    /* Responsive */
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%);} .sidebar.open{transform:translateX(0);}
+      .main{margin-left:0;} .hamburger{display:flex;} .content{padding:1.25rem;}
+      .topbar{padding:0 1rem;}
+      .elections-grid{grid-template-columns:1fr;}
+      .form-row{grid-template-columns:1fr;}
+      .page-header{flex-direction:column;}
+      #toast-container{left:1rem;right:1rem;max-width:calc(100vw - 2rem);}
+      #toast-container .toast{min-width:0;width:100%;}
+    }
+    @media(max-width:480px){.content{padding:0.875rem;}}
+      
+    
+
+    
+        /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+<div id="toast-container"></div>`n<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirm-overlay">
+  <div class="confirm-modal">
+    <div style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;margin-bottom:0.5rem" id="confirm-title">Confirm</div>
+    <div style="font-size:0.875rem;color:var(--text-2);margin-bottom:1.5rem" id="confirm-body">Are you sure?</div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Election Modal -->
+<div class="modal-overlay" id="election-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="election-modal-title">Create Election</div>
+      <button class="modal-close" id="election-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-error" id="modal-error" style="display:none"></div>
+      <div class="form-group">
+          <label class="form-label">Election Name <span class="req">*</span></label>
+          <input type="text" class="form-control" id="f-name" placeholder="e.g. Head Prefect Election 2025" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="f-desc" placeholder="Brief description of this election…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Start Date &amp; Time</label>
+          <input type="datetime-local" class="form-control" id="f-start" />
+          <div class="form-hint">Leave blank to start manually from Voting Control.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Date &amp; Time</label>
+          <input type="datetime-local" class="form-control" id="f-end" />
+          <div class="form-hint">Leave blank for no auto-close.</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:0.5rem;">
+        <div class="toggle-row">
+          <div><div class="toggle-label">Public Results</div><div class="toggle-sub">Voters can see results after election closes</div></div>
+          <label class="toggle-switch"><input type="checkbox" id="f-public"><div class="toggle-track"></div></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Allow Abstain</div><div class="toggle-sub">Voters can skip a position without selecting</div></div>
+          <label class="toggle-switch"><input type="checkbox" id="f-abstain"><div class="toggle-track"></div></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="election-modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="election-modal-save">
+        <span class="btn-text">Save Election</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sidebar-dev-logo" /></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html"         class="nav-item"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Dashboard</a>
+      <a href="manage-elections.html"  class="nav-item active"><span class="nav-icon"><i data-lucide="check-square"></i></span> Elections</a>
+      <a href="manage-candidates.html" class="nav-item"><span class="nav-icon"><i data-lucide="user"></i></span> Candidates</a>
+      <a href="voter-management.html"  class="nav-item"><span class="nav-icon"><i data-lucide="users"></i></span> Voters</a>
+      <div class="nav-section">Voting</div>
+      <a href="token-generator.html"   class="nav-item"><span class="nav-icon"><i data-lucide="key-round"></i></span> Token Generator</a>
+      <a href="voting-control.html"    class="nav-item"><span class="nav-icon"><i data-lucide="settings"></i></span> Voting Control</a>
+      <a href="analytics.html"         class="nav-item"><span class="nav-icon"><i data-lucide="trending-up"></i></span> Analytics</a>
+      <div class="nav-section">System</div>
+      <a href="audit-logs.html"        class="nav-item"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Audit Logs</a>
+      <a href="settings.html"          class="nav-item"><span class="nav-icon"><i data-lucide="wrench"></i></span> Settings</a>
+      <a href="help.html"              class="nav-item"><span class="nav-icon"><i data-lucide="help-circle"></i></span> Help Center</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div><div class="user-name" id="user-name">Admin</div><div class="user-role">Administrator</div></div>
+        <div style="margin-left:auto"><button class="icon-btn" id="logout-btn"><i data-lucide="log-out"></i></button></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <div><div class="page-title">Manage Elections</div><div class="breadcrumb">Dashboard / Elections</div></div>
+      </div>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="topbar-btn" title="Dashboard"><i data-lucide="bar-chart-2"></i></a>
+        <button class="btn btn-primary" id="btn-new-election">+ New Election</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-header">
+        <div>
+          <h1>Elections</h1>
+          <p>Create, configure, and manage all voting elections. Click an election to manage its positions and candidates.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" id="btn-refresh"><i data-lucide="refresh-cw"></i> Refresh</button>
+          <button class="btn btn-primary" id="btn-new-election-2">+ New Election</button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span class="search-icon"><i data-lucide="search"></i></span>
+          <input type="text" id="search-input" placeholder="Search elections…" />
+        </div>
+        <select id="filter-status">
+          <option value="all">All Statuses</option>
+          <option value="draft">Draft</option>
+          <option value="active">Active</option>
+          <option value="paused">Paused</option>
+          <option value="closed">Closed</option>
+        </select>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
+
+      <!-- Elections Grid -->
+      <div class="elections-grid" id="elections-grid">
+        <div class="empty-state">
+          <div class="empty-icon">⏳</div>
+          <div class="empty-title">Loading elections…</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+import { requireAdmin } from '../src/assets/js/auth.js';
+import { supabase, fetchElections, createElection, updateElection, updateElectionStatus, deleteElection, fetchTotalVotes } from '../src/assets/js/supabase-client.js';
+import { showToast, formatDate, formatNumber, debounce } from '../src/assets/js/main.js';
+
+let elections = [];
+let editingId = null;
+
+// ── Init ──────────────────────────────────────────────────────
+async function init() {
+  const profile = await requireAdmin();
+  if (!profile) return;
+  document.getElementById('user-avatar').textContent = (profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
+  document.getElementById('user-name').textContent   = profile.full_name || profile.email || 'Admin';
+  await loadElections();
+}
+
+// ── Load & render elections ──────────────────────────────────
+async function loadElections() {
+  try {
+    elections = await fetchElections();
+    renderElections(elections);
+  } catch (err) {
+    showToast('Failed to load elections: ' + err.message, 'error');
+  }
+}
+
+function renderElections(list) {
+  const grid = document.getElementById('elections-grid');
+  document.getElementById('filter-count').textContent = `${list.length} election${list.length!==1?'s':''}`;
+
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon"><i data-lucide="check-square"></i></div>
+        <div class="empty-title">No elections found</div>
+        <p class="empty-sub">Create your first election to get started.</p>
+        <button class="btn btn-primary" id="btn-empty-new">+ Create Election</button>
+      </div>`;
+    document.getElementById('btn-empty-new')?.addEventListener('click', openNewModal);
+    return;
+  }
+
+  grid.innerHTML = list.map(e => `
+    <div class="election-card status-${e.status}" data-id="${e.id}">
+      <div class="ec-header">
+        <div>
+          <div class="ec-title">${e.name}</div>
+          ${e.description ? `<div class="ec-type">${e.description.slice(0,60)}${e.description.length>60?'...':''}</div>` : ''}
+        </div>
+        <span class="status-badge status-${e.status}">
+          ${e.status==='active'?'<span class="live-dot"></span>':''}
+          ${e.status.charAt(0).toUpperCase()+e.status.slice(1)}
+        </span>
+      </div>
+
+      <div class="ec-stats">
+        <div class="ec-stat"><div class="ec-stat-num" id="pos-${e.id}">-</div><div class="ec-stat-lbl">Positions</div></div>
+        <div class="ec-stat"><div class="ec-stat-num" id="voters-${e.id}">-</div><div class="ec-stat-lbl">Voters</div></div>
+        <div class="ec-stat"><div class="ec-stat-num" id="votes-${e.id}">-</div><div class="ec-stat-lbl">Votes</div></div>
+        <div class="ec-stat"><div class="ec-stat-num" id="turnout-${e.id}">-</div><div class="ec-stat-lbl">Turnout</div></div>
+      </div>
+
+      <div>
+        <div class="ec-turnout-label"><span>Voter Turnout</span><span id="pct-${e.id}">-%</span></div>
+        <div class="ec-turnout"><div class="ec-turnout-fill" id="bar-${e.id}" style="width:0%"></div></div>
+      </div>
+
+      <div class="ec-meta">
+        <span><i data-lucide="calendar"></i> Created ${formatDate(e.created_at)}</span>
+        ${e.ends_at ? `<span><i data-lucide="clock"></i> Ends ${formatDate(e.ends_at)}</span>` : ''}
+        ${e.public_results ? '<span><i data-lucide="globe"></i> Public results</span>' : ''}
+      </div>
+
+      <div class="ec-actions">
+        ${e.status==='draft'  ? `<button class="btn btn-success btn-sm" data-action="activate" data-id="${e.id}">&#9654; Activate</button>` : ''}
+        ${e.status==='active' ? `<button class="btn btn-warning btn-sm" data-action="pause"    data-id="${e.id}">&#9646;&#9646; Pause</button>` : ''}
+        ${e.status==='active' ? `<button class="btn btn-danger  btn-sm" data-action="close"    data-id="${e.id}"><i data-lucide="octagon"></i> Close</button>` : ''}
+        ${e.status==='paused' ? `<button class="btn btn-success btn-sm" data-action="activate" data-id="${e.id}">&#9654; Resume</button>` : ''}
+        ${e.status==='paused' ? `<button class="btn btn-danger  btn-sm" data-action="close"    data-id="${e.id}"><i data-lucide="octagon"></i> Close</button>` : ''}
+        <button class="btn btn-secondary btn-sm" data-action="edit"   data-id="${e.id}"><i data-lucide="pencil"></i> Edit</button>
+        <a href="manage-candidates.html?election=${e.id}" class="btn btn-secondary btn-sm"><i data-lucide="tag"></i> Positions &amp; Candidates</a>
+        <button class="btn btn-secondary btn-sm" data-action="delete" data-id="${e.id}" style="color:var(--danger);border-color:rgba(248,81,73,0.3)" title="Permanently delete this election">
+          <i data-lucide="trash-2"></i> Delete
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  // Load per-election stats async
+  list.forEach(async (e) => {
+    try {
+      const [{ count: vc }, { count: pc }] = await Promise.all([
+        supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',e.id),
+        supabase.from('positions').select('id',{count:'exact',head:true}).eq('election_id',e.id),
+      ]);
+      const votes = await fetchTotalVotes(e.id);
+      const pct   = vc > 0 ? ((votes/vc)*100).toFixed(1) : 0;
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      set(`pos-${e.id}`,     pc ?? 0);
+      set(`voters-${e.id}`,  formatNumber(vc));
+      set(`votes-${e.id}`,   formatNumber(votes));
+      set(`turnout-${e.id}`, pct+'%');
+      set(`pct-${e.id}`,     pct+'%');
+      const bar = document.getElementById(`bar-${e.id}`);
+      if (bar) bar.style.width = pct+'%';
+    } catch {}
+  });
+
+  // Event delegation
+  grid.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', handleAction);
+  });
+}
+
+async function handleAction(e) {
+  const action = e.currentTarget.dataset.action;
+  const id     = e.currentTarget.dataset.id;
+  const el     = elections.find(x => x.id === id);
+
+  if (action === 'edit') { openEditModal(el); return; }
+
+  if (action === 'delete') {
+    const isLive = el.status === 'active' || el.status === 'paused';
+    const warning = isLive
+      ? `⚠️ WARNING: "${el.name}" is currently ${el.status.toUpperCase()}. Deleting it will immediately stop voting and permanently erase all votes, tokens, positions, and candidates. This CANNOT be undone.`
+      : `Permanently delete "${el.name}"? All positions, candidates, voter tokens, and votes will be erased forever. This cannot be undone.`;
+    confirmAction(
+      isLive ? '⚠️ Delete Live Election' : '🗑️ Delete Election Permanently',
+      warning,
+      async () => {
+        try {
+          await deleteElection(id);
+          showToast(`"${el.name}" has been permanently deleted.`, 'success');
+          await loadElections();
+        } catch (err) { showToast(err.message, 'error'); }
+      },
+      'btn-danger',
+      isLive ? '🗑️ Yes, Delete Forever' : 'Delete Forever'
+    );
+    return;
+  }
+
+  const statusMap = { activate:'active', pause:'paused', close:'closed' };
+  const newStatus = statusMap[action];
+  if (!newStatus) return;
+
+  const messages = {
+    activate: `Activate "${el.name}"? Voters with valid tokens will be able to start voting immediately.`,
+    pause:    `Pause "${el.name}"? Voting will be temporarily suspended. You can resume at any time.`,
+    close:    `Close "${el.name}"? This will permanently end voting. Results will be final.`,
+  };
+
+  confirmAction(
+    action === 'close' ? 'Close Election' : action === 'pause' ? 'Pause Election' : 'Activate Election',
+    messages[action],
+    async () => {
+      try {
+        await updateElectionStatus(id, newStatus);
+        showToast(`Election ${newStatus}.`, 'success');
+        await loadElections();
+      } catch (err) { showToast(err.message, 'error'); }
+    },
+    action === 'close' ? 'btn-danger' : action === 'pause' ? 'btn-warning' : 'btn-success',
+    action === 'close' ? 'Close Election' : action === 'pause' ? 'Pause Election' : 'Activate Now'
+  );
+}
+
+// ── Filtering ─────────────────────────────────────────────────
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const status = document.getElementById('filter-status').value;
+  const filtered = elections.filter(e =>
+    (status === 'all' || e.status === status) &&
+    (e.name.toLowerCase().includes(search) || (e.description||'').toLowerCase().includes(search))
+  );
+  renderElections(filtered);
+}
+
+document.getElementById('search-input').addEventListener('input',   debounce(applyFilters, 200));
+document.getElementById('filter-status').addEventListener('change', applyFilters);
+
+// ── Modal helpers ─────────────────────────────────────────────
+const overlay = document.getElementById('election-modal-overlay');
+function openNewModal() {
+  editingId = null;
+  document.getElementById('election-modal-title').textContent = '+ Create Election';
+  document.getElementById('election-modal-save').querySelector('.btn-text').textContent = 'Create Election';
+  clearForm();
+  overlay.classList.add('open');
+}
+function openEditModal(el) {
+  editingId = el.id;
+  document.getElementById('election-modal-title').textContent = 'Edit Election';
+  document.getElementById('election-modal-save').querySelector('.btn-text').textContent = 'Save Changes';
+  document.getElementById('f-name').value    = el.name || '';
+  document.getElementById('f-desc').value    = el.description || '';
+  document.getElementById('f-start').value   = el.starts_at ? el.starts_at.slice(0,16) : '';
+  document.getElementById('f-end').value     = el.ends_at   ? el.ends_at.slice(0,16)   : '';
+  document.getElementById('f-public').checked  = el.public_results || false;
+  document.getElementById('f-abstain').checked = el.allow_abstain  || false;
+  overlay.classList.add('open');
+}
+function closeModal() { overlay.classList.remove('open'); clearForm(); }
+function clearForm() {
+  ['f-name','f-desc','f-start','f-end'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-public').checked = false;
+  document.getElementById('f-abstain').checked = false;
+  document.getElementById('modal-error').style.display = 'none';
+}
+
+// ── Save election ─────────────────────────────────────────────
+document.getElementById('election-modal-save').addEventListener('click', async () => {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showModalError('Election name is required.'); return; }
+  const payload = {
+    name,
+    description:    document.getElementById('f-desc').value.trim() || null,
+    starts_at:      document.getElementById('f-start').value || null,
+    ends_at:        document.getElementById('f-end').value   || null,
+    public_results: document.getElementById('f-public').checked,
+    allow_abstain:  document.getElementById('f-abstain').checked,
+  };
+  const btn = document.getElementById('election-modal-save');
+  btn.disabled = true;
+  btn.querySelector('.btn-text').textContent = 'Saving...';
+  try {
+    if (editingId) { await updateElection(editingId, payload); showToast('Election updated!', 'success'); }
+    else           { await createElection(payload);            showToast('Election created!', 'success'); }
+    closeModal();
+    await loadElections();
+  } catch (err) {
+    showModalError(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.querySelector('.btn-text').textContent = editingId ? 'Save Changes' : 'Create Election';
+  }
+});
+
+function showModalError(msg) {
+  const el = document.getElementById('modal-error');
+  el.textContent = msg;
+  el.style.display = 'flex';
+}
+
+// ── Confirm modal ─────────────────────────────────────────────
+let _confirmCb = null;
+window.confirmAction = function(title, body, cb, btnClass, btnLabel) {
+  btnClass = btnClass || 'btn-danger';
+  btnLabel = btnLabel || 'Confirm';
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-body').textContent  = body;
+  const ok = document.getElementById('confirm-ok');
+  ok.className = `btn ${btnClass}`;
+  ok.textContent = btnLabel;
+  _confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+};
+document.getElementById('confirm-ok').addEventListener('click', async () => {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if (_confirmCb) await _confirmCb();
+});
+document.getElementById('confirm-cancel').addEventListener('click', () => {
+  document.getElementById('confirm-overlay').classList.remove('open');
+});
+
+// ── Wire buttons ──────────────────────────────────────────────
+document.getElementById('btn-new-election').addEventListener('click',  openNewModal);
+document.getElementById('btn-new-election-2').addEventListener('click',openNewModal);
+document.getElementById('btn-refresh').addEventListener('click', async () => { await loadElections(); showToast('Refreshed!', 'success'); });
+document.getElementById('election-modal-close').addEventListener('click',  closeModal);
+document.getElementById('election-modal-cancel').addEventListener('click', closeModal);
+overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+document.getElementById('hamburger').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('logout-btn').addEventListener('click', () => { import('../src/assets/js/auth.js').then(m => m.adminLogout()); });
+
+init();
+</script>
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

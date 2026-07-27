@@ -1,0 +1,794 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="STACKWEB Admin Login — Secure administrator access to the Online Voting System." />
+  <title>Admin Login — STACKWEB</title>
+  <link rel="icon" href="../public/favicon/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary:      #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-glow: rgba(79,70,229,0.25);
+      --secondary:    #14b8a6;
+      --success:      #3fb950;
+      --warning:      #d29922;
+      --danger:       #f85149;
+      --bg:           #0d1117;
+      --bg-card:      #161b22;
+      --bg-input:     #0d1117;
+      --border:       #21262d;
+      --text-1:       #e6edf3;
+      --text-2:       #8b949e;
+      --text-muted:   #484f58;
+      --font-body:    'Inter', sans-serif;
+      --font-head:    'Poppins', sans-serif;
+      --radius:       12px;
+      --radius-sm:    8px;
+      --radius-lg:    18px;
+      --transition:   220ms ease;
+    }
+    html { height: 100%; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Background ──────────────────────────────────────── */
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(90px); will-change: transform; transform: translateZ(0); }
+    .orb-1 { width: 550px; height: 550px; background: rgba(79,70,229,0.1); top: -180px; left: -120px; animation: drift 20s ease-in-out infinite alternate; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(20,184,166,0.07); bottom: -100px; right: -100px; animation: drift 18s ease-in-out infinite alternate-reverse; }
+    @keyframes drift { 0%{transform:translate(0,0)} 100%{transform:translate(50px,60px)} }
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Left Panel (branding) ───────────────────────────── */
+    .left-panel {
+      background: linear-gradient(160deg, rgba(79,70,229,0.12) 0%, rgba(20,184,166,0.05) 100%);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 4rem 3rem;
+    }
+    .brand-logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-weight: 900; font-size: 1.5rem; color: #fff;
+      box-shadow: 0 0 32px rgba(79,70,229,0.4);
+      margin-bottom: 2rem;
+    }
+    .brand-name {
+      font-family: var(--font-head); font-weight: 900;
+      font-size: 2.5rem; line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .brand-tagline {
+      font-size: 1rem; color: var(--text-2); margin-bottom: 3rem;
+    }
+    .left-features { display: flex; flex-direction: column; gap: 1.25rem; }
+    .left-feat {
+      display: flex; align-items: flex-start; gap: 0.875rem;
+    }
+    .left-feat-icon {
+      width: 38px; height: 38px; flex-shrink: 0;
+      background: rgba(79,70,229,0.12);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .left-feat-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .left-feat-desc  { font-size: 0.8rem; color: var(--text-2); }
+    .left-panel-footer {
+      margin-top: auto; padding-top: 3rem;
+      font-size: 0.75rem; color: var(--text-muted);
+    }
+
+    /* ── Right Panel (form) ──────────────────────────────── */
+    .right-panel {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 3rem 2rem;
+    }
+    .login-card {
+      width: min(400px, 100%);
+      animation: slideUp 0.5s ease;
+    }
+    @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    .login-header { margin-bottom: 2rem; }
+    .login-title {
+      font-family: var(--font-head); font-size: 1.75rem; font-weight: 800;
+      margin-bottom: 0.375rem;
+    }
+    .login-sub { font-size: 0.875rem; color: var(--text-2); }
+
+    /* ── Live Stats bar ──────────────────────────────────── */
+    .stats-bar {
+      background: rgba(79,70,229,0.07);
+      border: 1px solid rgba(79,70,229,0.2);
+      border-radius: var(--radius-sm);
+      padding: 0.625rem 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; color: var(--text-2);
+      margin-bottom: 1.75rem;
+    }
+    .stats-bar-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+    .stats-bar-text { font-weight: 500; }
+    .stats-bar-text span { color: var(--text-1); font-weight: 600; }
+
+    /* ── Form ────────────────────────────────────────────── */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label {
+      display: block;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--text-2); margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-1);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 0.7rem 0.875rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .form-control::placeholder { color: var(--text-muted); }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .form-control.valid   { border-color: var(--success); }
+    .form-control.invalid { border-color: var(--danger); }
+    .form-control.valid:focus   { box-shadow: 0 0 0 3px rgba(63,185,80,0.2); }
+
+    /* Input with icon */
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 0.75rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem; color: var(--text-muted);
+      pointer-events: none;
+    }
+    .input-wrap .form-control { padding-left: 2.25rem; }
+    .input-action {
+      position: absolute; right: 0.75rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 0.9rem;
+      padding: 2px; transition: color var(--transition);
+    }
+    .input-action:hover { color: var(--text-1); }
+    .input-wrap .form-control.has-action { padding-right: 2.25rem; }
+
+    /* Password strength */
+    .pw-strength { margin-top: 0.375rem; display: none; }
+    .pw-strength-bar {
+      height: 3px; border-radius: 99px;
+      background: var(--border); overflow: hidden; margin-bottom: 0.25rem;
+    }
+    .pw-strength-fill {
+      height: 100%; border-radius: 99px;
+      transition: width 0.3s ease, background 0.3s ease;
+      width: 0%;
+    }
+    .pw-strength-text { font-size: 0.7rem; }
+
+    /* Email validation tick */
+    .email-tick {
+      position: absolute; right: 0.75rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem; opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .email-tick.show { opacity: 1; }
+
+    /* Form extra row */
+    .form-extra {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .check-wrap { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+    .check-wrap input[type="checkbox"] { accent-color: var(--primary); width: 14px; height: 14px; }
+    .check-wrap label { font-size: 0.8rem; color: var(--text-2); cursor: pointer; }
+    .forgot-link { font-size: 0.8rem; color: var(--primary); text-decoration: none; }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* ── Errors ──────────────────────────────────────────── */
+    .error-banner {
+      background: rgba(248,81,73,0.1);
+      border: 1px solid rgba(248,81,73,0.3);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      font-size: 0.83rem; color: var(--danger);
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 1rem; display: none;
+    }
+    .error-banner.show { display: flex; }
+
+    /* ── Submit ──────────────────────────────────────────── */
+    .submit-btn {
+      width: 100%; padding: 0.825rem;
+      background: var(--primary); border: none;
+      border-radius: var(--radius-sm);
+      color: #fff; font-family: var(--font-body);
+      font-size: 0.95rem; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: all var(--transition);
+      margin-bottom: 1rem;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background: var(--primary-dark); transform: translateY(-1px);
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+    .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: none;
+    }
+    .loading .spinner { display: block; }
+    .loading .btn-text { display: none; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* ── Divider ─────────────────────────────────────────── */
+    .divider {
+      display: flex; align-items: center; gap: 0.75rem;
+      color: var(--text-muted); font-size: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* ── Magic Link ──────────────────────────────────────── */
+    .magic-btn {
+      width: 100%; padding: 0.75rem;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-1); font-family: var(--font-body);
+      font-size: 0.875rem; font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: all var(--transition);
+      margin-bottom: 1.75rem;
+    }
+    .magic-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(79,70,229,0.06); }
+
+    /* ── Attempt warning ─────────────────────────────────── */
+    .attempt-warning {
+      background: rgba(210,153,34,0.1);
+      border: 1px solid rgba(210,153,34,0.3);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.875rem;
+      font-size: 0.78rem; color: var(--warning);
+      display: none; margin-bottom: 1rem;
+    }
+    .attempt-warning.show { display: block; }
+
+    /* ── Back link ───────────────────────────────────────── */
+    .back-row {
+      text-align: center; margin-top: 0.5rem;
+      font-size: 0.8rem; color: var(--text-muted);
+    }
+    .back-row a { color: var(--text-2); text-decoration: none; }
+    .back-row a:hover { color: var(--primary); }
+
+    /* ── Security footer ─────────────────────────────────── */
+    .sec-footer {
+      display: flex; justify-content: center; gap: 1.25rem; flex-wrap: wrap;
+      margin-top: 2rem; padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .sec-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--text-muted); }
+
+    /* ── Role Toggle ─────────────────────────────────────── */
+    .role-toggle {
+      display: flex; gap: 0; margin-bottom: 1.75rem;
+      background: var(--bg-input); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 4px;
+    }
+    .role-btn {
+      flex: 1; padding: 0.5rem; border: none; border-radius: 6px;
+      font-family: var(--font-body); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition);
+      background: transparent; color: var(--text-2);
+    }
+    .role-btn.active {
+      background: var(--primary); color: #fff;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+    }
+    .role-btn:not(.active):hover { color: var(--text-1); background: rgba(255,255,255,0.04); }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .page { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 2rem 1.25rem; min-height: 100vh; }
+    }
+      
+    
+        
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<div class="page">
+
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="brand-logo-img" style="height:52px;width:auto;margin-bottom:0.5rem;" />
+    <div class="brand-tagline">Online Voting System</div>
+
+    <div class="left-features">
+      <div class="left-feat">
+        <div class="left-feat-icon"><i data-lucide="check-square"></i></div>
+        <div>
+          <div class="left-feat-title">Manage Elections</div>
+          <div class="left-feat-desc">Create, configure, and control multiple election types with ease.</div>
+        </div>
+      </div>
+      <div class="left-feat">
+        <div class="left-feat-icon"><i data-lucide="bar-chart-2"></i></div>
+        <div>
+          <div class="left-feat-title">Live Analytics</div>
+          <div class="left-feat-desc">Watch vote tallies update in real-time with beautiful interactive charts.</div>
+        </div>
+      </div>
+      <div class="left-feat">
+        <div class="left-feat-icon"><i data-lucide="key-round"></i></div>
+        <div>
+          <div class="left-feat-title">Token Management</div>
+          <div class="left-feat-desc">Generate, distribute, and revoke voter tokens with a single click.</div>
+        </div>
+      </div>
+      <div class="left-feat">
+        <div class="left-feat-icon"><i data-lucide="clipboard-list"></i></div>
+        <div>
+          <div class="left-feat-title">Full Audit Trail</div>
+          <div class="left-feat-desc">Every action is logged. Complete transparency for accountability.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-panel-footer">
+      <a href="../index.html" style="color:var(--text-muted);text-decoration:none"><i data-lucide="arrow-left"></i> Back to Home</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <a href="../voter/landing.html" style="color:var(--text-muted);text-decoration:none">Voter Portal <i data-lucide="arrow-right"></i></a>
+    </div>
+  </div>
+
+  <!-- Right Panel / Login Form -->
+  <div class="right-panel">
+    <div class="login-card">
+
+      <!-- Role Toggle -->
+      <div class="role-toggle" id="role-toggle">
+        <button class="role-btn active" id="role-admin" type="button"><i data-lucide="wrench"></i> Admin</button>
+        <button class="role-btn" id="role-operator" type="button"><i data-lucide="key-round"></i> Token Operator</button>
+      </div>
+
+      <div class="login-header">
+        <h1 class="login-title" id="login-title">Admin Sign In</h1>
+        <p class="login-sub" id="login-sub">Access the voting system command center.</p>
+      </div>
+
+      <!-- Live system stats -->
+      <div class="stats-bar">
+        <div class="stats-bar-dot"></div>
+        <div class="stats-bar-text" id="system-stats">System online · Loading stats…</div>
+      </div>
+
+      <!-- Error Banner -->
+      <div class="error-banner" id="error-banner" role="alert">
+        <span><i data-lucide="alert-triangle"></i></span>
+        <span id="error-msg">Invalid email or password. Please try again.</span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="admin-login-form" novalidate>
+
+        <!-- Email (Admin only) -->
+        <div class="form-group" id="field-email">
+          <label class="form-label" for="admin-email">Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉</span>
+            <input
+              type="email" id="admin-email"
+              class="form-control" placeholder="admin@school.edu"
+              autocomplete="email"
+            />
+            <span class="email-tick" id="email-tick"><i data-lucide="check-circle-2"></i></span>
+          </div>
+        </div>
+
+        <!-- Username (Operator only) -->
+        <div class="form-group" id="field-username" style="display:none">
+          <label class="form-label" for="op-username">Username</label>
+          <div class="input-wrap">
+            <span class="input-icon"><i data-lucide="user"></i></span>
+            <input
+              type="text" id="op-username"
+              class="form-control" placeholder="Operator username"
+              autocomplete="username" autocapitalize="none"
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="admin-password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon"><i data-lucide="lock"></i></span>
+            <input
+              type="password" id="admin-password"
+              class="form-control has-action"
+              placeholder="Enter your password"
+              autocomplete="current-password" required
+            />
+            <button type="button" class="input-action" id="pw-toggle" aria-label="Toggle password"><i data-lucide="eye"></i></button>
+          </div>
+          <div class="pw-strength" id="pw-strength">
+            <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
+            <div class="pw-strength-text" id="pw-strength-text"></div>
+          </div>
+        </div>
+
+        <!-- Remember me + Forgot password -->
+        <div class="form-extra">
+          <div class="check-wrap">
+            <input type="checkbox" id="remember-me" />
+            <label for="remember-me">Remember me</label>
+          </div>
+          <a href="#" class="forgot-link" id="forgot-link">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="login-btn" class="submit-btn">
+          <div class="spinner"></div>
+          <span class="btn-text" id="btn-text">Sign in to Admin Panel</span>
+        </button>
+
+      </form>
+
+      <!-- Back -->
+      <div class="back-row">
+        Not an admin? <a href="../voter/landing.html">Go to Voter Portal <i data-lucide="arrow-right"></i></a>
+        &nbsp;·&nbsp; <a href="help.html" style="color:var(--text-muted)"><i data-lucide="help-circle"></i> Help</a>
+      </div>
+
+      <!-- Security -->
+      <div class="sec-footer">
+        <div class="sec-item"><i data-lucide="lock"></i> SSL Encrypted</div>
+        <div class="sec-item"><i data-lucide="shield-check"></i> Role Protected</div>
+        <div class="sec-item"><i data-lucide="clipboard-list"></i> Audit Logged</div>
+        <div class="sec-item"><i data-lucide="ban"></i> IP Lockout</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { adminLogin } from '../src/assets/js/auth.js';
+  import { supabase }   from '../src/assets/js/supabase-client.js';
+
+  const form        = document.getElementById('admin-login-form');
+  const emailInput  = document.getElementById('admin-email');
+  const opInput     = document.getElementById('op-username');
+  const pwInput     = document.getElementById('admin-password');
+  const loginBtn    = document.getElementById('login-btn');
+  const errorBanner = document.getElementById('error-banner');
+  const errorMsg    = document.getElementById('error-msg');
+  const emailTick   = document.getElementById('email-tick');
+  const pwToggle    = document.getElementById('pw-toggle');
+  const pwStrength  = document.getElementById('pw-strength');
+  const pwFill      = document.getElementById('pw-fill');
+  const pwText      = document.getElementById('pw-strength-text');
+  const statsEl     = document.getElementById('system-stats');
+
+  let mode = 'admin'; // 'admin' | 'operator'
+
+  // ── Role Toggle ──────────────────────────────────────────
+  document.getElementById('role-admin').addEventListener('click', () => setMode('admin'));
+  document.getElementById('role-operator').addEventListener('click', () => setMode('operator'));
+
+  function setMode(m) {
+    mode = m;
+    const isOp = m === 'operator';
+    document.getElementById('role-admin').classList.toggle('active', !isOp);
+    document.getElementById('role-operator').classList.toggle('active', isOp);
+    document.getElementById('field-email').style.display    = isOp ? 'none' : '';
+    document.getElementById('field-username').style.display = isOp ? '' : 'none';
+    document.getElementById('login-title').textContent = isOp ? 'Operator Sign In' : 'Admin Sign In';
+    document.getElementById('login-sub').textContent   = isOp
+      ? 'Log in to generate voter tokens for this election.'
+      : 'Access the voting system command center.';
+    document.getElementById('btn-text').textContent = isOp ? 'Sign in to Token Portal' : 'Sign in to Admin Panel';
+    errorBanner.classList.remove('show');
+    pwStrength.style.display = 'none';
+    if (isOp) opInput.focus(); else emailInput.focus();
+  }
+
+  // ── Load live system stats ───────────────────────────────
+  async function loadStats() {
+    try {
+      const [el, vl] = await Promise.all([
+        supabase.from('elections').select('id',{count:'exact',head:true}).eq('status','active'),
+        supabase.from('voters').select('id',{count:'exact',head:true}),
+      ]);
+      statsEl.innerHTML = `System online &nbsp;·&nbsp; <span>${el.count ?? 0} active election${el.count!==1?'s':''}</span> &nbsp;·&nbsp; <span>${(vl.count??0).toLocaleString()} voters registered</span>`;
+    } catch {
+      statsEl.textContent = 'System online';
+    }
+  }
+  loadStats();
+
+  // ── Email validation ─────────────────────────────────────
+  emailInput.addEventListener('input', () => {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+    emailTick.classList.toggle('show', valid);
+    emailInput.classList.toggle('valid', valid);
+  });
+
+  // ── Password toggle ──────────────────────────────────────
+  pwToggle.addEventListener('click', () => {
+    const isHidden = pwInput.type === 'password';
+    pwInput.type   = isHidden ? 'text' : 'password';
+    pwToggle.innerHTML = isHidden ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>';
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  // ── Password strength ────────────────────────────────────
+  pwInput.addEventListener('input', () => {
+    const v = pwInput.value;
+    if (!v) { pwStrength.style.display = 'none'; return; }
+    pwStrength.style.display = 'block';
+    let score = 0;
+    if (v.length >= 8)  score++;
+    if (/[A-Z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    const colors = ['', '#f85149', '#d29922', '#58a6ff', '#3fb950'];
+    const widths = ['0%', '25%', '50%', '75%', '100%'];
+    pwFill.style.width      = widths[score];
+    pwFill.style.background = colors[score];
+    pwText.textContent      = labels[score];
+    pwText.style.color      = colors[score];
+  });
+
+  // ── Check lockout ────────────────────────────────────────
+  function isLockedOut() {
+    const until = localStorage.getItem(LOCKOUT_KEY);
+    if (!until) return false;
+    if (Date.now() < parseInt(until)) return true;
+    localStorage.removeItem(LOCKOUT_KEY);
+    localStorage.setItem('sw_fails', '0');
+    failedAttempts = 0;
+    return false;
+  }
+
+  function updateAttemptWarning() {
+    if (failedAttempts >= 2) {
+      const remaining = MAX_ATTEMPTS - failedAttempts;
+      attemptText.textContent = `Warning: ${failedAttempts} of ${MAX_ATTEMPTS} attempts used. ${remaining} attempt${remaining!==1?'s':''} remaining before 15-minute lockout.`;
+      attemptWarn.classList.add('show');
+    }
+  }
+
+  // ── Form submit ──────────────────────────────────────────
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = emailInput.value.trim();
+    const pw    = pwInput.value;
+
+    errorBanner.classList.remove('show');
+    loginBtn.classList.add('loading');
+    loginBtn.disabled = true;
+
+    try {
+      // ── Operator login ──────────────────────────────────
+      if (mode === 'operator') {
+        const username = opInput.value.trim();
+        const password = pwInput.value;
+        if (!username || !password) {
+          errorMsg.textContent = 'Please enter both username and password.';
+          errorBanner.classList.add('show');
+          loginBtn.classList.remove('loading'); loginBtn.disabled = false;
+          return;
+        }
+        const { data, error } = await supabase
+          .from('settings')
+          .select('operator_username, operator_password, operator_enabled')
+          .limit(1).single();
+        if (error || !data) throw new Error('Cannot connect to system settings. Run the database migration SQL in Supabase.');
+        // Fallback to schema defaults if migration not yet applied
+        const correctUser = data.operator_username || 'tokenstaff';
+        const correctPass = data.operator_password || 'ChangeMe123';
+        const isEnabled   = data.operator_enabled !== false;
+        if (!isEnabled) throw new Error('Token operator access is currently disabled. Contact the administrator.');
+        if (username !== correctUser || password !== correctPass) {
+          throw new Error('Invalid username or password. Contact your administrator for credentials.');
+        }
+        sessionStorage.setItem('op_session', JSON.stringify({ valid: true, ts: Date.now(), username }));
+        loginBtn.querySelector('.btn-text').innerHTML = '<i data-lucide="check-circle-2"></i> Redirecting…';
+        if (window.lucide) window.lucide.createIcons();
+        setTimeout(() => window.location.href = '../operator/token-portal.html', 600);
+        return;
+      }
+
+      // ── Admin login ──────────────────────────────────────
+      if (!email || !pw) {
+        errorMsg.textContent = 'Please fill in both email and password.';
+        errorBanner.classList.add('show');
+        loginBtn.classList.remove('loading'); loginBtn.disabled = false;
+        return;
+      }
+      await adminLogin(email, pw);
+      if (document.getElementById('remember-me').checked) {
+        localStorage.setItem('sw_remember_email', email);
+      }
+      loginBtn.querySelector('.btn-text').innerHTML = '<i data-lucide="check-circle-2"></i> Redirecting…';
+      if (window.lucide) window.lucide.createIcons();
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
+
+    } catch (err) {
+      console.error('[STACKWEB] Login error:', err);
+
+      // Map error messages to user-friendly text
+      let msg = err.message || 'Login failed. Please try again.';
+      if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
+        msg = 'Incorrect email or password. Please check and try again.';
+      } else if (msg.includes('Email not confirmed')) {
+        msg = 'Your email is not confirmed yet. Check your inbox for a confirmation link.';
+      } else if (msg.includes('Profile not found')) {
+        msg = 'Login succeeded but your admin profile is missing. Run the profiles INSERT in Supabase SQL Editor.';
+      } else if (msg.includes('admin privileges')) {
+        msg = 'This account does not have admin or superadmin role. Update the role in the profiles table.';
+      } else if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
+        msg = 'Cannot reach the server. Check your internet connection or whether your Supabase project is paused.';
+      }
+
+      errorMsg.textContent = msg;
+      errorBanner.classList.add('show');
+      pwInput.value = '';
+      pwInput.focus();
+
+    } finally {
+      loginBtn.classList.remove('loading');
+      loginBtn.disabled = false;
+    }
+  });
+
+  // ── Forgot password ──────────────────────────────────────
+  document.getElementById('forgot-link').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    if (!email) {
+      errorMsg.textContent = 'Enter your email address, then click Forgot Password.';
+      errorBanner.classList.add('show');
+      emailInput.focus();
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) throw error;
+      errorBanner.classList.remove('show');
+      statsEl.innerHTML = '<i data-lucide="check-circle-2"></i> Password reset email sent! Check your inbox.';
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorBanner.classList.add('show');
+    }
+  });
+
+  // ── Pre-fill remembered email ────────────────────────────
+  const remembered = localStorage.getItem('sw_remember_email');
+  if (remembered) {
+    emailInput.value = remembered;
+    document.getElementById('remember-me').checked = true;
+    emailTick.classList.add('show');
+    emailInput.classList.add('valid');
+  }
+
+</script>
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

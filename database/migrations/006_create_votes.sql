@@ -1,0 +1,1 @@
+-- 006_create_votes.sql

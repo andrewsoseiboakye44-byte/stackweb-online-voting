@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB — Page Not Found or Access Denied"/>
+  <title>Error — STACKWEB</title>
+  <link rel="icon" href="../../public/favicon/favicon.ico"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#4f46e5;--danger:#f85149;--bg:#0d1117;--bg-card:#161b22;
+      --border:#21262d;--text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;
+      --font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;
+    }
+    html,body{min-height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;}
+    body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;}
+
+    /* Animated background orbs */
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.12;pointer-events:none;z-index:0;will-change:transform;transform:translateZ(0)}
+    .orb-1{width:500px;height:500px;background:var(--primary);top:-150px;left:-150px;}
+    .orb-2{width:400px;height:400px;background:#f85149;bottom:-100px;right:-100px;}
+
+    .card{
+      position:relative;z-index:1;
+      background:var(--bg-card);border:1px solid var(--border);border-radius:20px;
+      padding:3rem 2.5rem;max-width:520px;width:100%;
+      box-shadow:0 24px 64px rgba(0,0,0,0.5);
+      animation:fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    .error-code{
+      font-family:var(--font-head);font-size:7rem;font-weight:900;line-height:1;
+      background:linear-gradient(135deg,#4f46e5,#f85149);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      margin-bottom:0.5rem;
+      animation:glitch 3s infinite;
+    }
+    @keyframes glitch{
+      0%,90%,100%{transform:translate(0)}
+      92%{transform:translate(-2px,1px)}
+      94%{transform:translate(2px,-1px)}
+      96%{transform:translate(-1px,2px)}
+    }
+    .error-title{font-family:var(--font-head);font-size:1.5rem;font-weight:800;margin-bottom:0.75rem;}
+    .error-msg{font-size:0.9rem;color:var(--text-2);line-height:1.7;margin-bottom:2rem;}
+
+    .actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+    .btn{
+      display:inline-flex;align-items:center;gap:0.4rem;
+      padding:0.65rem 1.35rem;border-radius:10px;
+      font-family:var(--font-body);font-size:0.875rem;font-weight:600;
+      cursor:pointer;border:none;text-decoration:none;transition:all 220ms ease;
+    }
+    .btn-primary{background:linear-gradient(135deg,var(--primary),#4338ca);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,0.3);}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.4);}
+    .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text-2);}
+    .btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+
+    .footer-note{margin-top:2rem;font-size:0.75rem;color:var(--text-muted);}
+    .footer-note a{color:var(--primary);text-decoration:none;}
+    .footer-note a:hover{text-decoration:underline;}
+
+    .divider{margin:1.5rem 0;border:none;border-top:1px solid var(--border);}
+
+    .detail-box{
+      background:rgba(248,81,73,0.06);border:1px solid rgba(248,81,73,0.2);
+      border-radius:8px;padding:0.75rem 1rem;font-size:0.8rem;
+      color:#f85149;text-align:left;margin-bottom:1.5rem;display:none;
+    }
+    .detail-box.show{display:block;}
+
+    @media(max-width:480px){
+      .card{padding:2rem 1.5rem;}
+      .error-code{font-size:5rem;}
+      .error-title{font-size:1.2rem;}
+    }
+      
+    
+        
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="card">
+    <div class="error-code" id="err-code">404</div>
+    <div class="error-title" id="err-title">Page Not Found</div>
+    <p class="error-msg" id="err-msg">
+      The page you're looking for doesn't exist or has been moved.
+      Please check the URL or navigate back to a known page.
+    </p>
+
+    <div class="detail-box" id="detail-box" role="alert"></div>
+
+    <div class="actions">
+      <a href="../../index.html" class="btn btn-primary" id="btn-home"><i data-lucide="home"></i> Go Home</a>
+      <button class="btn btn-secondary" onclick="history.back()"><i data-lucide="arrow-left"></i> Go Back</button>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="actions">
+      <a href="../voter/landing.html" class="btn btn-secondary"><i data-lucide="check-square"></i> Vote Portal</a>
+      <a href="../admin/index.html"   class="btn btn-secondary"><i data-lucide="lock"></i> Admin Login</a>
+    </div>
+
+    <p class="footer-note">
+      STACKWEB Online Voting System &nbsp;·&nbsp;
+      <a href="../../index.html">Return to homepage</a>
+    </p>
+  </div>
+
+  <script>
+    // Read query params: ?code=403&msg=Access+denied&detail=Session+expired
+    const params   = new URLSearchParams(window.location.search);
+    const code     = params.get('code');
+    const msg      = params.get('msg');
+    const detail   = params.get('detail');
+
+    const ERROR_MAP = {
+      '403': { title: 'Access Denied',       msg: 'You don\'t have permission to view this page. Please log in with an authorised account.' },
+      '404': { title: 'Page Not Found',      msg: 'The page you\'re looking for doesn\'t exist or has been moved. Please check the URL or navigate back to a known page.' },
+      '401': { title: 'Authentication Required', msg: 'You must be logged in to access this page. Please sign in and try again.' },
+      '500': { title: 'Server Error',        msg: 'Something went wrong on our end. Please try again in a moment or contact your administrator.' },
+      'session': { title: 'Session Expired', msg: 'Your session has expired for security reasons. Please log in again to continue.' },
+    };
+
+    const key   = code || '404';
+    const entry = ERROR_MAP[key] || ERROR_MAP['404'];
+
+    document.getElementById('err-code').textContent  = (code && /^\d+$/.test(code)) ? code : '<i data-lucide="alert-triangle"></i>';
+    document.getElementById('err-title').textContent = msg    || entry.title;
+    document.getElementById('err-msg').textContent   = entry.msg;
+
+    if (detail) {
+      const box = document.getElementById('detail-box');
+      box.innerHTML = '<i data-lucide="alert-triangle"></i> ' + detail;
+      window.initIcons?.();
+      box.classList.add('show');
+    }
+
+    // Adjust "Go Home" link based on referrer context
+    if (window.location.pathname.includes('/admin/')) {
+      document.getElementById('btn-home').href = '../admin/index.html';
+      document.getElementById('btn-home').innerHTML = '<i data-lucide="arrow-left"></i> Admin Login'; window.initIcons?.();
+    } else if (window.location.pathname.includes('/voter/')) {
+      document.getElementById('btn-home').href = '../voter/landing.html';
+      document.getElementById('btn-home').innerHTML = '<i data-lucide="arrow-left"></i> Voter Portal'; window.initIcons?.();
+    }
+  </script>
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

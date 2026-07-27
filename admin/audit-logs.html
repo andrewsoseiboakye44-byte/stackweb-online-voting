@@ -1,0 +1,355 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB — Audit Logs. Full system activity trail with filters and export."/>
+  <title>Audit Logs — STACKWEB Admin</title>
+  <link rel="icon" href="../public/favicon/favicon.ico"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--primary:#4f46e5;--secondary:#14b8a6;--success:#3fb950;--warning:#d29922;--danger:#f85149;--bg:#0d1117;--bg-card:#161b22;--bg-sidebar:#010409;--border:#21262d;--text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;--font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;--font-mono:'JetBrains Mono',monospace;--radius:12px;--radius-sm:8px;--radius-lg:16px;--sidebar-w:260px;--topbar-h:64px;--shadow:0 4px 20px rgba(0,0,0,0.4);--transition:220ms ease;}
+    html,body{height:100%;}body{font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}ul{list-style:none;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+    .shell{display:flex;min-height:100vh;}
+    .sidebar{width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;transition:transform var(--transition);}
+    .sidebar-brand{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
+    .brand-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;color:#fff;}
+    .brand-name{font-family:var(--font-head);font-weight:800;font-size:1.05rem;}.brand-sub{font-size:0.68rem;color:var(--text-muted);}
+    .sidebar-nav{flex:1;padding:0.75rem 0;}
+    .nav-section{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:0.875rem 1.25rem 0.375rem;}
+    .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.25rem;color:var(--text-2);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all var(--transition);position:relative;}
+    .nav-item:hover{color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-item.active{color:var(--primary);background:rgba(79,70,229,0.08);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);border-radius:0 2px 2px 0;}
+    .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+    .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);}
+    .user-row{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;border-radius:var(--radius-sm);}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.875rem;}
+    .user-name{font-size:0.8rem;font-weight:600;}.user-role{font-size:0.7rem;color:var(--text-muted);}
+    .icon-btn{width:28px;height:28px;border-radius:6px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.75rem;transition:all var(--transition);}
+    .icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{height:var(--topbar-h);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;}
+    .topbar-left{display:flex;align-items:center;gap:1rem;}
+    .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-1);border-radius:2px;}
+    .page-title{font-size:1.05rem;font-weight:700;}.breadcrumb{font-size:0.72rem;color:var(--text-muted);}
+    .topbar-right{display:flex;gap:0.75rem;align-items:center;}
+    .content{padding:2rem;flex:1;}
+    .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);white-space:nowrap;}
+    .btn-secondary{background:transparent;color:var(--text-1);border:1px solid var(--border);}.btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-sm{padding:0.375rem 0.75rem;font-size:0.78rem;}
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;}
+    .page-header h1{font-family:var(--font-head);font-size:1.75rem;font-weight:800;}
+    .page-header p{font-size:0.85rem;color:var(--text-2);margin-top:0.25rem;}
+    .filter-bar{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;}
+    .filter-bar input,.filter-bar select{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-size:0.82rem;padding:0.5rem 0.875rem;outline:none;transition:border-color var(--transition);}
+    .filter-bar input:focus,.filter-bar select:focus{border-color:var(--primary);}
+    .filter-bar input::placeholder{color:var(--text-muted);}
+    .search-wrap{position:relative;}
+    .search-wrap input{padding-left:1.875rem;min-width:260px;}
+    .search-icon{position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;pointer-events:none;}
+    /* Timeline */
+    .log-timeline{display:flex;flex-direction:column;gap:0;}
+    .log-item{display:flex;align-items:flex-start;gap:1.25rem;padding:1rem 1.25rem;border-bottom:1px solid var(--border);transition:background var(--transition);}
+    .log-item:last-child{border-bottom:none;}
+    .log-item:hover{background:rgba(255,255,255,0.02);}
+    .log-dot-col{display:flex;flex-direction:column;align-items:center;flex-shrink:0;margin-top:0.35rem;}
+    .log-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .log-line{width:1px;flex:1;background:var(--border);min-height:20px;margin-top:4px;}
+    .log-body{flex:1;min-width:0;}
+    .log-action{font-size:0.83rem;font-weight:600;margin-bottom:0.2rem;}
+    .log-desc{font-size:0.8rem;color:var(--text-2);}
+    .log-meta{display:flex;gap:0.875rem;margin-top:0.375rem;flex-wrap:wrap;}
+    .log-time{font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);}
+    .log-cat{display:inline-block;font-size:0.65rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:99px;text-transform:uppercase;}
+    .cat-admin{background:rgba(79,70,229,0.1);color:var(--primary);}
+    .cat-election{background:rgba(20,184,166,0.1);color:var(--secondary);}
+    .cat-voting{background:rgba(63,185,80,0.1);color:var(--success);}
+    .cat-security{background:rgba(248,81,73,0.1);color:var(--danger);}
+    .cat-system{background:rgba(139,148,158,0.1);color:var(--text-2);}
+    .table-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+    .table-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;}
+    .tf-count{font-size:0.78rem;color:var(--text-muted);}
+    #toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+    .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;min-width:240px;display:flex;align-items:center;gap:0.6rem;box-shadow:var(--shadow);font-size:0.83rem;animation:toastIn 0.3s ease;}
+    @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .toast.success{border-left:3px solid var(--success);}
+    @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.hamburger{display:flex;}.content{padding:1.25rem;}.page-header{flex-direction:column;}.topbar{padding:0 1rem;}.filter-bar{flex-direction:column;gap:0.5rem;}.search-wrap input{min-width:auto;width:100%;}#toast-container{left:1rem;right:1rem;max-width:calc(100vw - 2rem);}#toast-container .toast{min-width:0;width:100%;}}
+    @media(max-width:480px){.log-item{gap:0.75rem;padding:0.875rem 1rem;}.log-meta{gap:0.5rem;}.content{padding:0.875rem;}.table-footer{flex-direction:column;align-items:flex-start;}}
+    /* Sidebar overlay */
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);z-index:199;opacity:0;transition:opacity 220ms ease;}
+      
+    
+        
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+<div id="toast-container"></div>`n<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div id="sidebar-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);z-index:199;opacity:0;transition:opacity 220ms ease;"></div>
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sidebar-dev-logo" /></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html"         class="nav-item"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Dashboard</a>
+      <a href="manage-elections.html"  class="nav-item"><span class="nav-icon"><i data-lucide="check-square"></i></span> Elections</a>
+      <a href="manage-candidates.html" class="nav-item"><span class="nav-icon"><i data-lucide="user"></i></span> Candidates</a>
+      <a href="voter-management.html"  class="nav-item"><span class="nav-icon"><i data-lucide="users"></i></span> Voters</a>
+      <div class="nav-section">Voting</div>
+      <a href="token-generator.html"   class="nav-item"><span class="nav-icon"><i data-lucide="key-round"></i></span> Token Generator</a>
+      <a href="voting-control.html"    class="nav-item"><span class="nav-icon"><i data-lucide="settings"></i></span> Voting Control</a>
+      <a href="analytics.html"         class="nav-item"><span class="nav-icon"><i data-lucide="trending-up"></i></span> Analytics</a>
+      <div class="nav-section">System</div>
+      <a href="audit-logs.html"        class="nav-item active"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Audit Logs</a>
+      <a href="settings.html"          class="nav-item"><span class="nav-icon"><i data-lucide="wrench"></i></span> Settings</a>
+      <a href="help.html"              class="nav-item"><span class="nav-icon"><i data-lucide="help-circle"></i></span> Help Center</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div><div class="user-name" id="user-name">Admin</div><div class="user-role">Administrator</div></div>
+        <div style="margin-left:auto"><button class="icon-btn" id="logout-btn"><i data-lucide="log-out"></i></button></div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <div><div class="page-title">Audit Logs</div><div class="breadcrumb">Dashboard / Audit Trail</div></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" id="btn-refresh"><i data-lucide="refresh-cw"></i> Refresh</button>
+        <button class="btn btn-secondary btn-sm" id="btn-export"><i data-lucide="arrow-down"></i> Export CSV</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header">
+        <div><h1>Audit Logs</h1><p>Full chronological trail of all system actions — admin logins, election changes, token events, and votes.</p></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-wrap"><span class="search-icon"><i data-lucide="search"></i></span><input type="text" id="search-input" placeholder="Search action or description…"/></div>
+        <select id="filter-cat">
+          <option value="all">All Categories</option>
+          <option value="admin">Admin</option>
+          <option value="election">Election</option>
+          <option value="voting">Voting</option>
+          <option value="security">Security</option>
+          <option value="system">System</option>
+        </select>
+        <select id="filter-date">
+          <option value="all">All Time</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+        <span style="font-size:0.78rem;color:var(--text-muted);margin-left:auto" id="count-label"></span>
+      </div>
+      <div class="table-card">
+        <div class="log-timeline" id="log-timeline">
+          <div style="text-align:center;padding:3rem;color:var(--text-muted)"><i data-lucide="loader-2"></i> Loading audit logs…</div>
+        </div>
+        <div class="table-footer">
+          <span class="tf-count" id="tf-count"></span>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn btn-secondary btn-sm" id="btn-prev" disabled><i data-lucide="arrow-left"></i> Prev</button>
+            <span style="font-size:0.78rem;color:var(--text-muted);align-self:center" id="page-info">Page 1</span>
+            <button class="btn btn-secondary btn-sm" id="btn-next">Next <i data-lucide="arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script type="module">
+import { requireAdmin } from '../src/assets/js/auth.js';
+import { supabase, fetchAuditLogs } from '../src/assets/js/supabase-client.js';
+import { toCSV, downloadFile, debounce, timeAgo } from '../src/assets/js/main.js';
+
+let allLogs=[], page=1; const PAGE=40;
+
+const ACTION_CONFIG={
+  admin_login:    {color:'#58a6ff',cat:'admin',  icon:'<i data-lucide="key-round"></i>'},
+  admin_logout:   {color:'#58a6ff',cat:'admin',  icon:'<i data-lucide="log-out"></i>'},
+  create_election:{color:'#14b8a6',cat:'election',icon:'<i data-lucide="check-square"></i>'},
+  delete_election:{color:'#f85149',cat:'election',icon:'<i data-lucide="trash-2"></i>'},
+  election_active:{color:'#3fb950',cat:'election',icon:'▶'},
+  election_closed:{color:'#f85149',cat:'election',icon:'<i data-lucide="octagon"></i>'},
+  election_paused:{color:'#d29922',cat:'election',icon:'⏸'},
+  add_candidate:  {color:'#14b8a6',cat:'election',icon:'<i data-lucide="user"></i>'},
+  delete_candidate:{color:'#f85149',cat:'election',icon:'<i data-lucide="trash-2"></i>'},
+  generate_tokens:{color:'#4f46e5',cat:'voting',  icon:'<i data-lucide="key-round"></i>'},
+  revoke_token:   {color:'#f85149',cat:'security',icon:'<i data-lucide="ban"></i>'},
+  revoke_tokens_bulk:{color:'#f85149',cat:'security',icon:'<i data-lucide="ban"></i>'},
+  cast_vote:      {color:'#3fb950',cat:'voting',  icon:'<i data-lucide="check-circle-2"></i>'},
+  password_change:{color:'#d29922',cat:'security',icon:'<i data-lucide="lock"></i>'},
+};
+
+async function init(){
+  const profile=await requireAdmin(); if(!profile)return;
+  document.getElementById('user-avatar').textContent=(profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
+  document.getElementById('user-name').textContent=profile.full_name||profile.email||'Admin';
+  await loadLogs();
+  // Auto-refresh every 30 seconds
+  setInterval(async()=>{
+    const prevCount=allLogs.length;
+    await loadLogs();
+    if(allLogs.length>prevCount) toast(`${allLogs.length-prevCount} new log${allLogs.length-prevCount>1?'s':''} added.`,'success');
+  },30000);
+}
+
+async function loadLogs(){
+  try{
+    allLogs=await fetchAuditLogs(500);
+    applyFilters();
+  }catch(err){document.getElementById('log-timeline').innerHTML=`<div style="padding:2rem;text-align:center;color:var(--danger)">${err.message}</div>`;}
+}
+
+function applyFilters(){
+  const search=document.getElementById('search-input').value.toLowerCase();
+  const cat=document.getElementById('filter-cat').value;
+  const dateFilter=document.getElementById('filter-date').value;
+  const now=Date.now();
+  const filtered=allLogs.filter(l=>{
+    const cfg=ACTION_CONFIG[l.action]||{cat:'system'};
+    const matchCat=cat==='all'||cfg.cat===cat;
+    const matchSearch=!search||(l.action||'').toLowerCase().includes(search)||(l.description||'').toLowerCase().includes(search);
+    let matchDate=true;
+    if(dateFilter==='today')matchDate=now-new Date(l.created_at).getTime()<86400000;
+    if(dateFilter==='week') matchDate=now-new Date(l.created_at).getTime()<604800000;
+    if(dateFilter==='month')matchDate=now-new Date(l.created_at).getTime()<2592000000;
+    return matchCat&&matchSearch&&matchDate;
+  });
+  renderLogs(filtered);
+}
+
+function renderLogs(logs){
+  document.getElementById('count-label').textContent=`${logs.length} log${logs.length!==1?'s':''}`;
+  const pages=Math.ceil(logs.length/PAGE)||1;
+  if(page>pages)page=1;
+  const slice=logs.slice((page-1)*PAGE,page*PAGE);
+  document.getElementById('tf-count').textContent=`Showing ${Math.min((page-1)*PAGE+1,logs.length)}–${Math.min(page*PAGE,logs.length)} of ${logs.length}`;
+  document.getElementById('page-info').textContent=`Page ${page} of ${pages}`;
+  document.getElementById('btn-prev').disabled=page<=1;
+  document.getElementById('btn-next').disabled=page>=pages;
+
+  const timeline=document.getElementById('log-timeline');
+  if(!slice.length){timeline.innerHTML='<div style="text-align:center;padding:3rem;color:var(--text-muted)">No logs found.</div>';return;}
+  timeline.innerHTML=slice.map((l,i)=>{
+    const cfg=ACTION_CONFIG[l.action]||{color:'#8b949e',cat:'system',icon:'info'};
+    const catClass='cat-'+cfg.cat;
+    const isLast=i===slice.length-1;
+    return`<div class="log-item">
+      <div class="log-dot-col">
+        <div class="log-dot" style="background:${cfg.color}"></div>
+        ${!isLast?'<div class="log-line"></div>':''}
+      </div>
+      <div class="log-body">
+        <div class="log-action">${cfg.icon} ${(l.action||'').replace(/_/g,' ')}</div>
+        ${l.description?`<div class="log-desc">${l.description}</div>`:''}
+        <div class="log-meta">
+          <span class="log-time">${new Date(l.created_at).toLocaleString()}</span>
+          <span class="log-cat ${catClass}">${cfg.cat}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+['search-input','filter-cat','filter-date'].forEach(id=>{
+  document.getElementById(id).addEventListener(id==='search-input'?'input':'change',debounce(()=>{page=1;applyFilters();},200));
+});
+document.getElementById('btn-prev').addEventListener('click',()=>{page--;applyFilters();});
+document.getElementById('btn-next').addEventListener('click',()=>{page++;applyFilters();});
+document.getElementById('btn-refresh').addEventListener('click',async()=>{await loadLogs();toast('Refreshed!','success');});
+document.getElementById('btn-export').addEventListener('click',()=>{
+  if(!allLogs.length)return;
+  const csv=toCSV(allLogs,['action','description','created_at']);
+  downloadFile(csv,'audit-logs.csv','text/csv');toast('Exported!','success');
+});
+
+function toast(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span><i data-lucide="${type==='success'?'check-circle-2':'x-circle'}"></i></span><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3000);}
+document.getElementById('hamburger').addEventListener('click',()=>{
+  const sb=document.getElementById('sidebar'),ov=document.getElementById('sidebar-overlay');
+  const open=sb.classList.toggle('open');
+  if(ov){ov.style.display='block';requestAnimationFrame(()=>{ov.style.opacity=open?'1':'0';});if(!open)setTimeout(()=>{ov.style.display='none';},220);}
+  document.body.style.overflow=open?'hidden':'';
+});
+document.getElementById('sidebar-overlay').addEventListener('click',()=>{
+  const sb=document.getElementById('sidebar'),ov=document.getElementById('sidebar-overlay');
+  sb.classList.remove('open');ov.style.opacity='0';setTimeout(()=>{ov.style.display='none';},220);document.body.style.overflow='';
+});
+document.getElementById('logout-btn').addEventListener('click',()=>import('../src/assets/js/auth.js').then(m=>m.adminLogout()));
+init();
+</script>
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>

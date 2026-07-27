@@ -1,0 +1,28 @@
+{
+  "theme": {
+    "primaryColor": "#4f46e5",
+    "secondaryColor": "#06b6d4",
+    "accentColor": "#f59e0b",
+    "darkBg": "#0d1117",
+    "cardBg": "#161b22",
+    "borderColor": "#21262d",
+    "textPrimary": "#e6edf3",
+    "textSecondary": "#8b949e",
+    "successColor": "#3fb950",
+    "warningColor": "#d29922",
+    "dangerColor": "#f85149"
+  },
+  "typography": {
+    "fontPrimary": "Inter",
+    "fontHeading": "Poppins",
+    "fontMono": "JetBrains Mono",
+    "baseFontSize": "16px",
+    "lineHeight": "1.6"
+  },
+  "branding": {
+    "systemName": "STACKWEB",
+    "tagline": "Secure. Transparent. Efficient.",
+    "logoPath": "public/images/logos/stackweb-logo.svg",
+    "faviconPath": "public/favicon/favicon.ico"
+  }
+}

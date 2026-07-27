@@ -1,0 +1,853 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB — Manage Positions & Candidates for each election."/>
+  <title>Positions & Candidates — STACKWEB Admin</title>
+  <link rel="icon" href="../public/favicon/favicon.ico"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#4f46e5;--primary-dark:#4338ca;--primary-glow:rgba(79,70,229,0.22);
+      --secondary:#14b8a6;--success:#3fb950;--warning:#d29922;--danger:#f85149;
+      --bg:#0d1117;--bg-card:#161b22;--bg-hover:#1c2128;--bg-sidebar:#010409;
+      --border:#21262d;--text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;
+      --font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;
+      --radius:12px;--radius-sm:8px;--radius-lg:16px;
+      --sidebar-w:260px;--topbar-h:64px;--shadow:0 4px 20px rgba(0,0,0,0.4);--transition:220ms ease;
+    }
+    html,body{height:100%;}
+    body{font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}ul{list-style:none;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+    .shell{display:flex;min-height:100vh;}
+
+    /* Sidebar */
+    .sidebar{width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;transition:transform var(--transition);}
+    .sidebar-brand{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;flex-shrink:0;}
+    .brand-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;font-size:1rem;color:#fff;box-shadow:0 0 16px rgba(79,70,229,0.4);}
+    .brand-name{font-family:var(--font-head);font-weight:800;font-size:1.05rem;}.brand-sub{font-size:0.68rem;color:var(--text-muted);}
+    .sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
+    .nav-section{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:0.875rem 1.25rem 0.375rem;}
+    .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.25rem;color:var(--text-2);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all var(--transition);position:relative;}
+    .nav-item:hover{color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-item.active{color:var(--primary);background:rgba(79,70,229,0.08);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);border-radius:0 2px 2px 0;}
+    .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+    .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);flex-shrink:0;}
+    .user-row{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;border-radius:var(--radius-sm);}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.875rem;flex-shrink:0;}
+    .user-name{font-size:0.8rem;font-weight:600;}.user-role{font-size:0.7rem;color:var(--text-muted);}
+    .icon-btn{width:28px;height:28px;border-radius:6px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.75rem;transition:all var(--transition);}
+    .icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+    /* Main */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{height:var(--topbar-h);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;}
+    .topbar-left{display:flex;align-items:center;gap:1rem;}
+    .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-1);border-radius:2px;}
+    .page-title{font-size:1.05rem;font-weight:700;}.breadcrumb{font-size:0.72rem;color:var(--text-muted);}
+    .topbar-right{display:flex;align-items:center;gap:0.75rem;}
+    .topbar-btn{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font-size:0.9rem;transition:all var(--transition);}
+    .topbar-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .content{padding:2rem;flex:1;}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);white-space:nowrap;text-decoration:none;}
+    .btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 0 20px var(--primary-glow);}
+    .btn-secondary{background:transparent;color:var(--text-1);border:1px solid var(--border);}.btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-danger{background:var(--danger);color:#fff;}.btn-success{background:var(--success);color:#fff;}
+    .btn-sm{padding:0.35rem 0.7rem;font-size:0.78rem;}
+    .btn-ghost{background:none;border:none;color:var(--text-2);cursor:pointer;font-size:0.82rem;padding:0.3rem 0.5rem;border-radius:var(--radius-sm);transition:all var(--transition);}
+    .btn-ghost:hover{color:var(--text-1);background:rgba(255,255,255,0.05);}
+
+    /* Election selector bar */
+    .election-bar{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .election-bar label{font-size:0.82rem;font-weight:600;color:var(--text-2);white-space:nowrap;}
+    .election-bar select{flex:1;min-width:220px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-body);font-size:0.875rem;padding:0.6rem 0.875rem;outline:none;transition:all var(--transition);}
+    .election-bar select:focus{border-color:var(--primary);}
+    .election-meta{font-size:0.78rem;color:var(--text-muted);display:flex;gap:1rem;flex-wrap:wrap;}
+    .meta-pill{display:inline-flex;align-items:center;gap:0.3rem;background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:0.2rem 0.6rem;font-size:0.72rem;}
+    .meta-pill.active{background:rgba(63,185,80,0.1);border-color:rgba(63,185,80,0.3);color:var(--success);}
+    .meta-pill.draft{background:rgba(79,70,229,0.1);border-color:rgba(79,70,229,0.3);color:var(--primary);}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:4rem 2rem;}
+    .empty-icon{font-size:3.5rem;opacity:0.15;margin-bottom:0.875rem;}
+    .empty-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;}
+    .empty-sub{font-size:0.875rem;color:var(--text-muted);margin-bottom:1.25rem;}
+
+    /* Position sections */
+    .positions-wrap{display:flex;flex-direction:column;gap:1.5rem;}
+    .position-block{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+    .pos-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);gap:0.75rem;flex-wrap:wrap;}
+    .pos-header-left{display:flex;align-items:center;gap:0.75rem;}
+    .pos-order{width:28px;height:28px;border-radius:50%;background:rgba(79,70,229,0.12);border:1px solid rgba(79,70,229,0.25);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--primary);flex-shrink:0;}
+    .pos-title{font-family:var(--font-head);font-weight:700;font-size:1rem;}
+    .pos-desc{font-size:0.75rem;color:var(--text-muted);}
+    .pos-actions{display:flex;align-items:center;gap:0.5rem;}
+    .pos-count{font-size:0.72rem;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:0.2rem 0.6rem;}
+
+    /* Candidates within position */
+    .pos-candidates{padding:1rem 1.5rem;}
+    .cand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.875rem;margin-bottom:1rem;}
+    .cand-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all var(--transition);position:relative;}
+    .cand-card:hover{border-color:rgba(79,70,229,0.4);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+    .cand-card.inactive{opacity:0.55;}
+    .cand-photo{width:100%;height:130px;background:linear-gradient(135deg,rgba(79,70,229,0.1),rgba(20,184,166,0.07));display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .cand-photo img{width:100%;height:100%;object-fit:cover;}
+    .cand-photo-placeholder{font-size:2.5rem;opacity:0.25;}
+    .cand-inactive-badge{position:absolute;top:0.5rem;right:0.5rem;background:rgba(139,148,158,0.8);color:#fff;font-size:0.65rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:99px;}
+    .cand-body{padding:0.75rem;}
+    .cand-name{font-weight:700;font-size:0.85rem;margin-bottom:0.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cand-bio{font-size:0.72rem;color:var(--text-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;margin-bottom:0.625rem;}
+    .cand-btns{display:flex;gap:0.375rem;}
+    .cand-btns .btn{flex:1;justify-content:center;font-size:0.72rem;padding:0.3rem 0.4rem;}
+    .add-cand-btn{border:2px dashed var(--border);border-radius:var(--radius);background:none;color:var(--text-muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.375rem;padding:1.5rem;transition:all var(--transition);width:100%;min-height:80px;font-family:var(--font-body);}
+    .add-cand-btn:hover{border-color:var(--primary);color:var(--primary);background:rgba(79,70,229,0.04);}
+    .add-cand-btn-icon{font-size:1.25rem;}
+    .add-cand-btn-text{font-size:0.78rem;font-weight:600;}
+
+    /* Add position banner */
+    .add-pos-banner{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;cursor:pointer;transition:all var(--transition);}
+    .add-pos-banner:hover{border-color:var(--primary);background:rgba(79,70,229,0.03);}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity var(--transition);}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);width:min(520px,94vw);max-height:90vh;overflow-y:auto;transform:scale(0.95);transition:transform var(--transition);box-shadow:0 24px 64px rgba(0,0,0,0.7);}
+    .modal-overlay.open .modal{transform:scale(1);}
+    .modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:1;}
+    .modal-title{font-family:var(--font-head);font-size:1.05rem;font-weight:700;}
+    .modal-close{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;transition:color var(--transition);padding:4px;}
+    .modal-close:hover{color:var(--text-1);}
+    .modal-body{padding:1.5rem;}
+    .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;justify-content:flex-end;}
+
+    /* Confirm */
+    .confirm-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;width:min(400px,90vw);box-shadow:0 16px 48px rgba(0,0,0,0.7);transform:scale(0.95);transition:transform var(--transition);}
+    .modal-overlay.open .confirm-box{transform:scale(1);}
+
+    /* Form */
+    .form-group{margin-bottom:1.1rem;}
+    .form-label{display:block;font-size:0.8rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem;}
+    .form-label .req{color:var(--danger);}
+    .form-control{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-body);font-size:0.875rem;padding:0.65rem 0.875rem;outline:none;transition:all var(--transition);}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,0.15);}
+    .form-control::placeholder{color:var(--text-muted);}
+    textarea.form-control{resize:vertical;min-height:75px;}
+    .form-hint{font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+    /* Photo upload */
+    .photo-upload{border:2px dashed var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center;cursor:pointer;transition:all var(--transition);position:relative;overflow:hidden;}
+    .photo-upload:hover{border-color:var(--primary);background:rgba(79,70,229,0.04);}
+    .photo-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .photo-preview{width:70px;height:70px;border-radius:50%;object-fit:cover;margin:0 auto 0.5rem;display:none;}
+    .photo-preview.show{display:block;}
+    .photo-icon{font-size:2rem;opacity:0.3;margin-bottom:0.375rem;}
+    .photo-hint{font-size:0.75rem;color:var(--text-muted);}
+    .photo-hint strong{color:var(--primary);}
+
+    /* Toggle */
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-top:1px solid var(--border);margin-top:0.5rem;}
+    .toggle-switch{position:relative;width:42px;height:24px;flex-shrink:0;}
+    .toggle-switch input{opacity:0;width:0;height:0;}
+    .toggle-track{position:absolute;inset:0;background:var(--border);border-radius:99px;cursor:pointer;transition:background 0.3s;}
+    .toggle-switch input:checked+.toggle-track{background:var(--primary);}
+    .toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform 0.3s;}
+    .toggle-switch input:checked+.toggle-track::after{transform:translateX(18px);}
+
+    /* Alert */
+    .alert{padding:0.65rem 0.875rem;border-radius:var(--radius-sm);font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;}
+    .alert-error{background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);color:var(--danger);}
+
+    /* Toast */
+    #toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+    .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;min-width:250px;display:flex;align-items:center;gap:0.6rem;box-shadow:var(--shadow);font-size:0.83rem;animation:toastIn 0.3s ease;}
+    @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .toast.success{border-left:3px solid var(--success);}.toast.error{border-left:3px solid var(--danger);}
+
+    /* Responsive */
+    @media(max-width:1024px){.cand-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.hamburger{display:flex;}.content{padding:1.25rem;}.form-row{grid-template-columns:1fr;}.page-header{flex-direction:column;}.topbar{padding:0 1rem;}#toast-container{left:1rem;right:1rem;max-width:calc(100vw - 2rem);}#toast-container .toast{min-width:0;width:100%;}.cand-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.cand-grid{grid-template-columns:1fr;}}
+      
+    
+
+    
+        /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+<div id="toast-container"></div>`n<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;margin-bottom:0.5rem" id="confirm-title">Confirm</div>
+    <div style="font-size:0.875rem;color:var(--text-2);margin-bottom:1.5rem" id="confirm-body">Are you sure?</div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Position Modal -->
+<div class="modal-overlay" id="pos-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="pos-modal-title">Add Position</div>
+      <button class="modal-close" id="pos-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-error" id="pos-modal-error" style="display:none"></div>
+      <div class="form-group">
+        <label class="form-label">Position Title <span class="req">*</span></label>
+        <input type="text" class="form-control" id="pos-title" placeholder="e.g. Head Prefect, Vice President…"/>
+        <div class="form-hint">The name voters will see on the ballot for this position.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+        <textarea class="form-control" id="pos-desc" placeholder="Brief description of the role…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Display Order</label>
+        <input type="number" class="form-control" id="pos-order" value="0" min="0"/>
+        <div class="form-hint">Lower numbers appear first on the ballot (0 = first).</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="pos-modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="pos-modal-save"><span class="btn-text">Add Position</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Candidate Modal -->
+<div class="modal-overlay" id="cand-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="cand-modal-title">Add Candidate</div>
+      <button class="modal-close" id="cand-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-error" id="cand-modal-error" style="display:none"></div>
+      <div class="form-group">
+        <label class="form-label">Position</label>
+        <div style="font-size:0.85rem;font-weight:600;color:var(--primary);background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:var(--radius-sm);padding:0.5rem 0.75rem;" id="cand-pos-label">—</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Photo <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+        <div class="photo-upload" id="photo-drop">
+          <input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp"/>
+          <img class="photo-preview" id="photo-preview" alt="Preview" decoding="async"/>
+          <div class="photo-icon" id="photo-icon"><i data-lucide="image"></i></div>
+          <div class="photo-hint"><strong>Click to upload</strong> or drag &amp; drop<br>JPG, PNG, WebP · Max 2MB</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name <span class="req">*</span></label>
+        <input type="text" class="form-control" id="cand-name" placeholder="e.g. Jane Smith"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Short Bio <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+        <textarea class="form-control" id="cand-bio" placeholder="Brief background about the candidate…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Manifesto / Campaign Promise <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+        <textarea class="form-control" id="cand-manifesto" placeholder="What does this candidate stand for?"></textarea>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div style="font-size:0.85rem;font-weight:500;">Active on Ballot</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);">Inactive candidates won't appear when voters vote</div>
+        </div>
+        <label class="toggle-switch"><input type="checkbox" id="cand-active" checked><div class="toggle-track"></div></label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cand-modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="cand-modal-save"><span class="btn-text">Add Candidate</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sidebar-dev-logo" /></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html"         class="nav-item"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Dashboard</a>
+      <a href="manage-elections.html"  class="nav-item"><span class="nav-icon"><i data-lucide="check-square"></i></span>  Elections</a>
+      <a href="manage-candidates.html" class="nav-item active"><span class="nav-icon"><i data-lucide="user"></i></span> Candidates</a>
+      <a href="voter-management.html"  class="nav-item"><span class="nav-icon"><i data-lucide="users"></i></span> Voters</a>
+      <div class="nav-section">Voting</div>
+      <a href="token-generator.html"   class="nav-item"><span class="nav-icon"><i data-lucide="key-round"></i></span> Token Generator</a>
+      <a href="voting-control.html"    class="nav-item"><span class="nav-icon"><i data-lucide="settings"></i></span> Voting Control</a>
+      <a href="analytics.html"         class="nav-item"><span class="nav-icon"><i data-lucide="trending-up"></i></span> Analytics</a>
+      <div class="nav-section">System</div>
+      <a href="audit-logs.html"        class="nav-item"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Audit Logs</a>
+      <a href="settings.html"          class="nav-item"><span class="nav-icon"><i data-lucide="wrench"></i></span>  Settings</a>
+      <a href="help.html"              class="nav-item"><span class="nav-icon"><i data-lucide="help-circle"></i></span> Help Center</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div><div class="user-name" id="user-name">Admin</div><div class="user-role">Administrator</div></div>
+        <div style="margin-left:auto"><button class="icon-btn" id="logout-btn"><i data-lucide="log-out"></i></button></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <div><div class="page-title">Positions &amp; Candidates</div><div class="breadcrumb">Dashboard / Candidates</div></div>
+      </div>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="topbar-btn" title="Dashboard"><i data-lucide="bar-chart-2"></i></a>
+        <a href="manage-elections.html" class="topbar-btn" title="Elections"><i data-lucide="check-square"></i></a>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- Election Selector -->
+      <div class="election-bar">
+        <label for="election-select"><i data-lucide="clipboard-list"></i> Election:</label>
+        <select id="election-select">
+          <option value="">— Select an election —</option>
+        </select>
+        <div class="election-meta" id="election-meta" style="display:none">
+          <span class="meta-pill" id="meta-status">Draft</span>
+          <span class="meta-pill" id="meta-positions">0 positions</span>
+          <span class="meta-pill" id="meta-candidates">0 candidates</span>
+        </div>
+        <button class="btn btn-primary" id="btn-add-position" style="display:none">+ Add Position</button>
+      </div>
+
+      <!-- Content area -->
+      <div id="main-content">
+        <div class="empty-state">
+          <div class="empty-icon"><i data-lucide="check-square"></i></div>
+          <div class="empty-title">Select an Election</div>
+          <div class="empty-sub">Choose an election above to manage its positions and candidates.</div>
+          <a href="manage-elections.html" class="btn btn-secondary">Go to Elections <i data-lucide="arrow-right"></i></a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script type="module">
+import { requireAdmin, adminLogout } from '../src/assets/js/auth.js';
+import { supabase, createPosition, updatePosition, deletePosition, createCandidate, updateCandidate, deleteCandidate, uploadCandidatePhoto, fetchElections } from '../src/assets/js/supabase-client.js';
+
+// ── State ──────────────────────────────────────────────────────
+let selectedElection = null;
+let positions        = [];
+let editingPosId     = null;
+let editingCandId    = null;
+let activePosId      = null;
+let selectedPhoto    = null;
+let confirmCb        = null;
+
+// ── Init ───────────────────────────────────────────────────────
+async function init() {
+  const profile = await requireAdmin();
+  if (!profile) return;
+  document.getElementById('user-avatar').textContent = (profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
+  document.getElementById('user-name').textContent   = profile.full_name || profile.email || 'Admin';
+
+  let elections = [];
+  try {
+    elections = await fetchElections();
+  } catch(err) {
+    console.error('fetchElections error:', err);
+    toast('Could not load elections: ' + err.message, 'error');
+  }
+
+  const sel = document.getElementById('election-select');
+  // Clear and add placeholder
+  sel.innerHTML = '<option value="">— Select an election —</option>';
+  if (!elections.length) {
+    sel.add(new Option('No elections found — go create one first', '', false, false));
+  } else {
+    // Group by status for clarity
+    const statusOrder = ['active', 'paused', 'draft', 'closed'];
+    const statusLabel = { active: '▶ Active', paused: '⏸ Paused', draft: '✎ Draft', closed: '✓ Closed' };
+    statusOrder.forEach(function(status) {
+      const group = elections.filter(function(e) { return e.status === status; });
+      if (!group.length) return;
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = statusLabel[status] || status;
+      group.forEach(function(e) {
+        const opt = new Option(e.name, e.id, false, false);
+        optgroup.appendChild(opt);
+      });
+      sel.appendChild(optgroup);
+    });
+  }
+
+  // Pre-select from URL param
+  const params = new URLSearchParams(window.location.search);
+  const preEl  = params.get('election');
+  if (preEl) {
+    sel.value = preEl;
+    const found = elections.find(e => e.id === preEl);
+    await selectElection(preEl, found);
+  }
+
+  sel.addEventListener('change', async () => {
+    const e = elections.find(x => x.id === sel.value);
+    await selectElection(sel.value, e);
+  });
+}
+
+async function selectElection(id, elObj) {
+  if (!id) {
+    selectedElection = null;
+    document.getElementById('election-meta').style.display = 'none';
+    document.getElementById('btn-add-position').style.display = 'none';
+    document.getElementById('main-content').innerHTML = '<div class="empty-state"><div class="empty-icon"><i data-lucide="check-square"></i></div><div class="empty-title">Select an Election</div><div class="empty-sub">Choose an election above to manage its positions and candidates.</div></div>';
+    return;
+  }
+  selectedElection = elObj || { id };
+  document.getElementById('btn-add-position').style.display = '';
+  const nameEl = document.getElementById('meta-election-name');
+  if (nameEl) nameEl.textContent = elObj ? elObj.name : 'Election';
+  await loadPositions(id);
+}
+
+async function loadPositions(elId) {
+  const eid = elId || (selectedElection ? selectedElection.id : null);
+  if (!eid) return;
+
+  document.getElementById('main-content').innerHTML =
+    '<div class="empty-state"><div style="font-size:2rem;margin-bottom:0.5rem">&#x23F3;</div><div class="empty-title">Loading positions...</div></div>';
+
+  try {
+    const { data: posData, error: posErr } = await supabase
+      .from('positions')
+      .select('id, title, description, order_index, election_id')
+      .eq('election_id', eid)
+      .order('order_index', { ascending: true });
+    if (posErr) throw posErr;
+
+    const posWithCands = await Promise.all(
+      (posData || []).map(async (pos) => {
+        const { data: candData } = await supabase
+          .from('candidates')
+          .select('id, name, bio, photo_url, is_active, order_index, manifesto')
+          .eq('position_id', pos.id)
+          .order('order_index', { ascending: true });
+        return Object.assign({}, pos, { candidates: candData || [] });
+      })
+    );
+
+    positions = posWithCands;
+    renderAll();
+  } catch(err) {
+    console.error('loadPositions error:', err);
+    document.getElementById('main-content').innerHTML =
+      '<div class="empty-state">' +
+        '<div class="empty-icon"><i data-lucide="x-circle"></i></div>' +
+        '<div class="empty-title">Failed to Load</div>' +
+        '<div class="empty-sub" style="color:var(--danger)">' + err.message + '</div>' +
+        '<div class="empty-sub" style="margin-top:0.5rem">Check your Supabase connection and ensure the admin profile exists in the database.</div>' +
+        '<button class="btn btn-primary" onclick="window.__retryLoad()"><i data-lucide="refresh-cw"></i> Retry</button>' +
+      '</div>';
+    window.__retryLoad = function() { loadPositions(eid); };
+  }
+}
+
+function renderAll() {
+  const totalCands = positions.reduce(function(s, p) { return s + (p.candidates ? p.candidates.length : 0); }, 0);
+
+  if (selectedElection) {
+    document.getElementById('election-meta').style.display = 'flex';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = selectedElection.status || '-';
+    statusEl.className = 'meta-pill ' + (selectedElection.status || '');
+    document.getElementById('meta-positions').textContent  = positions.length + ' position' + (positions.length !== 1 ? 's' : '');
+    document.getElementById('meta-candidates').textContent = totalCands + ' candidate' + (totalCands !== 1 ? 's' : '');
+  }
+
+  const wrap = document.getElementById('main-content');
+  if (!positions.length) {
+    wrap.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="empty-icon"><i data-lucide="tag"></i></div>' +
+        '<div class="empty-title">No Positions Yet</div>' +
+        '<div class="empty-sub">Add your first position (e.g. Head Prefect, Vice President) before adding candidates.</div>' +
+        '<button class="btn btn-primary" onclick="openPosModal()">+ Add First Position</button>' +
+      '</div>';
+    return;
+  }
+
+  wrap.innerHTML =
+    '<div class="positions-wrap" id="positions-wrap">' +
+      positions.map(function(p, i) { return renderPositionBlock(p, i); }).join('') +
+    '</div>' +
+    '<div class="add-pos-banner" id="add-pos-banner" onclick="openPosModal()" style="margin-top:1rem">' +
+      '<div style="font-size:1.5rem;margin-bottom:0.375rem;opacity:0.4">+</div>' +
+      '<div style="font-size:0.85rem;font-weight:600;color:var(--text-muted)">Add Another Position</div>' +
+    '</div>';
+
+  document.querySelectorAll('[data-pos-action]').forEach(function(btn) {
+    btn.addEventListener('click', handlePosAction);
+  });
+  document.querySelectorAll('[data-cand-action]').forEach(function(btn) {
+    btn.addEventListener('click', handleCandAction);
+  });
+  document.querySelectorAll('[data-add-cand]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) { openCandModal(e.currentTarget.dataset.addCand); });
+  });
+}
+
+function renderPositionBlock(pos, idx) {
+  const cands = pos.candidates || [];
+  const candCards = cands.map(function(c) {
+    return '<div class="cand-card ' + (c.is_active ? '' : 'inactive') + '" data-cid="' + c.id + '">' +
+      '<div class="cand-photo">' +
+        (c.photo_url
+          ? '<img src="' + c.photo_url + '" alt="' + c.name + '" loading="lazy" decoding="async" onload="this.classList.add(\"img-loaded\")"/>'
+          : '<div class="cand-photo-placeholder"><i data-lucide="user"></i></div>') +
+        (!c.is_active ? '<span class="cand-inactive-badge">Inactive</span>' : '') +
+      '</div>' +
+      '<div class="cand-body">' +
+        '<div class="cand-name">' + c.name + '</div>' +
+        (c.bio
+          ? '<div class="cand-bio">' + c.bio + '</div>'
+          : '<div class="cand-bio" style="color:var(--text-muted);font-style:italic">No bio</div>') +
+        '<div class="cand-btns">' +
+          '<button class="btn btn-secondary btn-sm" data-cand-action="edit" data-pos-id="' + pos.id + '" data-cand-id="' + c.id + '"><i data-lucide="pencil"></i></button>' +
+          '<button class="btn btn-secondary btn-sm" data-cand-action="toggle" data-cand-id="' + c.id + '" data-active="' + c.is_active + '" title="' + (c.is_active ? 'Deactivate' : 'Activate') + '">' + (c.is_active ? '&#9646;&#9646;' : '&#9654;') + '</button>' +
+          '<button class="btn btn-secondary btn-sm" data-cand-action="delete" data-cand-id="' + c.id + '" data-cand-name="' + c.name + '" style="color:var(--danger)"><i data-lucide="trash-2"></i></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  return '<div class="position-block" id="pos-block-' + pos.id + '">' +
+    '<div class="pos-header">' +
+      '<div class="pos-header-left">' +
+        '<div class="pos-order">' + (idx + 1) + '</div>' +
+        '<div>' +
+          '<div class="pos-title">' + pos.title + '</div>' +
+          (pos.description ? '<div class="pos-desc">' + pos.description + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="pos-actions">' +
+        '<span class="pos-count">' + cands.length + ' candidate' + (cands.length !== 1 ? 's' : '') + '</span>' +
+        '<button class="btn btn-secondary btn-sm" data-pos-action="edit" data-pos-id="' + pos.id + '"><i data-lucide="pencil"></i> Edit</button>' +
+        '<button class="btn btn-secondary btn-sm" data-pos-action="delete" data-pos-id="' + pos.id + '" data-pos-title="' + pos.title + '" style="color:var(--danger)"><i data-lucide="trash-2"></i></button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="pos-candidates">' +
+      '<div class="cand-grid">' +
+        candCards +
+        '<button class="add-cand-btn" data-add-cand="' + pos.id + '">' +
+          '<span class="add-cand-btn-icon"><i data-lucide="user"></i></span>' +
+          '<span class="add-cand-btn-text">+ Add Candidate</span>' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+// ── Position actions ───────────────────────────────────────────
+async function handlePosAction(e) {
+  const action   = e.currentTarget.dataset.posAction;
+  const posId    = e.currentTarget.dataset.posId;
+  const posTitle = e.currentTarget.dataset.posTitle;
+  if (action === 'edit') {
+    const pos = positions.find(function(p) { return p.id === posId; });
+    openPosModal(pos);
+  } else if (action === 'delete') {
+    doConfirm(
+      'Delete Position',
+      'Delete "' + posTitle + '"? All candidates under this position will also be permanently deleted.',
+      async function() {
+        try { await deletePosition(posId); toast('Position deleted.', 'success'); await loadPositions(); }
+        catch(err) { toast(err.message, 'error'); }
+      }
+    );
+  }
+}
+
+// ── Candidate actions ──────────────────────────────────────────
+async function handleCandAction(e) {
+  const action   = e.currentTarget.dataset.candAction;
+  const candId   = e.currentTarget.dataset.candId;
+  const candName = e.currentTarget.dataset.candName;
+  const posId    = e.currentTarget.dataset.posId;
+  const active   = e.currentTarget.dataset.active;
+  if (action === 'edit') {
+    const pos  = positions.find(function(p) { return p.id === posId; });
+    const cand = pos && pos.candidates ? pos.candidates.find(function(c) { return c.id === candId; }) : null;
+    if (cand) openCandModal(posId, cand);
+  } else if (action === 'toggle') {
+    try {
+      await updateCandidate(candId, { is_active: active === 'true' ? false : true });
+      toast('Candidate updated.', 'success');
+      await loadPositions();
+    } catch(err) { toast(err.message, 'error'); }
+  } else if (action === 'delete') {
+    doConfirm('Delete Candidate', 'Delete "' + candName + '"? This removes them from the ballot permanently.', async function() {
+      try { await deleteCandidate(candId); toast('Candidate deleted.', 'success'); await loadPositions(); }
+      catch(err) { toast(err.message, 'error'); }
+    });
+  }
+}
+
+// ── Position Modal ─────────────────────────────────────────────
+const posOverlay = document.getElementById('pos-modal-overlay');
+function openPosModal(pos) {
+  pos = pos || null;
+  editingPosId = pos ? pos.id : null;
+  document.getElementById('pos-modal-title').textContent = pos ? 'Edit Position' : '+ Add Position';
+  document.getElementById('pos-modal-save').querySelector('.btn-text').textContent = pos ? 'Save Changes' : 'Add Position';
+  document.getElementById('pos-title').value = pos ? (pos.title || '') : '';
+  document.getElementById('pos-desc').value  = pos ? (pos.description || '') : '';
+  document.getElementById('pos-order').value = pos ? (pos.order_index != null ? pos.order_index : positions.length) : positions.length;
+  document.getElementById('pos-modal-error').style.display = 'none';
+  posOverlay.classList.add('open');
+  document.getElementById('pos-title').focus();
+}
+function closePosModal() { posOverlay.classList.remove('open'); }
+document.getElementById('pos-modal-save').addEventListener('click', async function() {
+  const title = document.getElementById('pos-title').value.trim();
+  if (!title) { posErr('Position title is required.'); return; }
+  if (!selectedElection || !selectedElection.id) { posErr('No election selected.'); return; }
+  const btn = document.getElementById('pos-modal-save');
+  btn.disabled = true; btn.querySelector('.btn-text').textContent = 'Saving...';
+  try {
+    const payload = {
+      title,
+      description: document.getElementById('pos-desc').value.trim() || null,
+      order_index: parseInt(document.getElementById('pos-order').value) || 0,
+      election_id: selectedElection.id,
+    };
+    if (editingPosId) { await updatePosition(editingPosId, payload); toast('Position updated!', 'success'); }
+    else              { await createPosition(payload);                toast('Position added!',   'success'); }
+    closePosModal(); await loadPositions();
+  } catch(err) { posErr(err.message); }
+  finally { btn.disabled = false; btn.querySelector('.btn-text').textContent = editingPosId ? 'Save Changes' : 'Add Position'; }
+});
+function posErr(msg) { var e = document.getElementById('pos-modal-error'); e.textContent = msg; e.style.display = 'flex'; }
+document.getElementById('pos-modal-close').addEventListener('click', closePosModal);
+document.getElementById('pos-modal-cancel').addEventListener('click', closePosModal);
+posOverlay.addEventListener('click', function(e) { if (e.target === posOverlay) closePosModal(); });
+
+// ── Candidate Modal ────────────────────────────────────────────
+const candOverlay = document.getElementById('cand-modal-overlay');
+function openCandModal(posId, cand) {
+  cand = cand || null;
+  activePosId   = posId;
+  editingCandId = cand ? cand.id : null;
+  selectedPhoto = null;
+  const pos = positions.find(function(p) { return p.id === posId; });
+  document.getElementById('cand-modal-title').textContent = cand ? 'Edit Candidate' : '+ Add Candidate';
+  document.getElementById('cand-modal-save').querySelector('.btn-text').textContent = cand ? 'Save Changes' : 'Add Candidate';
+  document.getElementById('cand-pos-label').textContent = pos ? (pos.title || '-') : '-';
+  document.getElementById('cand-name').value      = cand ? (cand.name     || '') : '';
+  document.getElementById('cand-bio').value       = cand ? (cand.bio      || '') : '';
+  document.getElementById('cand-manifesto').value = cand ? (cand.manifesto || '') : '';
+  document.getElementById('cand-active').checked  = cand ? (cand.is_active !== false) : true;
+  var prev = document.getElementById('photo-preview');
+  var icon = document.getElementById('photo-icon');
+  if (cand && cand.photo_url) { prev.src = cand.photo_url; prev.classList.add('show'); icon.style.display = 'none'; }
+  else { prev.classList.remove('show'); prev.src = ''; icon.style.display = ''; }
+  document.getElementById('photo-file').value = '';
+  document.getElementById('cand-modal-error').style.display = 'none';
+  candOverlay.classList.add('open');
+  document.getElementById('cand-name').focus();
+}
+function closeCandModal() { candOverlay.classList.remove('open'); }
+
+document.getElementById('cand-modal-save').addEventListener('click', async function() {
+  const name = document.getElementById('cand-name').value.trim();
+  if (!name) { candErr('Candidate name is required.'); return; }
+  if (!activePosId) { candErr('No position selected.'); return; }
+  const btn = document.getElementById('cand-modal-save');
+  btn.disabled = true; btn.querySelector('.btn-text').textContent = 'Saving...';
+  try {
+    var photoUrl = editingCandId
+      ? (function() {
+          var allCands = positions.reduce(function(arr, p) { return arr.concat(p.candidates || []); }, []);
+          var found = allCands.find(function(c) { return c.id === editingCandId; });
+          return found ? found.photo_url : null;
+        })()
+      : null;
+    if (selectedPhoto) {
+      try { photoUrl = await uploadCandidatePhoto(selectedPhoto, name); }
+      catch(photoErr) {
+        console.warn('Photo upload failed:', photoErr.message);
+        toast('Photo upload failed (is the storage bucket created?). Saving without photo.', 'error');
+        photoUrl = null;
+      }
+    }
+    const payload = {
+      name,
+      position_id: activePosId,
+      bio:         document.getElementById('cand-bio').value.trim()       || null,
+      manifesto:   document.getElementById('cand-manifesto').value.trim() || null,
+      is_active:   document.getElementById('cand-active').checked,
+      photo_url:   photoUrl || null,
+    };
+    if (editingCandId) { await updateCandidate(editingCandId, payload); toast('Candidate updated!', 'success'); }
+    else               { await createCandidate(payload);                  toast('Candidate added!',   'success'); }
+    closeCandModal(); await loadPositions();
+  } catch(err) { candErr(err.message); }
+  finally { btn.disabled = false; btn.querySelector('.btn-text').textContent = editingCandId ? 'Save Changes' : 'Add Candidate'; }
+});
+function candErr(msg) { var e = document.getElementById('cand-modal-error'); e.textContent = msg; e.style.display = 'flex'; }
+document.getElementById('cand-modal-close').addEventListener('click',  closeCandModal);
+document.getElementById('cand-modal-cancel').addEventListener('click', closeCandModal);
+candOverlay.addEventListener('click', function(e) { if (e.target === candOverlay) closeCandModal(); });
+
+// ── Photo handling ─────────────────────────────────────────────
+var photoFile = document.getElementById('photo-file');
+var photoDrop = document.getElementById('photo-drop');
+function handlePhoto(file) {
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { toast('Max photo size is 2MB', 'error'); return; }
+  selectedPhoto = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById('photo-preview');
+    prev.src = e.target.result; prev.classList.add('show');
+    document.getElementById('photo-icon').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+photoFile.addEventListener('change', function(e) { handlePhoto(e.target.files[0]); });
+photoDrop.addEventListener('dragover',  function(e) { e.preventDefault(); photoDrop.style.borderColor = 'var(--primary)'; });
+photoDrop.addEventListener('dragleave', function()  { photoDrop.style.borderColor = ''; });
+photoDrop.addEventListener('drop',      function(e) { e.preventDefault(); photoDrop.style.borderColor = ''; handlePhoto(e.dataTransfer.files[0]); });
+
+// ── Confirm ────────────────────────────────────────────────────
+function doConfirm(title, body, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-body').textContent  = body;
+  confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+document.getElementById('confirm-ok').addEventListener('click', async function() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if (confirmCb) await confirmCb();
+});
+document.getElementById('confirm-cancel').addEventListener('click', function() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+});
+
+// ── Toast ──────────────────────────────────────────────────────
+function toast(msg, type) {
+  type = type || 'info';
+  var c = document.getElementById('toast-container');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'toast-container';
+    c.style.cssText = 'position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;';
+    document.body.appendChild(c);
+  }
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.style.cssText = 'background:#161b22;border:1px solid #21262d;border-radius:8px;padding:0.75rem 1rem;min-width:240px;display:flex;align-items:center;gap:0.6rem;box-shadow:0 4px 20px rgba(0,0,0,0.4);font-size:0.83rem;color:#e6edf3;';
+  if (type === 'success') t.style.borderLeft = '3px solid #3fb950';
+  if (type === 'error')   t.style.borderLeft = '3px solid #f85149';
+  if (type === 'warning') t.style.borderLeft = '3px solid #d29922';
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(function() { t.remove(); }, 300); }, 3500);
+}
+
+// ── Wire globals & init ────────────────────────────────────────
+window.openPosModal  = openPosModal;
+window.openCandModal = openCandModal;
+document.getElementById('btn-add-position').addEventListener('click', function() { openPosModal(); });
+document.getElementById('hamburger').addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('open'); });
+document.getElementById('logout-btn').addEventListener('click', adminLogout);
+
+init();
+</script>
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+
+  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>
