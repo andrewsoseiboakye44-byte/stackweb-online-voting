@@ -731,11 +731,11 @@ window.toggleFAQ = toggleFAQ;
       });
       _obs.observe(document.body, { childList: true, subtree: true });
     });
-  })();
+  });
 </script>
 <script id="sw-mobile-nav">
-/* STACKWEB — Standardised mobile sidebar fix (auto-injected) */
-(function(){
+/* STACKWEB — Standardised mobile sidebar fix (runs after module scripts) */
+document.addEventListener('DOMContentLoaded', function(){
   var ham = document.getElementById('hamburger');
   var sb  = document.getElementById('sidebar');
   var ov  = document.getElementById('sidebar-overlay');
@@ -769,7 +769,7 @@ window.toggleFAQ = toggleFAQ;
       if (window.innerWidth <= 768) setTimeout(closeSb, 80);
     });
   });
-})();
+});
 </script>
 </body>
 </html>
