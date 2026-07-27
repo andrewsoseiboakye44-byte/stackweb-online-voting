@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="STACKWEB — Secure, anonymous, real-time online voting for schools and institutions. Fast, fair, and transparent elections."/>
+  <meta property="og:title" content="STACKWEB Online Voting System"/>
+  <meta property="og:description" content="Secure, anonymous, real-time student elections."/>
+  <title>STACKWEB — Online Voting System</title>
+  <link rel="icon" href="public/favicon/favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
+    [data-lucide].icon-xs{width:13px;height:13px;}
+    [data-lucide].icon-sm{width:15px;height:15px;}
+    [data-lucide]{width:17px;height:17px;}
+    [data-lucide].icon-lg{width:20px;height:20px;}
+    [data-lucide].icon-xl{width:24px;height:24px;}
+    [data-lucide].icon-hero{width:40px;height:40px;}
+    .nav-icon [data-lucide]{width:18px;height:18px;vertical-align:-0.2em;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#4f46e5;--primary-dark:#4338ca;--primary-glow:rgba(79,70,229,0.25);
+      --secondary:#14b8a6;--success:#3fb950;--accent:#f59e0b;--danger:#f85149;
+      --bg:#0d1117;--bg-card:#161b22;--border:#21262d;
+      --text-1:#e6edf3;--text-2:#8b949e;--text-muted:#484f58;
+      --font-body:'Inter',sans-serif;--font-head:'Poppins',sans-serif;--font-mono:'JetBrains Mono',monospace;
+      --radius:12px;--radius-lg:16px;--radius-xl:24px;--transition:240ms ease;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-body);background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6;}
+    a{text-decoration:none;color:inherit;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+    /* ── Background ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(79,70,229,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(79,70,229,0.035) 1px,transparent 1px);background-size:64px 64px;}
+    .orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;will-change:transform;transform:translateZ(0)}
+    .orb-1{width:900px;height:900px;background:radial-gradient(circle,rgba(79,70,229,0.14),transparent 70%);top:-300px;right:-200px;animation:drift 25s ease-in-out infinite;}
+    .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(20,184,166,0.1),transparent 70%);bottom:-150px;left:-150px;animation:drift 18s ease-in-out infinite reverse;}
+    @keyframes drift{0%,100%{transform:translate(0,0);}50%{transform:translate(40px,-30px);}}
+
+    /* ── Navigation ── */
+    .nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,0.82);backdrop-filter:blur(16px);border-bottom:1px solid rgba(33,38,45,0.8);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .nav-brand{display:flex;align-items:center;gap:0.75rem;}
+    .brand-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;color:#fff;font-size:0.95rem;flex-shrink:0;}
+    .brand-text{font-family:var(--font-head);font-weight:800;font-size:1.05rem;}
+    .brand-tag{font-size:0.65rem;color:var(--text-muted);margin-left:0.25rem;align-self:flex-end;margin-bottom:2px;}
+    .brand-logo-img:hover{opacity:0.85;}
+    .nav-links{display:flex;align-items:center;gap:0.25rem;}
+    .nav-link{padding:0.5rem 0.875rem;border-radius:var(--radius);color:var(--text-2);font-size:0.875rem;font-weight:500;transition:all var(--transition);}
+    .nav-link:hover{color:var(--text-1);background:rgba(255,255,255,0.04);}
+    .nav-cta{background:var(--primary);color:#fff;padding:0.5rem 1.25rem;border-radius:var(--radius);font-size:0.875rem;font-weight:700;transition:all var(--transition);}
+    .nav-cta:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 0 20px var(--primary-glow);}
+    .nav-mobile-menu{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+    .nav-mobile-menu span{display:block;width:22px;height:2px;background:var(--text-1);border-radius:2px;transition:all 0.3s;}
+
+    /* ── Hero ── */
+    .hero{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:6rem 2rem;text-align:center;position:relative;z-index:1;}
+    .hero-inner{max-width:860px;}
+    .hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.25);border-radius:99px;padding:0.375rem 1rem;font-size:0.78rem;font-weight:600;color:#a5b4fc;margin-bottom:2rem;animation:fadeUp 0.6s ease both;}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .hero-h1{font-family:var(--font-head);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.1;letter-spacing:-0.02em;animation:fadeUp 0.6s 0.1s ease both;margin-bottom:1.25rem;}
+    .hero-h1 .grad{background:linear-gradient(135deg,#818cf8,#38bdf8,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-sub{font-size:1.15rem;color:var(--text-2);max-width:580px;margin:0 auto 2.5rem;animation:fadeUp 0.6s 0.2s ease both;line-height:1.7;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.6s 0.3s ease both;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.875rem 2rem;border-radius:var(--radius);font-family:var(--font-body);font-size:0.95rem;font-weight:700;cursor:pointer;border:none;transition:all var(--transition);text-decoration:none;white-space:nowrap;}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;box-shadow:0 4px 20px rgba(79,70,229,0.4);}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(79,70,229,0.5);}
+    .btn-outline{background:transparent;color:var(--text-1);border:1.5px solid var(--border);}
+    .btn-outline:hover{border-color:var(--primary);color:var(--primary);background:rgba(79,70,229,0.04);}
+    .btn-ghost{background:rgba(255,255,255,0.05);color:var(--text-1);border:1px solid rgba(255,255,255,0.08);}
+    .btn-ghost:hover{background:rgba(255,255,255,0.08);}
+
+    /* ── Hero stats ── */
+    .hero-stats{display:flex;gap:2.5rem;justify-content:center;margin-top:3.5rem;flex-wrap:wrap;animation:fadeUp 0.6s 0.4s ease both;}
+    .hs-item{text-align:center;}
+    .hs-num{font-family:var(--font-head);font-size:2rem;font-weight:900;}
+    .hs-lbl{font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;}
+    .hs-div{width:1px;background:var(--border);align-self:stretch;}
+
+    /* ── Section ── */
+    .section{padding:6rem 2rem;position:relative;z-index:1;}
+    .section-inner{max-width:1100px;margin:0 auto;}
+    .section-label{font-size:0.72rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--primary);margin-bottom:0.75rem;}
+    .section-title{font-family:var(--font-head);font-size:clamp(1.75rem,3.5vw,2.75rem);font-weight:800;line-height:1.2;margin-bottom:1rem;}
+    .section-sub{font-size:1rem;color:var(--text-2);max-width:560px;line-height:1.7;}
+
+    /* ── Features grid ── */
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3.5rem;}
+    .feature-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;transition:all var(--transition);position:relative;overflow:hidden;}
+    .feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(79,70,229,0.04),transparent);opacity:0;transition:opacity var(--transition);}
+    .feature-card:hover{border-color:rgba(79,70,229,0.35);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.3);}
+    .feature-card:hover::before{opacity:1;}
+    .fc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem;}
+    .fc-title{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:0.5rem;}
+    .fc-desc{font-size:0.85rem;color:var(--text-2);line-height:1.6;}
+
+    /* ── How it works ── */
+    .how-section{background:rgba(255,255,255,0.015);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3rem;}
+    .step{text-align:center;padding:1.5rem 1rem;}
+    .step-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;font-size:1.1rem;color:#fff;margin:0 auto 1rem;}
+    .step-title{font-weight:700;font-size:0.95rem;margin-bottom:0.5rem;}
+    .step-desc{font-size:0.82rem;color:var(--text-2);line-height:1.6;}
+    .step-connector{display:none;}
+
+    /* ── Roles ── */
+    .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem;}
+    .role-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;transition:all var(--transition);}
+    .role-card:hover{border-color:rgba(79,70,229,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.25);}
+    .role-icon{
+      width:56px;height:56px;border-radius:14px;
+      background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);
+      display:flex;align-items:center;justify-content:center;
+      margin-bottom:1.25rem;
+    }
+    .role-icon [data-lucide]{width:26px;height:26px;}
+    .role-title{font-family:var(--font-head);font-size:1.25rem;font-weight:800;margin-bottom:0.5rem;}
+    .role-desc{font-size:0.875rem;color:var(--text-2);margin-bottom:1.5rem;line-height:1.6;}
+    .role-features{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem;}
+    .rf-item{display:flex;align-items:center;gap:0.625rem;font-size:0.83rem;color:var(--text-2);}
+    .rf-dot{width:16px;height:16px;border-radius:50%;background:rgba(63,185,80,0.15);border:1px solid rgba(63,185,80,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .rf-dot [data-lucide]{width:9px;height:9px;color:#3fb950;stroke-width:3;}
+
+    /* ── CTA banner ── */
+    .cta-section{padding:6rem 2rem;position:relative;z-index:1;}
+    .cta-inner{max-width:720px;margin:0 auto;text-align:center;background:linear-gradient(135deg,rgba(79,70,229,0.1),rgba(20,184,166,0.06));border:1px solid rgba(79,70,229,0.2);border-radius:var(--radius-xl);padding:4rem 3rem;position:relative;overflow:hidden;}
+    .cta-inner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(79,70,229,0.12),transparent 60%);pointer-events:none;}
+    .cta-title{font-family:var(--font-head);font-size:2rem;font-weight:900;margin-bottom:1rem;}
+    .cta-sub{color:var(--text-2);margin-bottom:2rem;font-size:0.95rem;line-height:1.6;}
+    .cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+
+    /* ── Footer ── */
+    .footer{background:var(--bg-card);border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;position:relative;z-index:1;}
+    .footer-brand{font-family:var(--font-head);font-weight:800;font-size:1.05rem;margin-bottom:0.5rem;}
+    .footer-copy{font-size:0.78rem;color:var(--text-muted);}
+
+    /* ── Mobile nav ── */
+    .mobile-nav{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(13,17,23,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:1.25rem 2rem;flex-direction:column;gap:0.25rem;z-index:99;}
+    .mobile-nav.open{display:flex;}
+    .mob-link{padding:0.75rem 1rem;border-radius:var(--radius);color:var(--text-2);font-size:0.9rem;font-weight:500;display:block;transition:all var(--transition);}
+    .mob-link:hover{color:var(--text-1);background:rgba(255,255,255,0.04);}
+    .mob-cta{background:var(--primary);color:#fff;padding:0.75rem 1.25rem;border-radius:var(--radius);font-size:0.9rem;font-weight:700;display:block;text-align:center;margin-top:0.5rem;}
+
+    @media(max-width:900px){.features-grid{grid-template-columns:repeat(2,1fr);}.steps{grid-template-columns:repeat(2,1fr);}.roles-grid{grid-template-columns:1fr;}}
+    @media(max-width:640px){
+      .features-grid{grid-template-columns:1fr;}.steps{grid-template-columns:1fr;}.hero{padding:4rem 1.25rem;}
+      .nav-links{display:none;}.nav-mobile-menu{display:flex;}.cta-inner{padding:2.5rem 1.5rem;}
+      .hero-stats{gap:1.5rem;}.hs-div{display:none;}
+    }
+
+        
+      /* __ STACKWEB Dev Footer __ */
+    .sw-dev-footer{background:var(--bg-card,#161b22);border-top:1px solid var(--border,#21262d);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;flex-shrink:0;font-family:Inter,sans-serif;}
+    .sw-dev-footer-logo{height:50px;width:auto;object-fit:contain;display:block;opacity:0.9;}
+    .sw-dev-footer-logo:hover{opacity:1;}
+    .sw-dev-footer-copy{font-size:0.72rem;color:var(--text-muted,#484f58);text-align:right;line-height:1.7;}
+    .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
+    .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
+    .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
+    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
+    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
+    /* __ End STACKWEB Dev Footer __ */
+  </style>
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <a href="index.html" class="nav-brand" aria-label="STACKWEB Home">
+    <img src="src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="brand-logo-img" />
+  </a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#how-it-works" class="nav-link">How it Works</a>
+    <a href="src/pages/operator/token-portal.html" class="nav-link"><i data-lucide="key-round"></i> Token Staff</a>
+    <a href="src/pages/admin/index.html" class="nav-link"><i data-lucide="shield-check"></i> Admin</a>
+  </div>
+  <a href="src/pages/voter/landing.html" class="nav-cta"><i data-lucide="check-square"></i> Vote Now</a>
+  <button class="nav-mobile-menu" id="mobile-menu-btn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="#features"                          class="mob-link"><i data-lucide="star"></i> Features</a>
+  <a href="#how-it-works"                      class="mob-link"><i data-lucide="clipboard-list"></i> How it Works</a>
+  <a href="src/pages/operator/token-portal.html" class="mob-link"><i data-lucide="key-round"></i> Token Staff Login</a>
+  <a href="src/pages/admin/index.html"           class="mob-link"><i data-lucide="lock"></i> Admin Login</a>
+  <a href="src/pages/voter/landing.html"       class="mob-cta"><i data-lucide="check-square"></i> Vote Now</a>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="live-dot"></div>
+      Secure · Anonymous · Real-Time
+    </div>
+    <h1 class="hero-h1">
+      Student Elections,<br/>
+      <span class="grad">Done Right.</span>
+    </h1>
+    <p class="hero-sub">
+      STACKWEB makes running fair, transparent, and anonymous school elections effortless.
+      From token generation to live results — everything in one platform.
+    </p>
+    <div class="hero-actions">
+      <a href="src/pages/voter/landing.html"        class="btn btn-primary"><i data-lucide="check-square"></i> Cast Your Vote</a>
+      <a href="src/pages/admin/index.html"          class="btn btn-outline"><i data-lucide="lock"></i> Admin Panel</a>
+      <a href="src/pages/operator/token-portal.html" class="btn btn-ghost"><i data-lucide="key-round"></i> Token Staff Login</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hs-item"><div class="hs-num" style="color:#818cf8">100%</div><div class="hs-lbl">Anonymous Votes</div></div>
+      <div class="hs-div"></div>
+      <div class="hs-item"><div class="hs-num" style="color:#34d399">Live</div><div class="hs-lbl">Real-time Results</div></div>
+      <div class="hs-div"></div>
+      <div class="hs-item"><div class="hs-num" style="color:#38bdf8">1</div><div class="hs-lbl">Token per Voter</div></div>
+      <div class="hs-div"></div>
+      <div class="hs-item"><div class="hs-num" style="color:#f59e0b">0</div><div class="hs-lbl">Paper Ballots</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-label">Platform Features</div>
+    <h2 class="section-title">Everything You Need for a Fair Election</h2>
+    <p class="section-sub">Built for school administrators and student voters. Simple to set up, powerful in action.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(79,70,229,0.12)"><i data-lucide="key-round"></i></div>
+        <div class="fc-title">Token-Based Access</div>
+        <div class="fc-desc">Each voter receives a unique <code style="font-family:monospace;font-size:0.8em;background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px">SW-XXXX-XXXX-XXXX</code> token. One token, one vote — no duplicates, no fraud.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(63,185,80,0.12)"><i data-lucide="lock"></i></div>
+        <div class="fc-title">Identity-Protected Voting</div>
+        <div class="fc-desc">Your name is never shown in results. Votes are recorded securely — only your token is used to verify participation, never your identity.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(20,184,166,0.12)"><i data-lucide="trending-up"></i></div>
+        <div class="fc-title">Live Results</div>
+        <div class="fc-desc">Real-time vote counts powered by Supabase Realtime. Watch the results update live as votes are cast.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(245,158,11,0.12)"><i data-lucide="trophy"></i></div>
+        <div class="fc-title">Winner Declaration</div>
+        <div class="fc-desc">Automatic winner cards per position. Publish results publicly after the election closes.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(248,81,73,0.12)"><i data-lucide="clipboard-list"></i></div>
+        <div class="fc-title">Full Audit Trail</div>
+        <div class="fc-desc">Every admin action is logged — election changes, token generation, and status updates. Full transparency.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(79,70,229,0.12)"><i data-lucide="folder-open"></i></div>
+        <div class="fc-title">Bulk CSV Upload</div>
+        <div class="fc-desc">Upload your entire voter list as a CSV file and generate tokens for all students in seconds.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(20,184,166,0.12)"><i data-lucide="settings"></i></div>
+        <div class="fc-title">Voting Control</div>
+        <div class="fc-desc">Start, pause, and end elections with a single click. Emergency pause protects vote integrity.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(63,185,80,0.12)"><i data-lucide="user"></i></div>
+        <div class="fc-title">Candidate Profiles</div>
+        <div class="fc-desc">Add candidate photos, bios, and manifestos. Voters see rich profiles before making their choice.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="background:rgba(245,158,11,0.12)"><i data-lucide="smartphone"></i></div>
+        <div class="fc-title">Mobile Friendly</div>
+        <div class="fc-desc">Students vote from any device — phone, tablet, or desktop. Fully responsive design throughout.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section how-section" id="how-it-works">
+  <div class="section-inner">
+    <div class="section-label">Simple Process</div>
+    <h2 class="section-title">Up and Running in Minutes</h2>
+    <p class="section-sub">From setup to results — the complete election lifecycle in four easy steps.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Create Election</div>
+        <div class="step-desc">Set up positions, add candidates with photos, and configure your election settings.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Generate Tokens</div>
+        <div class="step-desc">Generate unique tokens for each voter. Download as CSV or bulk-upload a student list.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Vote Securely</div>
+        <div class="step-desc">Students enter their token, select candidates, confirm their ballot — done in under 2 minutes.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">See Live Results</div>
+        <div class="step-desc">Watch real-time turnout and vote counts. Close the election and publish official results.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Roles -->
+<section class="section" id="get-started">
+  <div class="section-inner">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Are You a Voter or Administrator?</h2>
+    <p class="section-sub">STACKWEB serves two roles with dedicated, focused interfaces for each.</p>
+    <div class="roles-grid">
+      <!-- Voter -->
+      <div class="role-card">
+        <div class="role-icon" style="background:rgba(79,70,229,0.1);border-color:rgba(79,70,229,0.2)">
+          <i data-lucide="check-square"></i>
+        </div>
+        <div class="role-title">I'm a Voter</div>
+        <div class="role-desc">You received a voting token from your school administrator. Click below to access the ballot and cast your vote.</div>
+        <div class="role-features">
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Enter your unique token (SW-XXXX-XXXX-XXXX)</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Browse candidates with photos and bios</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Vote anonymously — no one sees your choice</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Get a confirmation reference code</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>View results when they're published</div>
+        </div>
+        <a href="src/pages/voter/landing.html" class="btn btn-primary btn-xl"><i data-lucide="check-square"></i> Vote Now <i data-lucide="arrow-right"></i></a>
+      </div>
+      <!-- Admin -->
+      <div class="role-card">
+        <div class="role-icon" style="background:rgba(20,184,166,0.1);border-color:rgba(20,184,166,0.2)">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div class="role-title">I'm an Administrator</div>
+        <div class="role-desc">You manage elections, candidates, and voters. Log in to the admin panel to run your election.</div>
+        <div class="role-features">
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Create and configure elections</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Add candidates with photos and bios</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Generate and distribute voter tokens</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Control voting with one click (Start/Pause/End)</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Monitor live results and export reports</div>
+        </div>
+        <a href="src/pages/admin/index.html" class="btn btn-outline btn-xl"><i data-lucide="lock"></i> Admin Login <i data-lucide="arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-title">Ready to Run Your Election?</div>
+    <p class="cta-sub">Set up STACKWEB for your school in minutes. Connect Supabase, import your voter list, and go live.</p>
+    <div class="cta-actions">
+      <a href="src/pages/admin/index.html" class="btn btn-primary"><i data-lucide="rocket"></i> Launch Admin Panel</a>
+      <a href="src/pages/operator/token-portal.html" class="btn btn-ghost"><i data-lucide="key-round"></i> Token Staff Login</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-brand"><i data-lucide="check-square"></i> STACKWEB Online Voting System</div>
+  <div class="footer-copy">Secure · Anonymous · Real-Time &nbsp;·&nbsp; Built with Supabase &nbsp;·&nbsp; v1.1.0</div>
+</footer>
+
+<script>
+  // Mobile nav
+  const btn = document.getElementById('mobile-menu-btn');
+  const nav = document.getElementById('mobile-nav');
+  btn.addEventListener('click', () => nav.classList.toggle('open'));
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Nav scroll effect
+  const navEl = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    navEl.style.background = window.scrollY > 40 ? 'rgba(13,17,23,0.95)' : 'rgba(13,17,23,0.82)';
+  }, { passive: true });
+</script>
+
+  <!-- StackWeb Developers Footer -->
+  <footer class="sw-dev-footer">
+    <img src="src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sw-dev-footer-logo" />
+    <div class="sw-dev-footer-copy">
+      &copy; 2026 <strong>StackWeb Developers</strong>. All rights reserved.<br/>
+      <em>Smart Systems. Real Solutions.</em>
+    </div>
+  </footer>
+
+<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
+<script>
+  (function () {
+    var _obs = null, _raf = null;
+    function _run() {
+      _raf = null;
+      if (!window.lucide) return;
+      if (_obs) _obs.disconnect();
+      try { window.lucide.createIcons(); } catch (e) {}
+      if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
+    }
+    window.initIcons = function () {
+      if (_raf) return; // already queued â€” skip
+      _raf = requestAnimationFrame(_run);
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+      window.initIcons();
+      if (!window.MutationObserver) return;
+      _obs = new MutationObserver(function (mutations) {
+        var hasIconEl = mutations.some(function (m) {
+          return Array.from(m.addedNodes).some(function (n) {
+            return n.nodeType === 1 && (
+              (n.tagName === 'I' && n.hasAttribute && n.hasAttribute('data-lucide')) ||
+              (n.tagName !== 'svg' && n.querySelector && n.querySelector('i[data-lucide]'))
+            );
+          });
+        });
+        if (hasIconEl) window.initIcons();
+      });
+      _obs.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
+</body>
+</html>
