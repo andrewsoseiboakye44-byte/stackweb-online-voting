@@ -671,5 +671,43 @@ init();
     });
   })();
 </script>
+<script id="sw-mobile-nav">
+/* STACKWEB — Standardised mobile sidebar fix (auto-injected) */
+(function(){
+  var ham = document.getElementById('hamburger');
+  var sb  = document.getElementById('sidebar');
+  var ov  = document.getElementById('sidebar-overlay');
+  if (!ham || !sb) return;
+
+  function openSb() {
+    sb.classList.add('open');
+    if (ov) { ov.style.display = 'block'; requestAnimationFrame(function(){ ov.style.opacity = '1'; }); }
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSb() {
+    sb.classList.remove('open');
+    if (ov) { ov.style.opacity = '0'; setTimeout(function(){ ov.style.display = 'none'; }, 220); }
+    document.body.style.overflow = '';
+  }
+
+  /* Replace hamburger to remove stale listeners */
+  var newHam = ham.cloneNode(true);
+  ham.parentNode.replaceChild(newHam, ham);
+  newHam.addEventListener('click', function(){ sb.classList.contains('open') ? closeSb() : openSb(); });
+
+  /* Overlay click closes sidebar */
+  if (ov) ov.addEventListener('click', closeSb);
+
+  /* Close on desktop resize */
+  window.addEventListener('resize', function(){ if (window.innerWidth > 768) closeSb(); });
+
+  /* Auto-close sidebar when any nav item is tapped on mobile */
+  sb.querySelectorAll('a.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      if (window.innerWidth <= 768) setTimeout(closeSb, 80);
+    });
+  });
+})();
+</script>
 </body>
 </html>
