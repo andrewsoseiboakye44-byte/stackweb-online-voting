@@ -133,20 +133,6 @@
     .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
     @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
   </style>
-  <script>
-    // ── Global Tab Switcher (Available instantly before DOM load) ────────────
-    window.switchTab = function(tabEl) {
-      if (!tabEl) return;
-      var tabName = tabEl.getAttribute('data-tab');
-      var allTabs = document.querySelectorAll('.s-tab');
-      var allPanels = document.querySelectorAll('.s-panel');
-      for (var i = 0; i < allTabs.length; i++) allTabs[i].classList.remove('active');
-      for (var j = 0; j < allPanels.length; j++) allPanels[j].classList.remove('active');
-      tabEl.classList.add('active');
-      var target = document.getElementById('tab-' + tabName);
-      if (target) target.classList.add('active');
-    };
-  </script>
 </head>
 <body>
 <div id="toast-container"></div>
@@ -185,7 +171,7 @@
         <div><div class="page-title">Settings</div><div class="breadcrumb">Dashboard / Settings</div></div>
       </div>
       <div class="topbar-right">
-        <button class="btn btn-primary" id="btn-save-all" onclick="window.handleSaveAllSettings && window.handleSaveAllSettings()"><i data-lucide="save"></i> Save All Settings</button>
+        <button class="btn btn-primary" id="btn-save-all"><i data-lucide="save"></i> Save All Settings</button>
       </div>
     </header>
 
@@ -196,11 +182,11 @@
       </div>
 
       <div class="settings-tabs">
-        <button class="s-tab active" data-tab="general" onclick="window.switchTab(this)"><i data-lucide="school"></i> General</button>
-        <button class="s-tab" data-tab="voting" onclick="window.switchTab(this)"><i data-lucide="check-square"></i> Voting</button>
-        <button class="s-tab" data-tab="security" onclick="window.switchTab(this)"><i data-lucide="lock"></i> Security</button>
-        <button class="s-tab" data-tab="operator" onclick="window.switchTab(this)"><i data-lucide="key-round"></i> Operator Access</button>
-        <button class="s-tab" data-tab="system" onclick="window.switchTab(this)"><i data-lucide="cpu"></i> System</button>
+        <button class="s-tab active" data-tab="general"><i data-lucide="school"></i> General</button>
+        <button class="s-tab" data-tab="voting"><i data-lucide="check-square"></i> Voting</button>
+        <button class="s-tab" data-tab="security"><i data-lucide="lock"></i> Security</button>
+        <button class="s-tab" data-tab="operator"><i data-lucide="key-round"></i> Operator Access</button>
+        <button class="s-tab" data-tab="system"><i data-lucide="cpu"></i> System</button>
       </div>
 
       <!-- ── General Tab ── -->
@@ -330,7 +316,7 @@
               </div>
             </div>
             <div id="op-save-msg" style="display:none;font-size:0.8rem;color:var(--success);margin-bottom:1rem"></div>
-            <button class="btn btn-primary" id="btn-save-operator" onclick="window.handleSaveOperatorCreds && window.handleSaveOperatorCreds()"><i data-lucide="save"></i> Save Credentials</button>
+            <button class="btn btn-primary" id="btn-save-operator"><i data-lucide="save"></i> Save Credentials</button>
           </div>
         </div>
       </div>
@@ -370,7 +356,7 @@
 
 <script type="module">
 import { requireAdmin } from '../src/assets/js/auth.js';
-import { fetchSettings, saveSettings, uploadInstitutionLogo, deriveTokenPrefix } from '../src/assets/js/supabase-client.js';
+import { fetchSettings, saveSettings, uploadInstitutionLogo, deriveTokenPrefix, supabase } from '../src/assets/js/supabase-client.js';
 
 let _pendingLogoFile = null;
 
@@ -410,94 +396,83 @@ function updateExpiryPreview() {
   el.textContent = `Tokens generated now will expire: ${expiry.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
 }
 
-// ── Document Event Delegation (Input, Change, Click) ───────────────────
-document.addEventListener('input', (e) => {
-  const id = e.target.id;
-  if (id === 's-school-name') {
-    updatePrefixPreview();
-  } else if (id === 's-color1') {
-    const p = document.getElementById('color1-preview');
-    const h = document.getElementById('s-color1-hex');
-    if (p) p.style.background = e.target.value;
-    if (h) h.value = e.target.value;
-  } else if (id === 's-color2') {
-    const p = document.getElementById('color2-preview');
-    const h = document.getElementById('s-color2-hex');
-    if (p) p.style.background = e.target.value;
-    if (h) h.value = e.target.value;
-  } else if (id === 's-expiry-h' || id === 's-expiry-m') {
-    updateExpiryPreview();
-  }
+// ── Tab Switching ──────────────────────────────────────────────────────
+document.querySelectorAll('.s-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.s-tab,.s-panel').forEach(el => el.classList.remove('active'));
+    tab.classList.add('active');
+    const target = document.getElementById('tab-' + tab.dataset.tab);
+    if (target) target.classList.add('active');
+  });
 });
 
-document.addEventListener('change', (e) => {
-  if (e.target.id === 'logo-file-input') {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast('Logo must be under 2 MB.', 'error');
-      e.target.value = '';
-      return;
-    }
-    _pendingLogoFile = file;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = document.getElementById('logo-preview-img');
-      if (img) { img.src = ev.target.result; img.style.display = 'block'; }
-      const icon = document.getElementById('logo-preview-icon');
-      if (icon) icon.style.display = 'none';
-      const wrap = document.getElementById('logo-preview-wrap');
-      if (wrap) { wrap.style.borderStyle = 'solid'; wrap.style.borderColor = 'var(--primary)'; }
-      const rmBtn = document.getElementById('btn-remove-logo');
-      if (rmBtn) rmBtn.style.display = '';
-      const st = document.getElementById('logo-upload-status');
-      if (st) st.innerHTML = `<span style="color:var(--secondary)"><i data-lucide="check-circle-2"></i> ${file.name} ready — will upload on Save</span>`;
-      window.initIcons?.();
-    };
-    reader.readAsDataURL(file);
-  }
+// ── Live Color Pickers ──────────────────────────────────────────────────
+document.getElementById('s-color1')?.addEventListener('input', e => {
+  const p = document.getElementById('color1-preview');
+  const h = document.getElementById('s-color1-hex');
+  if (p) p.style.background = e.target.value;
+  if (h) h.value = e.target.value;
+});
+document.getElementById('s-color2')?.addEventListener('input', e => {
+  const p = document.getElementById('color2-preview');
+  const h = document.getElementById('s-color2-hex');
+  if (p) p.style.background = e.target.value;
+  if (h) h.value = e.target.value;
 });
 
-document.addEventListener('click', (e) => {
-  if (e.target.closest('#btn-remove-logo')) {
-    _pendingLogoFile = null;
-    const sLogo = document.getElementById('s-logo'); if (sLogo) sLogo.value = '';
-    const fileInp = document.getElementById('logo-file-input'); if (fileInp) fileInp.value = '';
-    const img = document.getElementById('logo-preview-img'); if (img) { img.src = ''; img.style.display = 'none'; }
-    const icon = document.getElementById('logo-preview-icon'); if (icon) icon.style.display = '';
-    const wrap = document.getElementById('logo-preview-wrap'); if (wrap) { wrap.style.borderStyle = 'dashed'; wrap.style.borderColor = 'var(--border)'; }
-    const rmBtn = document.getElementById('btn-remove-logo'); if (rmBtn) rmBtn.style.display = 'none';
-    const st = document.getElementById('logo-upload-status'); if (st) st.textContent = '';
-  } else if (e.target.closest('#toggle-op-pw')) {
-    const inp = document.getElementById('s-op-password');
-    const btn = e.target.closest('#toggle-op-pw');
-    if (!inp) return;
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-    if (btn) { btn.innerHTML = inp.type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>'; window.initIcons?.(); }
-  } else if (e.target.closest('#btn-clear-logs')) {
-    if (!confirm('Delete ALL audit logs? This cannot be undone.')) return;
-    import('../src/assets/js/supabase-client.js').then(m => {
-      m.supabase.from('audit_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-        .then(() => toast('Audit logs cleared.', 'success'))
-        .catch(e => toast(e.message, 'error'));
-    });
-  } else if (e.target.closest('#btn-clear-tokens')) {
-    if (!confirm('Delete ALL unused tokens?')) return;
-    import('../src/assets/js/supabase-client.js').then(m => {
-      m.supabase.from('voters').delete().eq('status', 'unused')
-        .then(() => toast('Unused tokens deleted.', 'success'))
-        .catch(e => toast(e.message, 'error'));
-    });
-  } else if (e.target.closest('#btn-reset')) {
-    const typed = prompt('Type "RESET" to confirm full system reset. ALL DATA WILL BE LOST.');
-    if (typed === 'RESET') {
-      toast('Full reset requires direct Supabase action for safety. Go to Supabase SQL Editor and run truncate commands.', 'info');
-    }
+// ── Institution Name & Token Expiry Live Listeners ─────────────────────
+document.getElementById('s-school-name')?.addEventListener('input', updatePrefixPreview);
+document.getElementById('s-expiry-h')?.addEventListener('input', updateExpiryPreview);
+document.getElementById('s-expiry-m')?.addEventListener('input', updateExpiryPreview);
+
+// ── Logo File Picker ───────────────────────────────────────────────────
+document.getElementById('logo-file-input')?.addEventListener('change', e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    toast('Logo must be under 2 MB.', 'error');
+    e.target.value = '';
+    return;
   }
+  _pendingLogoFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('logo-preview-img');
+    if (img) { img.src = ev.target.result; img.style.display = 'block'; }
+    const icon = document.getElementById('logo-preview-icon');
+    if (icon) icon.style.display = 'none';
+    const wrap = document.getElementById('logo-preview-wrap');
+    if (wrap) { wrap.style.borderStyle = 'solid'; wrap.style.borderColor = 'var(--primary)'; }
+    const rmBtn = document.getElementById('btn-remove-logo');
+    if (rmBtn) rmBtn.style.display = '';
+    const st = document.getElementById('logo-upload-status');
+    if (st) st.innerHTML = `<span style="color:var(--secondary)"><i data-lucide="check-circle-2"></i> ${file.name} ready — will upload on Save</span>`;
+    window.initIcons?.();
+  };
+  reader.readAsDataURL(file);
 });
 
-// ── Save Operator Credentials Global Handler ─────────────────────────
-window.handleSaveOperatorCreds = async function() {
+document.getElementById('btn-remove-logo')?.addEventListener('click', () => {
+  _pendingLogoFile = null;
+  const sLogo = document.getElementById('s-logo'); if (sLogo) sLogo.value = '';
+  const fileInp = document.getElementById('logo-file-input'); if (fileInp) fileInp.value = '';
+  const img = document.getElementById('logo-preview-img'); if (img) { img.src = ''; img.style.display = 'none'; }
+  const icon = document.getElementById('logo-preview-icon'); if (icon) icon.style.display = '';
+  const wrap = document.getElementById('logo-preview-wrap'); if (wrap) { wrap.style.borderStyle = 'dashed'; wrap.style.borderColor = 'var(--border)'; }
+  const rmBtn = document.getElementById('btn-remove-logo'); if (rmBtn) rmBtn.style.display = 'none';
+  const st = document.getElementById('logo-upload-status'); if (st) st.textContent = '';
+});
+
+// ── Save Operator Credentials ──────────────────────────────────────────
+document.getElementById('toggle-op-pw')?.addEventListener('click', () => {
+  const inp = document.getElementById('s-op-password');
+  const btn = document.getElementById('toggle-op-pw');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  if (btn) { btn.innerHTML = inp.type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>'; window.initIcons?.(); }
+});
+
+document.getElementById('btn-save-operator')?.addEventListener('click', async () => {
   const username = document.getElementById('s-op-username')?.value.trim();
   const password = document.getElementById('s-op-password')?.value;
   const msg = document.getElementById('op-save-msg');
@@ -518,10 +493,10 @@ window.handleSaveOperatorCreds = async function() {
   finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save Credentials'; window.initIcons?.(); }
   }
-};
+});
 
-// ── Save All Settings Global Handler ──────────────────────────────────
-window.handleSaveAllSettings = async function() {
+// ── Save All Settings ──────────────────────────────────────────────────
+document.getElementById('btn-save-all')?.addEventListener('click', async () => {
   const btn = document.getElementById('btn-save-all');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   try {
@@ -588,7 +563,29 @@ window.handleSaveAllSettings = async function() {
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.(); }
   }
-};
+});
+
+// ── Danger Zone ────────────────────────────────────────────────────────
+document.getElementById('btn-clear-logs')?.addEventListener('click', () => {
+  if (!confirm('Delete ALL audit logs? This cannot be undone.')) return;
+  supabase.from('audit_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    .then(() => toast('Audit logs cleared.', 'success'))
+    .catch(e => toast(e.message, 'error'));
+});
+
+document.getElementById('btn-clear-tokens')?.addEventListener('click', () => {
+  if (!confirm('Delete ALL unused tokens?')) return;
+  supabase.from('voters').delete().eq('status', 'unused')
+    .then(() => toast('Unused tokens deleted.', 'success'))
+    .catch(e => toast(e.message, 'error'));
+});
+
+document.getElementById('btn-reset')?.addEventListener('click', () => {
+  const typed = prompt('Type "RESET" to confirm full system reset. ALL DATA WILL BE LOST.');
+  if (typed === 'RESET') {
+    toast('Full reset requires direct Supabase action for safety. Go to Supabase SQL Editor and run truncate commands.', 'info');
+  }
+});
 
 // ── Page Initialization ────────────────────────────────────────────────
 async function init() {
@@ -616,7 +613,7 @@ async function init() {
       if (img) { img.src = savedLogo; img.style.display = 'block'; }
       const icon = document.getElementById('logo-preview-icon'); if (icon) icon.style.display = 'none';
       const rmBtn = document.getElementById('btn-remove-logo'); if (rmBtn) rmBtn.style.display = '';
-      const wrap = document.getElementById('logo-preview-wrap'); if (wrap) wrap.style.borderStyle = 'solid';
+      const wrap = document.getElementById('logo-preview-wrap'); if (wrap) { wrap.style.borderStyle = 'solid'; wrap.style.borderColor = 'var(--primary)'; }
     }
     if (settings.primary_color && document.getElementById('s-color1')) {
       document.getElementById('s-color1').value = settings.primary_color;
@@ -648,7 +645,6 @@ async function init() {
   } catch {}
 }
 
-// Operator credentials loader
 async function loadOperatorCreds() {
   try {
     const settings = await fetchSettings();
