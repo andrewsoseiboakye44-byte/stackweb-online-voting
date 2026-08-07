@@ -143,12 +143,18 @@ export async function uploadInstitutionLogo(file) {
   return data.publicUrl + '?t=' + Date.now();
 }
 
-// ──────────────────────────────────────────────────────────────
-// VOTERS / TOKENS
-// ──────────────────────────────────────────────────────────────
+// Unambiguous uppercase alphanumeric characters (no 0, O, 1, I to prevent voter confusion)
+const TOKEN_CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
 export function generateTokenString() {
-  const seg = () => Math.random().toString(36).slice(2, 6).toUpperCase().replace(/[^A-Z0-9]/g,'X').padEnd(4,'X').slice(0,4);
-  return `SW-${seg()}-${seg()}-${seg()}`;
+  const seg = (len = 3) => {
+    let res = '';
+    for (let i = 0; i < len; i++) {
+      res += TOKEN_CHARSET.charAt(Math.floor(Math.random() * TOKEN_CHARSET.length));
+    }
+    return res;
+  };
+  return `SW-${seg(3)}-${seg(3)}`;
 }
 
 export async function generateTokens(electionId, voterList, expiryMins = null) {
@@ -166,16 +172,23 @@ export async function generateTokens(electionId, voterList, expiryMins = null) {
   const expiresAt = new Date(Date.now() + totalMins * 60 * 1000).toISOString();
   const durationLabel = formatExpiryMins(totalMins);
 
-  // voterList = [{name, email, class}]
-  const records = voterList.map(v => ({
-    election_id:  electionId,
-    student_name: v.name  || 'Voter',
-    email:        v.email || null,
-    class:        v.class || null,
-    token:        generateTokenString(),
-    status:       TOKEN_STATUS.UNUSED,
-    expires_at:   expiresAt,
-  }));
+  const generatedSet = new Set();
+  const records = voterList.map(v => {
+    let token = generateTokenString();
+    while (generatedSet.has(token)) {
+      token = generateTokenString();
+    }
+    generatedSet.add(token);
+    return {
+      election_id:  electionId,
+      student_name: v.name  || 'Voter',
+      email:        v.email || null,
+      class:        v.class || null,
+      token,
+      status:       TOKEN_STATUS.UNUSED,
+      expires_at:   expiresAt,
+    };
+  });
   // Insert in batches of 50
   const results = [];
   for (let i = 0; i < records.length; i += 50) {

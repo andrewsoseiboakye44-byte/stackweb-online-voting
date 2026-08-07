@@ -11,12 +11,12 @@ export { isValidEmail, isStrongPassword } from '../assets/js/main.js';
 
 /**
  * Check if a string looks like a valid STACKWEB voter token.
- * Valid format: PREFIX-XXXX-XXXX-XXXX  (prefix 1-5 alphanum, segments 4 alphanum each)
- * e.g. "SW-AB12-CD34-EF56"
+ * Valid format: PREFIX-XXX-XXX  (prefix 1-5 alphanum, segments 3 alphanum each)
+ * e.g. "SW-8A9-2K4"
  */
 export function isValidToken(token) {
   if (!token || typeof token !== 'string') return false;
-  return /^[A-Z0-9]{1,5}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(token.trim());
+  return /^[A-Z0-9]{1,5}-[A-Z0-9]{3}-[A-Z0-9]{3}$/i.test(token.trim());
 }
 
 /**

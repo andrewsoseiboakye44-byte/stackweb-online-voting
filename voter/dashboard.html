@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -628,11 +628,11 @@ document.getElementById('cm-confirm').addEventListener('click', async()=>{
     if(voteRecords.length>0) await castVotes(voteRecords);
     // NOTE: markTokenUsed() is now called inside castVotes() — do NOT call it again here
     // Capture the token reference BEFORE clearing the session
-    // Mask all segments except the last one: SW-****-****-XXXX
+    // Mask middle segment: SW-***-XXX
     const rawToken  = voterSession.token || '';
     const parts     = rawToken.split('-');
-    const masked    = parts.length >= 4
-      ? parts.slice(0, parts.length - 1).map((p,i) => i === 0 ? p : '****').join('-') + '-' + parts[parts.length - 1]
+    const masked    = parts.length >= 3
+      ? parts[0] + '-***-' + parts[parts.length - 1]
       : rawToken;
     clearVoterSession();
     window.location.href = 'confirmation.html?ref=' + encodeURIComponent(masked);

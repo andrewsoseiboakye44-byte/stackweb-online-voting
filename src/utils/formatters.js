@@ -18,14 +18,13 @@ export {
 
 /**
  * Format a raw token string into display groups.
- * e.g. "SWABCD1234EFGH" → "SW-ABCD-1234-EFGH" (if not already formatted)
+ * e.g. "SW8A92K4" → "SW-8A9-2K4" (if not already formatted)
  */
 export function formatToken(token) {
   if (!token) return '—';
   const clean = token.replace(/-/g, '');
-  if (clean.length >= 11) {
-    // Attempt to restore the SW-XXXX-XXXX-XXXX structure
-    return `${clean.slice(0, 2)}-${clean.slice(2, 6)}-${clean.slice(6, 10)}-${clean.slice(10, 14)}`;
+  if (clean.length >= 8) {
+    return `${clean.slice(0, 2)}-${clean.slice(2, 5)}-${clean.slice(5, 8)}`;
   }
   return token;
 }

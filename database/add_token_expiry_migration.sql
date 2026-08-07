@@ -31,9 +31,8 @@ BEGIN
   v_expires := NOW() + (p_expiry_hrs || ' hours')::INTERVAL;
   FOR i IN 1..LEAST(p_count, 500) LOOP
     new_token := upper(p_prefix) || '-' ||
-      upper(substring(md5(random()::text || clock_timestamp()::text) from 1 for 4)) || '-' ||
-      upper(substring(md5(random()::text || clock_timestamp()::text) from 1 for 4)) || '-' ||
-      upper(substring(md5(random()::text || clock_timestamp()::text) from 1 for 4));
+      upper(substring(md5(random()::text || clock_timestamp()::text) from 1 for 3)) || '-' ||
+      upper(substring(md5(random()::text || clock_timestamp()::text) from 4 for 3));
     v_name := 'Voter ' || i;
     INSERT INTO voters (election_id, token, student_name, expires_at)
     VALUES (p_election_id, new_token, v_name, v_expires)

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -182,10 +182,9 @@ async function init(){
   }
 
   // Reference code — use the masked token passed from dashboard.html
-  // Format: SW-****-****-XXXX (last segment is real, middle segments are masked)
-  // Falls back to a timestamp-based code if navigated to directly.
+  // Format: SW-***-XXX (last segment is real, middle segment is masked)
   const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref') || ('SW-****-****-' + Date.now().toString(36).toUpperCase().slice(-4));
+  const ref = params.get('ref') || ('SW-***-' + Date.now().toString(36).toUpperCase().slice(-3));
   document.getElementById('ref-code').textContent = ref;
   document.getElementById('ref-code').title = 'This matches the last segment of your voter token';
   document.getElementById('submit-time').textContent = new Date().toLocaleString('en-US',{hour:'2-digit',minute:'2-digit',month:'short',day:'numeric'});

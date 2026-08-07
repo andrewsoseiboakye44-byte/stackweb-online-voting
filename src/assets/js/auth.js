@@ -82,7 +82,7 @@ export async function requireAdmin() {
 export async function validateVoterAccess(tokenString) {
   const token = (tokenString || '').trim().toUpperCase();
   if (!token || !token.startsWith('SW-')) {
-    return { valid: false, error: 'Invalid token format. Tokens look like SW-XXXX-XXXX-XXXX.' };
+    return { valid: false, error: 'Invalid token format. Tokens look like SW-XXX-XXX.' };
   }
 
   const { data: voter, error } = await supabase
@@ -124,7 +124,7 @@ export async function validateVoterAccess(tokenString) {
     const msgs = {
       [ELECTION_STATUS.DRAFT]:  'Voting has not started yet. Please wait for the administrator to open the election.',
       [ELECTION_STATUS.PAUSED]: 'Voting is currently paused. Please try again shortly.',
-      [ELECTION_STATUS.CLOSED]: 'This election has ended. Voting is no longer possible.',
+      [ELECTION_STATUS.CLOSED]: 'This election has ended. Tokens generated for this election are no longer valid.',
     };
     return { valid: false, error: msgs[election.status] || 'Election is not currently active.' };
   }

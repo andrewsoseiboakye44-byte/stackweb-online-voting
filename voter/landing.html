@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -639,15 +639,15 @@
       <div class="input-group">
         <div class="input-label">
           <span class="input-label-text">Voting Token</span>
-          <span class="input-label-hint">19 characters &mdash; SW-XXXX-XXXX-XXXX</span>
+          <span class="input-label-hint">10 characters &mdash; SW-XXX-XXX</span>
         </div>
         <div class="input-wrap">
           <input
             type="text"
             id="token-input"
             class="token-input"
-            placeholder="SW-XXXX-XXXX-XXXX"
-            maxlength="19"
+            placeholder="SW-XXX-XXX"
+            maxlength="10"
             autocomplete="off"
             autocorrect="off"
             autocapitalize="characters"
@@ -655,7 +655,7 @@
           />
           <button class="input-clear" id="clear-btn" title="Clear">✕</button>
         </div>
-        <div class="input-hint">Token format: <code>SW-XXXX-XXXX-XXXX</code> — provided by your school administrator</div>
+        <div class="input-hint">Token format: <code>SW-XXX-XXX</code> — provided by your school administrator</div>
       </div>
 
       <!-- Submit -->
@@ -749,15 +749,14 @@ loadElectionStatus();
 function formatTokenInput(raw) {
   const clean = raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
   const parts = [];
-  if (clean.length > 0)  parts.push(clean.slice(0, 2));
-  if (clean.length > 2)  parts.push(clean.slice(2, 6));
-  if (clean.length > 6)  parts.push(clean.slice(6, 10));
-  if (clean.length > 10) parts.push(clean.slice(10, 14));
+  if (clean.length > 0) parts.push(clean.slice(0, 2));
+  if (clean.length > 2) parts.push(clean.slice(2, 5));
+  if (clean.length > 5) parts.push(clean.slice(5, 8));
   return parts.join('-');
 }
 
 function isComplete(token) {
-  return /^SW-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(token);
+  return /^SW-[A-Z0-9]{3}-[A-Z0-9]{3}$/i.test(token);
 }
 
 function updateSegments(token) {
