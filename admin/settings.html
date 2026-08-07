@@ -201,7 +201,8 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Institution Name</label>
-                <input type="text" class="form-control" id="s-school-name" placeholder="e.g. Greenwood High School"/>
+                <input type="text" class="form-control" id="s-school-name" placeholder="e.g. Peniel Academy"/>
+                <div id="prefix-preview" style="font-size:0.75rem;margin-top:0.4rem;color:var(--secondary);font-weight:600">Generated Token Prefix: SW-XXX-XXX</div>
               </div>
               <div class="form-group">
                 <label class="form-label">School Motto</label>
@@ -407,17 +408,27 @@
 
 <script type="module">
 import { requireAdmin } from '../src/assets/js/auth.js';
-import { fetchSettings, saveSettings, uploadInstitutionLogo } from '../src/assets/js/supabase-client.js';
+import { fetchSettings, saveSettings, uploadInstitutionLogo, deriveTokenPrefix } from '../src/assets/js/supabase-client.js';
 import { showToast, updatePassword } from '../src/assets/js/main.js';
+
+function updatePrefixPreview() {
+  const name = document.getElementById('s-school-name').value;
+  const prefix = deriveTokenPrefix(name);
+  const el = document.getElementById('prefix-preview');
+  if (el) el.textContent = `Generated Token Prefix: ${prefix}-XXX-XXX`;
+}
 
 async function init(){
   const profile=await requireAdmin(); if(!profile)return;
   document.getElementById('user-avatar').textContent=(profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
   document.getElementById('user-name').textContent=profile.full_name||profile.email||'Admin';
 
+  document.getElementById('s-school-name').addEventListener('input', updatePrefixPreview);
+
   try{
     const settings=await fetchSettings();
     if(settings.school_name) document.getElementById('s-school-name').value=settings.school_name;
+    updatePrefixPreview();
     if(settings.school_motto) document.getElementById('s-motto').value=settings.school_motto;
     // Load existing logo into preview
     const savedLogo = settings.school_logo_url;

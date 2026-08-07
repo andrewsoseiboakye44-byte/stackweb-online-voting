@@ -81,8 +81,8 @@ export async function requireAdmin() {
 // ──────────────────────────────────────────────────────────────
 export async function validateVoterAccess(tokenString) {
   const token = (tokenString || '').trim().toUpperCase();
-  if (!token || !token.startsWith('SW-')) {
-    return { valid: false, error: 'Invalid token format. Tokens look like SW-XXX-XXX.' };
+  if (!token || !/^[A-Z0-9]{2,5}-[A-Z0-9]{3}-[A-Z0-9]{3}$/i.test(token)) {
+    return { valid: false, error: 'Invalid token format. Tokens look like XXX-XXX-XXX (e.g. PEN-8A9-2K4).' };
   }
 
   const { data: voter, error } = await supabase

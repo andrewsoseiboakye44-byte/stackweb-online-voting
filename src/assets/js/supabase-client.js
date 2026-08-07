@@ -146,7 +146,20 @@ export async function uploadInstitutionLogo(file) {
 // Unambiguous uppercase alphanumeric characters (no 0, O, 1, I to prevent voter confusion)
 const TOKEN_CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
-export function generateTokenString() {
+import { deriveTokenPrefix } from '../utils/validators.js';
+export { deriveTokenPrefix };
+
+export async function fetchTokenPrefix() {
+  try {
+    const settings = await fetchSettings();
+    return deriveTokenPrefix(settings?.school_name);
+  } catch {
+    return 'SW';
+  }
+}
+
+export function generateTokenString(prefix = null) {
+  const p = (prefix || 'SW').trim().toUpperCase().replace(/[^A-Z0-9]/g, '') || 'SW';
   const seg = (len = 3) => {
     let res = '';
     for (let i = 0; i < len; i++) {
@@ -154,10 +167,10 @@ export function generateTokenString() {
     }
     return res;
   };
-  return `SW-${seg(3)}-${seg(3)}`;
+  return `${p}-${seg(3)}-${seg(3)}`;
 }
 
-export async function generateTokens(electionId, voterList, expiryMins = null) {
+export async function generateTokens(electionId, voterList, expiryMins = null, tokenPrefix = null) {
   // If no expiry passed, read the global setting from the DB
   let mins = expiryMins;
   if (mins === null || mins === undefined) {
@@ -168,15 +181,22 @@ export async function generateTokens(electionId, voterList, expiryMins = null) {
       mins = Math.round(mins * 60);
     }
   }
+
+  // If no prefix passed, derive from global institution setting
+  let prefix = tokenPrefix;
+  if (!prefix) {
+    prefix = await fetchTokenPrefix();
+  }
+
   const totalMins = Math.max(1, Math.round(mins));
   const expiresAt = new Date(Date.now() + totalMins * 60 * 1000).toISOString();
   const durationLabel = formatExpiryMins(totalMins);
 
   const generatedSet = new Set();
   const records = voterList.map(v => {
-    let token = generateTokenString();
+    let token = generateTokenString(prefix);
     while (generatedSet.has(token)) {
-      token = generateTokenString();
+      token = generateTokenString(prefix);
     }
     generatedSet.add(token);
     return {
@@ -197,7 +217,7 @@ export async function generateTokens(electionId, voterList, expiryMins = null) {
     if (error) throw error;
     results.push(...(data || []));
   }
-  await logAudit('generate_tokens', `${results.length} token${results.length!==1?'s':''} generated for election ${electionId} (expires in: ${durationLabel})`);
+  await logAudit('generate_tokens', `${results.length} token${results.length!==1?'s':''} generated for election ${electionId} (prefix: ${prefix}, expires in: ${durationLabel})`);
   return results;
 }
 

@@ -26,6 +26,22 @@ export function normalizeToken(token) {
   return (token || '').trim().toUpperCase();
 }
 
+/**
+ * Automatically derives a 2-4 letter uppercase token prefix from institution name.
+ * e.g. "Peniel Academy" -> "PEN", "StackWeb Institute" -> "STA", "MIT" -> "MIT", "" -> "SW"
+ */
+export function deriveTokenPrefix(schoolName) {
+  if (!schoolName || typeof schoolName !== 'string') return 'SW';
+  const clean = schoolName.trim().toUpperCase().replace(/[^A-Z0-9\s]/g, '');
+  if (!clean) return 'SW';
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words[0] && words[0].length >= 3) {
+    return words[0].slice(0, 3);
+  }
+  if (words[0]) return words[0].slice(0, 4);
+  return 'SW';
+}
+
 // ──────────────────────────────────────────────────────────────
 // ELECTION VALIDATORS
 // ──────────────────────────────────────────────────────────────
