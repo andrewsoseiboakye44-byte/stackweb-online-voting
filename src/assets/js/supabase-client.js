@@ -476,11 +476,30 @@ export async function fetchAuditLogs(limit = 200) {
 }
 
 // ──────────────────────────────────────────────────────────────
-// REAL-TIME SUBSCRIPTIONS
+// REAL-TIME SUBSCRIPTIONS & AUTOMATIC LIFECYCLE TEARDOWN
 // ──────────────────────────────────────────────────────────────
+const _activeChannels = new Set();
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    _activeChannels.forEach(ch => {
+      try { supabase.removeChannel(ch); } catch {}
+    });
+    _activeChannels.clear();
+  });
+}
+
+function _registerChannel(channel) {
+  _activeChannels.add(channel);
+  return () => {
+    _activeChannels.delete(channel);
+    try { supabase.removeChannel(channel); } catch {}
+  };
+}
+
 export function subscribeToVotes(electionId, callback) {
   const channel = supabase
-    .channel(`votes-${electionId}`)
+    .channel(`votes-${electionId}-${Date.now()}`)
     .on('postgres_changes', {
       event:  'INSERT',
       schema: 'public',
@@ -488,12 +507,12 @@ export function subscribeToVotes(electionId, callback) {
       filter: `election_id=eq.${electionId}`,
     }, callback)
     .subscribe();
-  return () => supabase.removeChannel(channel);
+  return _registerChannel(channel);
 }
 
 export function subscribeToElection(electionId, callback) {
   const channel = supabase
-    .channel(`election-${electionId}`)
+    .channel(`election-${electionId}-${Date.now()}`)
     .on('postgres_changes', {
       event:  'UPDATE',
       schema: 'public',
@@ -501,12 +520,12 @@ export function subscribeToElection(electionId, callback) {
       filter: `id=eq.${electionId}`,
     }, callback)
     .subscribe();
-  return () => supabase.removeChannel(channel);
+  return _registerChannel(channel);
 }
 
 export function subscribeToVoters(electionId, callback) {
   const channel = supabase
-    .channel(`voters-${electionId}`)
+    .channel(`voters-${electionId}-${Date.now()}`)
     .on('postgres_changes', {
       event:  '*',
       schema: 'public',
@@ -514,5 +533,5 @@ export function subscribeToVoters(electionId, callback) {
       filter: `election_id=eq.${electionId}`,
     }, callback)
     .subscribe();
-  return () => supabase.removeChannel(channel);
+  return _registerChannel(channel);
 }
