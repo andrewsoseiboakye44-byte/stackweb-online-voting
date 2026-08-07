@@ -133,6 +133,20 @@
     .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
     @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
   </style>
+  <script>
+    // ── Global Tab Switcher (Available instantly before DOM load) ────────────
+    window.switchTab = function(tabEl) {
+      if (!tabEl) return;
+      var tabName = tabEl.getAttribute('data-tab');
+      var allTabs = document.querySelectorAll('.s-tab');
+      var allPanels = document.querySelectorAll('.s-panel');
+      for (var i = 0; i < allTabs.length; i++) allTabs[i].classList.remove('active');
+      for (var j = 0; j < allPanels.length; j++) allPanels[j].classList.remove('active');
+      tabEl.classList.add('active');
+      var target = document.getElementById('tab-' + tabName);
+      if (target) target.classList.add('active');
+    };
+  </script>
 </head>
 <body>
 <div id="toast-container"></div>
@@ -171,7 +185,7 @@
         <div><div class="page-title">Settings</div><div class="breadcrumb">Dashboard / Settings</div></div>
       </div>
       <div class="topbar-right">
-        <button class="btn btn-primary" id="btn-save-all"><i data-lucide="save"></i> Save All Settings</button>
+        <button class="btn btn-primary" id="btn-save-all" onclick="window.handleSaveAllSettings && window.handleSaveAllSettings()"><i data-lucide="save"></i> Save All Settings</button>
       </div>
     </header>
 
@@ -182,11 +196,11 @@
       </div>
 
       <div class="settings-tabs">
-        <button class="s-tab active" data-tab="general"><i data-lucide="school"></i> General</button>
-        <button class="s-tab" data-tab="voting"><i data-lucide="check-square"></i> Voting</button>
-        <button class="s-tab" data-tab="security"><i data-lucide="lock"></i> Security</button>
-        <button class="s-tab" data-tab="operator"><i data-lucide="key-round"></i> Operator Access</button>
-        <button class="s-tab" data-tab="system"><i data-lucide="cpu"></i> System</button>
+        <button class="s-tab active" data-tab="general" onclick="window.switchTab(this)"><i data-lucide="school"></i> General</button>
+        <button class="s-tab" data-tab="voting" onclick="window.switchTab(this)"><i data-lucide="check-square"></i> Voting</button>
+        <button class="s-tab" data-tab="security" onclick="window.switchTab(this)"><i data-lucide="lock"></i> Security</button>
+        <button class="s-tab" data-tab="operator" onclick="window.switchTab(this)"><i data-lucide="key-round"></i> Operator Access</button>
+        <button class="s-tab" data-tab="system" onclick="window.switchTab(this)"><i data-lucide="cpu"></i> System</button>
       </div>
 
       <!-- ── General Tab ── -->
@@ -214,11 +228,11 @@
                 </div>
                 <div style="flex:1">
                   <div style="display:flex;gap:0.6rem;margin-bottom:0.6rem">
-                    <label class="btn btn-secondary" for="logo-file-input" style="cursor:pointer"><i data-lucide="upload"></i> Upload</label>
+                    <label class="btn btn-secondary" for="logo-file-input" style="cursor:pointer"><i data-lucide="upload"></i> Upload Logo</label>
                     <button type="button" class="btn btn-secondary" id="btn-remove-logo" style="color:var(--danger);display:none"><i data-lucide="trash-2"></i> Remove</button>
                   </div>
                   <input type="file" id="logo-file-input" accept="image/*" style="display:none" />
-                  <div class="form-hint">PNG, JPG, SVG — max 2 MB.</div>
+                  <div class="form-hint">PNG, JPG, SVG or WEBP &mdash; max 2 MB.</div>
                   <div id="logo-upload-status" style="font-size:0.78rem;margin-top:0.4rem"></div>
                 </div>
               </div>
@@ -231,11 +245,11 @@
           <div class="s-section-body">
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Primary</label>
+                <label class="form-label">Primary Color</label>
                 <div class="color-row"><div class="color-preview" id="color1-preview" style="background:var(--primary)"></div><input type="color" class="form-control color-input" id="s-color1" value="#4f46e5"/><input type="text" class="form-control" id="s-color1-hex" value="#4f46e5"/></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Secondary</label>
+                <label class="form-label">Secondary Color</label>
                 <div class="color-row"><div class="color-preview" id="color2-preview" style="background:var(--secondary)"></div><input type="color" class="form-control color-input" id="s-color2" value="#14b8a6"/><input type="text" class="form-control" id="s-color2-hex" value="#14b8a6"/></div>
               </div>
             </div>
@@ -316,7 +330,7 @@
               </div>
             </div>
             <div id="op-save-msg" style="display:none;font-size:0.8rem;color:var(--success);margin-bottom:1rem"></div>
-            <button class="btn btn-primary" id="btn-save-operator"><i data-lucide="save"></i> Save Credentials</button>
+            <button class="btn btn-primary" id="btn-save-operator" onclick="window.handleSaveOperatorCreds && window.handleSaveOperatorCreds()"><i data-lucide="save"></i> Save Credentials</button>
           </div>
         </div>
       </div>
@@ -377,16 +391,6 @@ function updatePrefixPreview() {
   const el = document.getElementById('prefix-preview');
   if (el) el.textContent = `Generated Token Prefix: ${prefix}-XXX-XXX`;
 }
-
-// ── Tab Navigation (Safe DOM binding) ──────────────────────────────────
-document.querySelectorAll('.s-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.s-tab,.s-panel').forEach(el => el.classList.remove('active'));
-    tab.classList.add('active');
-    const target = document.getElementById('tab-' + tab.dataset.tab);
-    if (target) target.classList.add('active');
-  });
-});
 
 // ── Live Color Pickers ──────────────────────────────────────────────────
 document.getElementById('s-color1')?.addEventListener('input', e => {
@@ -463,16 +467,8 @@ document.getElementById('s-expiry-h')?.addEventListener('input', updateExpiryPre
 document.getElementById('s-expiry-m')?.addEventListener('input', updateExpiryPreview);
 document.getElementById('s-school-name')?.addEventListener('input', updatePrefixPreview);
 
-// ── Save Operator Credentials ──────────────────────────────────────────
-document.getElementById('toggle-op-pw')?.addEventListener('click', () => {
-  const inp = document.getElementById('s-op-password');
-  const btn = document.getElementById('toggle-op-pw');
-  if (!inp) return;
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-  if (btn) { btn.innerHTML = inp.type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>'; window.initIcons?.(); }
-});
-
-document.getElementById('btn-save-operator')?.addEventListener('click', async () => {
+// ── Save Operator Credentials Global Handler ─────────────────────────
+window.handleSaveOperatorCreds = async function() {
   const username = document.getElementById('s-op-username')?.value.trim();
   const password = document.getElementById('s-op-password')?.value;
   const msg = document.getElementById('op-save-msg');
@@ -493,10 +489,18 @@ document.getElementById('btn-save-operator')?.addEventListener('click', async ()
   finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save Credentials'; window.initIcons?.(); }
   }
+};
+
+document.getElementById('toggle-op-pw')?.addEventListener('click', () => {
+  const inp = document.getElementById('s-op-password');
+  const btn = document.getElementById('toggle-op-pw');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  if (btn) { btn.innerHTML = inp.type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>'; window.initIcons?.(); }
 });
 
-// ── Save All Settings ──────────────────────────────────────────────────
-document.getElementById('btn-save-all')?.addEventListener('click', async () => {
+// ── Save All Settings Global Handler ──────────────────────────────────
+window.handleSaveAllSettings = async function() {
   const btn = document.getElementById('btn-save-all');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   try {
@@ -563,7 +567,7 @@ document.getElementById('btn-save-all')?.addEventListener('click', async () => {
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.(); }
   }
-});
+};
 
 // ── Danger Zone ────────────────────────────────────────────────────────
 document.getElementById('btn-clear-logs')?.addEventListener('click', () => {
