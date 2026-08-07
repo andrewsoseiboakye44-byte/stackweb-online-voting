@@ -448,7 +448,7 @@ async function init(){
 
   // Read app version from constants.js (single source of truth)
   try {
-    const { APP_VERSION } = await import('../../../config/constants.js');
+    const { APP_VERSION } = await import('../config/constants.js');
     document.getElementById('cfg-version').textContent = APP_VERSION;
   } catch {}
 }
