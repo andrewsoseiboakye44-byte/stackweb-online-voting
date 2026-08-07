@@ -131,15 +131,12 @@
     .sw-dev-footer-copy strong{color:var(--text-1,#e6edf3);}
     .sw-dev-footer-copy em{color:var(--secondary,#14b8a6);font-size:0.67rem;}
     .sidebar-dev-logo{height:36px;width:auto;object-fit:contain;display:block;}
-    .tb-logo-img{height:38px;width:auto;object-fit:contain;display:block;}
-    .brand-logo-img{height:36px;width:auto;object-fit:contain;display:block;}
     @media(max-width:600px){.sw-dev-footer{flex-direction:column;align-items:center;}.sw-dev-footer-copy{text-align:center;}}
-    /* __ End STACKWEB Dev Footer __ */
   </style>
 </head>
 <body>
-<div id="toast-container"></div>`n<div class="sidebar-overlay" id="sidebar-overlay"></div>
-<div id="sidebar-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);z-index:199;opacity:0;transition:opacity 220ms ease;"></div>
+<div id="toast-container"></div>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <div class="shell">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand"><img src="../src/assets/images/stackweb-dev-logo.png" alt="StackWeb Developers" class="sidebar-dev-logo" /></div>
@@ -184,13 +181,12 @@
         <p>Configure branding, security, notifications, and system preferences.</p>
       </div>
 
-      <!-- Tabs -->
       <div class="settings-tabs">
         <button class="s-tab active" data-tab="general"><i data-lucide="school"></i> General</button>
         <button class="s-tab" data-tab="voting"><i data-lucide="check-square"></i> Voting</button>
         <button class="s-tab" data-tab="security"><i data-lucide="lock"></i> Security</button>
         <button class="s-tab" data-tab="operator"><i data-lucide="key-round"></i> Operator Access</button>
-        <button class="s-tab" data-tab="system"><i data-lucide="settings"></i> System</button>
+        <button class="s-tab" data-tab="system"><i data-lucide="cpu"></i> System</button>
       </div>
 
       <!-- ── General Tab ── -->
@@ -209,52 +205,38 @@
                 <input type="text" class="form-control" id="s-motto" placeholder="e.g. Excellence in All Things"/>
               </div>
             </div>
-            <div class="form-group" style="grid-column:1/-1">
+            <div class="form-group">
               <label class="form-label">Institution Logo</label>
-              <!-- Preview + upload area -->
               <div style="display:flex;align-items:flex-start;gap:1.25rem;flex-wrap:wrap;margin-bottom:0.75rem">
-                <div id="logo-preview-wrap" style="width:90px;height:90px;border-radius:var(--radius);border:2px dashed var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;transition:border-color 0.2s;">
+                <div id="logo-preview-wrap" style="width:90px;height:90px;border-radius:var(--radius);border:2px dashed var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
                   <img id="logo-preview-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:contain;" />
                   <i data-lucide="image" id="logo-preview-icon" style="color:var(--text-muted);width:32px;height:32px;"></i>
                 </div>
-                <div style="flex:1;min-width:180px">
-                  <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.6rem">
-                    <label class="btn btn-secondary btn-sm" for="logo-file-input" style="cursor:pointer">
-                      <i data-lucide="upload"></i> Upload Logo
-                    </label>
-                    <button type="button" class="btn btn-secondary btn-sm" id="btn-remove-logo" style="color:var(--danger);display:none">
-                      <i data-lucide="trash-2"></i> Remove
-                    </button>
+                <div style="flex:1">
+                  <div style="display:flex;gap:0.6rem;margin-bottom:0.6rem">
+                    <label class="btn btn-secondary" for="logo-file-input" style="cursor:pointer"><i data-lucide="upload"></i> Upload</label>
+                    <button type="button" class="btn btn-secondary" id="btn-remove-logo" style="color:var(--danger);display:none"><i data-lucide="trash-2"></i> Remove</button>
                   </div>
-                  <input type="file" id="logo-file-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none" />
-                  <div class="form-hint">PNG, JPG, SVG or WEBP &mdash; max 2 MB. Displays on the voter page while an election is active.</div>
+                  <input type="file" id="logo-file-input" accept="image/*" style="display:none" />
+                  <div class="form-hint">PNG, JPG, SVG — max 2 MB.</div>
                   <div id="logo-upload-status" style="font-size:0.78rem;margin-top:0.4rem"></div>
                 </div>
               </div>
-              <!-- Hidden field holds the current saved URL -->
               <input type="hidden" id="s-logo" />
             </div>
           </div>
         </div>
         <div class="s-section">
-          <div class="s-section-header"><div class="s-section-title"><i data-lucide="palette"></i> Brand Colors</div><div class="s-section-sub">Used across the admin panel and voter portal</div></div>
+          <div class="s-section-header"><div class="s-section-title"><i data-lucide="palette"></i> Brand Colors</div></div>
           <div class="s-section-body">
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Primary Color</label>
-                <div class="color-row">
-                  <div class="color-preview" id="color1-preview" style="background:var(--primary,#4f46e5)"></div>
-                  <input type="color" class="form-control color-input" id="s-color1" value="#4f46e5"/>
-                  <input type="text" class="form-control" id="s-color1-hex" value="#4f46e5" placeholder="#4f46e5" style="font-family:monospace"/>
-                </div>
+                <label class="form-label">Primary</label>
+                <div class="color-row"><div class="color-preview" id="color1-preview" style="background:var(--primary)"></div><input type="color" class="form-control color-input" id="s-color1" value="#4f46e5"/><input type="text" class="form-control" id="s-color1-hex" value="#4f46e5"/></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Secondary Color</label>
-                <div class="color-row">
-                  <div class="color-preview" id="color2-preview" style="background:var(--secondary,#14b8a6)"></div>
-                  <input type="color" class="form-control color-input" id="s-color2" value="#14b8a6"/>
-                  <input type="text" class="form-control" id="s-color2-hex" value="#14b8a6" placeholder="#14b8a6" style="font-family:monospace"/>
-                </div>
+                <label class="form-label">Secondary</label>
+                <div class="color-row"><div class="color-preview" id="color2-preview" style="background:var(--secondary)"></div><input type="color" class="form-control color-input" id="s-color2" value="#14b8a6"/><input type="text" class="form-control" id="s-color2-hex" value="#14b8a6"/></div>
               </div>
             </div>
           </div>
@@ -264,46 +246,35 @@
       <!-- ── Voting Tab ── -->
       <div class="s-panel" id="tab-voting">
         <div class="s-section">
-          <div class="s-section-header"><div class="s-section-title"><i data-lucide="check-square"></i> Default Voting Settings</div><div class="s-section-sub">These are defaults applied when creating new elections</div></div>
+          <div class="s-section-header"><div class="s-section-title"><i data-lucide="check-square"></i> Voting Rules &amp; Defaults</div><div class="s-section-sub">Global defaults for new elections</div></div>
           <div class="s-section-body">
             <div class="toggle-row">
-              <div class="toggle-info"><div class="toggle-title">Public Results by Default</div><div class="toggle-sub">New elections show results to voters after closing</div></div>
-              <label class="toggle-switch"><input type="checkbox" id="s-public-results"/><div class="toggle-track"></div></label>
+              <div class="toggle-info"><div class="toggle-title">Public Live Results</div><div class="toggle-sub">Allow voters to view live results page during active voting</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="s-public-results"/><span class="toggle-track"></span></label>
             </div>
             <div class="toggle-row">
-              <div class="toggle-info"><div class="toggle-title">Allow Abstain by Default</div><div class="toggle-sub">Voters can skip positions without selecting a candidate</div></div>
-              <label class="toggle-switch"><input type="checkbox" id="s-allow-abstain"/><div class="toggle-track"></div></label>
-            </div>
-            <div class="toggle-row">
-              <div class="toggle-info"><div class="toggle-title">Show Candidate Bios</div><div class="toggle-sub">Display candidate bio text on the ballot</div></div>
-              <label class="toggle-switch"><input type="checkbox" id="s-show-bios" checked/><div class="toggle-track"></div></label>
-            </div>
-            <div class="toggle-row">
-              <div class="toggle-info"><div class="toggle-title">Show Candidate Photos</div><div class="toggle-sub">Display candidate photos on the ballot</div></div>
-              <label class="toggle-switch"><input type="checkbox" id="s-show-photos" checked/><div class="toggle-track"></div></label>
+              <div class="toggle-info"><div class="toggle-title">Allow Abstaining</div><div class="toggle-sub">Voters can submit a ballot without selecting a candidate for a position</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="s-allow-abstain"/><span class="toggle-track"></span></label>
             </div>
           </div>
         </div>
+
         <div class="s-section">
-          <div class="s-section-header"><div class="s-section-title"><i data-lucide="key-round"></i> Token Settings</div><div class="s-section-sub">Admin-only — operators cannot change these settings</div></div>
+          <div class="s-section-header"><div class="s-section-title"><i data-lucide="timer"></i> Global Token Lifetime</div><div class="s-section-sub">Default duration before newly generated tokens expire</div></div>
           <div class="s-section-body">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Default Batch Size</label>
-                <input type="number" class="form-control" id="s-batch-size" value="50" min="1" max="1000"/>
-                <div class="form-hint">Default number of tokens in Batch Generate tab</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Token Expiry</label>
-                <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-                  <input type="number" class="form-control" id="s-expiry-h" value="24" min="0" max="168" style="max-width:90px" placeholder="0"/>
-                  <span style="color:var(--text-muted);font-size:0.9rem;font-weight:600">h</span>
-                  <input type="number" class="form-control" id="s-expiry-m" value="0" min="0" max="59" style="max-width:90px" placeholder="0"/>
-                  <span style="color:var(--text-muted);font-size:0.9rem;font-weight:600">min</span>
+            <div class="form-group">
+              <label class="form-label">Default Token Expiry Duration</label>
+              <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:0.4rem">
+                  <input type="number" class="form-control" id="s-expiry-h" value="24" min="0" max="8760" style="width:90px"/>
+                  <span style="font-size:0.85rem;color:var(--text-2)">hours</span>
                 </div>
-                <div class="form-hint">How long tokens stay valid after generation (e.g. 0h 30min = 30 minutes)</div>
-                <div id="expiry-preview" style="font-size:0.72rem;margin-top:0.4rem;color:var(--secondary);"></div>
+                <div style="display:flex;align-items:center;gap:0.4rem">
+                  <input type="number" class="form-control" id="s-expiry-m" value="0" min="0" max="59" style="width:80px"/>
+                  <span style="font-size:0.85rem;color:var(--text-2)">minutes</span>
+                </div>
               </div>
+              <div class="form-hint" id="expiry-preview" style="color:var(--secondary);font-weight:600;margin-top:0.4rem"></div>
             </div>
           </div>
         </div>
@@ -312,26 +283,14 @@
       <!-- ── Security Tab ── -->
       <div class="s-panel" id="tab-security">
         <div class="s-section">
-          <div class="s-section-header"><div class="s-section-title"><i data-lucide="lock"></i> Login Security</div></div>
+          <div class="s-section-header"><div class="s-section-title"><i data-lucide="shield-check"></i> Security Policies</div><div class="s-section-sub">Authentication and access control rules</div></div>
           <div class="s-section-body">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Max Login Attempts</label>
-                <input type="number" class="form-control" id="s-max-attempts" value="5" min="3" max="20"/>
-                <div class="form-hint">Admin is locked out after this many failed attempts</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Lockout Duration (minutes)</label>
-                <input type="number" class="form-control" id="s-lockout" value="15" min="5" max="60"/>
-              </div>
-            </div>
-            <div class="toggle-row">
-              <div class="toggle-info"><div class="toggle-title">Two-Factor Authentication</div><div class="toggle-sub">Require email OTP on every admin login</div></div>
-              <label class="toggle-switch"><input type="checkbox" id="s-2fa"/><div class="toggle-track"></div></label>
-            </div>
-            <div class="toggle-row">
-              <div class="toggle-info"><div class="toggle-title">Anomaly Detection</div><div class="toggle-sub">Alert if unusual voting patterns are detected</div></div>
-              <label class="toggle-switch"><input type="checkbox" id="s-anomaly" checked/><div class="toggle-track"></div></label>
+            <div class="info-box">
+              <strong>Security Protocol Active:</strong><br/>
+              &bull; Row Level Security (RLS) enabled on all 8 tables.<br/>
+              &bull; Tokens are single-use and invalid after voting or election closure.<br/>
+              &bull; Realtime WebSocket connections automatically terminate on page unload.<br/>
+              &bull; Admin sessions automatically expire after inactivity.
             </div>
           </div>
         </div>
@@ -340,68 +299,57 @@
       <!-- ── Operator Access Tab ── -->
       <div class="s-panel" id="tab-operator">
         <div class="s-section">
-          <div class="s-section-header">
-            <div class="s-section-title"><i data-lucide="key-round"></i> Operator Login Credentials</div>
-            <div class="s-section-sub">Shared credentials for token generation staff. All operators use the same login.</div>
-          </div>
+          <div class="s-section-header"><div class="s-section-title"><i data-lucide="key-round"></i> Token Staff Operator Credentials</div><div class="s-section-sub">Credentials used by staff at token distribution desks</div></div>
           <div class="s-section-body">
-            <div class="info-box">ℹ Give these credentials to staff who need to generate voter tokens. They will log in at the <strong>Operator Portal</strong> and can <em>only</em> generate tokens — they cannot access any other admin feature.</div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Operator Username</label>
-                <input type="text" class="form-control" id="s-op-username" placeholder="e.g. tokenstaff" autocomplete="off"/>
-                <div class="form-hint">Share this with your token generation staff</div>
+                <input type="text" class="form-control" id="s-op-username" placeholder="tokenstaff" autocomplete="off"/>
               </div>
               <div class="form-group">
                 <label class="form-label">Operator Password</label>
                 <div style="position:relative">
-                  <input type="password" class="form-control" id="s-op-password" placeholder="Set a strong password" autocomplete="new-password" style="padding-right:2.5rem"/>
-                  <button type="button" id="toggle-op-pw" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem"><i data-lucide="eye"></i></button>
+                  <input type="password" class="form-control" id="s-op-password" placeholder="Enter new password" autocomplete="new-password"/>
+                  <button type="button" id="toggle-op-pw" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px"><i data-lucide="eye"></i></button>
                 </div>
-                <div class="form-hint">Reset this after each election to lock out old staff</div>
+                <div class="form-hint">Enter a new password to change operator credentials. Share with token staff.</div>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:0.875rem;flex-wrap:wrap">
-              <button class="btn btn-primary" id="btn-save-operator"><i data-lucide="save"></i> Save Credentials</button>
-            </div>
-            <div id="op-save-msg" style="display:none;margin-top:0.75rem;font-size:0.82rem;color:var(--success)"></div>
+            <div id="op-save-msg" style="display:none;font-size:0.8rem;color:var(--success);margin-bottom:1rem"></div>
+            <button class="btn btn-primary" id="btn-save-operator"><i data-lucide="save"></i> Save Credentials</button>
           </div>
         </div>
       </div>
 
       <!-- ── System Tab ── -->
       <div class="s-panel" id="tab-system">
-        <!-- App version strip -->
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.5rem;margin-bottom:1.5rem;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <span style="font-size:1.25rem;"><i data-lucide="settings"></i></span>
-            <div>
-              <div style="font-weight:700;font-size:0.9rem;">STACKWEB Online Voting System</div>
-              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.1rem;">Version <span id="cfg-version" style="font-family:monospace;color:var(--primary);">—</span></div>
-            </div>
+        <div class="s-section">
+          <div class="s-section-header"><div class="s-section-title"><i data-lucide="cpu"></i> System Info</div><div class="s-section-sub">Environment &amp; database connection details</div></div>
+          <div class="s-section-body">
+            <div class="config-item"><span class="ci-key">System Version</span><span class="ci-val" id="cfg-version">1.0.0</span></div>
+            <div class="config-item"><span class="ci-key">Environment</span><span class="ci-val">Production</span></div>
+            <div class="config-item"><span class="ci-key">Database Engine</span><span class="ci-val">Supabase PostgreSQL 15</span></div>
           </div>
-          <span style="font-size:0.72rem;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.625rem;border-radius:99px;">Production</span>
         </div>
 
         <div class="s-section" style="border-color:rgba(248,81,73,0.3)">
-          <div class="s-section-header"><div class="s-section-title" style="color:var(--danger)"><i data-lucide="alert-circle"></i> Danger Zone</div><div class="s-section-sub">Irreversible actions — proceed with extreme caution</div></div>
+          <div class="s-section-header" style="background:rgba(248,81,73,0.04)"><div class="s-section-title" style="color:var(--danger)"><i data-lucide="alert-triangle"></i> Danger Zone</div><div class="s-section-sub">Destructive system maintenance actions</div></div>
           <div class="s-section-body">
             <div class="danger-item">
-              <div class="danger-info"><div class="d-title">Clear All Audit Logs</div><div class="d-sub">Permanently delete all system activity logs</div></div>
-              <button class="btn btn-danger" id="btn-clear-logs">Clear Logs</button>
+              <div class="danger-info"><div class="d-title">Clear Audit Logs</div><div class="d-sub">Delete all historical activity logs</div></div>
+              <button class="btn btn-danger" id="btn-clear-logs"><i data-lucide="trash-2"></i> Clear Logs</button>
             </div>
             <div class="danger-item">
-              <div class="danger-info"><div class="d-title">Delete All Tokens</div><div class="d-sub">Remove all unused voter tokens across all elections</div></div>
-              <button class="btn btn-danger" id="btn-clear-tokens">Delete Tokens</button>
+              <div class="danger-info"><div class="d-title">Clear Unused Tokens</div><div class="d-sub">Delete all unused voter tokens across all elections</div></div>
+              <button class="btn btn-danger" id="btn-clear-tokens"><i data-lucide="trash-2"></i> Delete Unused</button>
             </div>
             <div class="danger-item">
-              <div class="danger-info"><div class="d-title">Reset System</div><div class="d-sub">Delete ALL data — elections, candidates, votes, tokens. Cannot be undone.</div></div>
-              <button class="btn btn-danger" id="btn-reset"><i data-lucide="alert-triangle"></i> Full Reset</button>
+              <div class="danger-info"><div class="d-title">Full System Reset</div><div class="d-sub">Purge all elections, voters, and vote data</div></div>
+              <button class="btn btn-danger" id="btn-reset"><i data-lucide="alert-octagon"></i> Reset System</button>
             </div>
           </div>
         </div>
       </div>
-
     </main>
   </div>
 </div>
@@ -409,118 +357,56 @@
 <script type="module">
 import { requireAdmin } from '../src/assets/js/auth.js';
 import { fetchSettings, saveSettings, uploadInstitutionLogo, deriveTokenPrefix } from '../src/assets/js/supabase-client.js';
-import { showToast, updatePassword } from '../src/assets/js/main.js';
+import { showToast } from '../src/assets/js/main.js';
+
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  if (!c) return;
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icon = type === 'success' ? '<i data-lucide="check-circle-2"></i>' : '<i data-lucide="x-circle"></i>';
+  t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
+}
 
 function updatePrefixPreview() {
-  const name = document.getElementById('s-school-name').value;
-  const prefix = deriveTokenPrefix(name);
+  const nameEl = document.getElementById('s-school-name');
+  if (!nameEl) return;
+  const prefix = deriveTokenPrefix(nameEl.value);
   const el = document.getElementById('prefix-preview');
   if (el) el.textContent = `Generated Token Prefix: ${prefix}-XXX-XXX`;
 }
 
-async function init(){
-  const profile=await requireAdmin(); if(!profile)return;
-  document.getElementById('user-avatar').textContent=(profile.full_name||profile.email||'A').slice(0,2).toUpperCase();
-  document.getElementById('user-name').textContent=profile.full_name||profile.email||'Admin';
-
-  document.getElementById('s-school-name').addEventListener('input', updatePrefixPreview);
-
-  try{
-    const settings=await fetchSettings();
-    if(settings.school_name) document.getElementById('s-school-name').value=settings.school_name;
-    updatePrefixPreview();
-    if(settings.school_motto) document.getElementById('s-motto').value=settings.school_motto;
-    // Load existing logo into preview
-    const savedLogo = settings.school_logo_url;
-    if(savedLogo){
-      document.getElementById('s-logo').value = savedLogo;
-      const img = document.getElementById('logo-preview-img');
-      img.src = savedLogo; img.style.display='block';
-      document.getElementById('logo-preview-icon').style.display='none';
-      document.getElementById('btn-remove-logo').style.display='';
-      document.getElementById('logo-preview-wrap').style.borderStyle='solid';
-    }
-    if(settings.primary_color){ document.getElementById('s-color1').value=settings.primary_color; document.getElementById('s-color1-hex').value=settings.primary_color; document.getElementById('color1-preview').style.background=settings.primary_color; }
-    if(settings.secondary_color){ document.getElementById('s-color2').value=settings.secondary_color; document.getElementById('s-color2-hex').value=settings.secondary_color; document.getElementById('color2-preview').style.background=settings.secondary_color; }
-    if(settings.results_public) document.getElementById('s-public-results').checked=true;
-    if(settings.allow_abstain) document.getElementById('s-allow-abstain').checked=true;
-    if(settings.show_bios     === false) document.getElementById('s-show-bios').checked=false;
-    if(settings.show_photos   === false) document.getElementById('s-show-photos').checked=false;
-    // ── Token expiry ────────────────────────────────────────────────────
-    // token_expiry_hrs now stores TOTAL MINUTES (integer) to avoid the
-    // "invalid input for integer: 0.5" Supabase error.
-    // Backwards-compat: old data stored hours (values ≤168) — auto-convert once.
-    const _raw = settings.token_expiry_hrs ?? 1440; // default 24h = 1440 min
-    const _totalMins = (_raw === 24) ? 1440 : Math.round(_raw);
-    document.getElementById('s-expiry-h').value = Math.floor(_totalMins / 60);
-    document.getElementById('s-expiry-m').value = _totalMins % 60;
-    updateExpiryPreview();
-  }catch{}
-
-  // Read app version from constants.js (single source of truth)
-  try {
-    const { APP_VERSION } = await import('../config/constants.js');
-    document.getElementById('cfg-version').textContent = APP_VERSION;
-  } catch {}
-}
-
-// Operator credentials — load only the username, NEVER pre-fill the password
-async function loadOperatorCreds() {
-  try {
-    const settings = await fetchSettings();
-    if (settings.operator_username) document.getElementById('s-op-username').value = settings.operator_username;
-    if (settings.operator_password) {
-      const hint = document.getElementById('s-op-password').parentElement.nextElementSibling;
-      if (hint) {
-        hint.innerHTML = '<i data-lucide="check-circle-2"></i> A password is currently set. Enter a new one below to change it. ' +
-          '<span style="color:var(--warning);font-weight:600"><i data-lucide="alert-triangle"></i> Stored in plain text — reset after each election.</span>';
-        window.initIcons?.();
-      }
-    }
-  } catch {}
-}
-loadOperatorCreds();
-
-document.getElementById('toggle-op-pw').addEventListener('click', () => {
-  const inp = document.getElementById('s-op-password');
-  const btn = document.getElementById('toggle-op-pw');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-  btn.innerHTML = inp.type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>'; window.initIcons?.();
+// ── Tab Navigation (Safe DOM binding) ──────────────────────────────────
+document.querySelectorAll('.s-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.s-tab,.s-panel').forEach(el => el.classList.remove('active'));
+    tab.classList.add('active');
+    const target = document.getElementById('tab-' + tab.dataset.tab);
+    if (target) target.classList.add('active');
+  });
 });
 
-document.getElementById('btn-save-operator').addEventListener('click', async () => {
-  const username = document.getElementById('s-op-username').value.trim();
-  const password = document.getElementById('s-op-password').value;
-  const msg = document.getElementById('op-save-msg');
-  if (!username || !password) { toast('Enter both username and password.', 'error'); return; }
-  if (password.length < 4) { toast('Password must be at least 4 characters.', 'error'); return; }
-  const btn = document.getElementById('btn-save-operator');
-  btn.disabled = true; btn.textContent = 'Saving…';
-  try {
-    await saveSettings({ operator_username: username, operator_password: password });
-    msg.innerHTML = '<i data-lucide="check-circle-2"></i> Credentials saved! Share the new credentials with your token staff.'; window.initIcons?.();;
-    msg.style.display = 'block';
-    setTimeout(() => { msg.style.display = 'none'; }, 5000);
-    toast('Operator credentials updated!', 'success');
-  } catch(err) { toast('Failed to save: ' + err.message, 'error'); }
-  finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save Credentials'; window.initIcons?.();; }
+// ── Live Color Pickers ──────────────────────────────────────────────────
+document.getElementById('s-color1')?.addEventListener('input', e => {
+  const p = document.getElementById('color1-preview');
+  const h = document.getElementById('s-color1-hex');
+  if (p) p.style.background = e.target.value;
+  if (h) h.value = e.target.value;
+});
+document.getElementById('s-color2')?.addEventListener('input', e => {
+  const p = document.getElementById('color2-preview');
+  const h = document.getElementById('s-color2-hex');
+  if (p) p.style.background = e.target.value;
+  if (h) h.value = e.target.value;
 });
 
-// Color sync
-document.getElementById('s-color1').addEventListener('input',e=>{
-  document.getElementById('color1-preview').style.background=e.target.value;
-  document.getElementById('s-color1-hex').value=e.target.value;
-});
-document.getElementById('s-color2').addEventListener('input',e=>{
-  document.getElementById('color2-preview').style.background=e.target.value;
-  document.getElementById('s-color2-hex').value=e.target.value;
-});
+// ── Logo File Picker ───────────────────────────────────────────────────
+let _pendingLogoFile = null;
 
-// ── Institution Logo file picker ─────────────────────────────────────────────
-let _pendingLogoFile = null; // holds a newly selected File before save
-
-document.getElementById('logo-file-input').addEventListener('change', e => {
-  const file = e.target.files[0];
+document.getElementById('logo-file-input')?.addEventListener('change', e => {
+  const file = e.target.files?.[0];
   if (!file) return;
   if (file.size > 2 * 1024 * 1024) {
     toast('Logo must be under 2 MB.', 'error');
@@ -531,70 +417,110 @@ document.getElementById('logo-file-input').addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = ev => {
     const img = document.getElementById('logo-preview-img');
-    img.src = ev.target.result;
-    img.style.display = 'block';
-    document.getElementById('logo-preview-icon').style.display = 'none';
-    document.getElementById('logo-preview-wrap').style.borderStyle = 'solid';
-    document.getElementById('logo-preview-wrap').style.borderColor = 'var(--primary)';
-    document.getElementById('btn-remove-logo').style.display = '';
-    document.getElementById('logo-upload-status').innerHTML =
-      `<span style="color:var(--secondary)"><i data-lucide="check-circle-2"></i> ${file.name} ready — will upload on Save</span>`;
+    if (img) { img.src = ev.target.result; img.style.display = 'block'; }
+    const icon = document.getElementById('logo-preview-icon');
+    if (icon) icon.style.display = 'none';
+    const wrap = document.getElementById('logo-preview-wrap');
+    if (wrap) { wrap.style.borderStyle = 'solid'; wrap.style.borderColor = 'var(--primary)'; }
+    const rmBtn = document.getElementById('btn-remove-logo');
+    if (rmBtn) rmBtn.style.display = '';
+    const st = document.getElementById('logo-upload-status');
+    if (st) st.innerHTML = `<span style="color:var(--secondary)"><i data-lucide="check-circle-2"></i> ${file.name} ready — will upload on Save</span>`;
     window.initIcons?.();
   };
   reader.readAsDataURL(file);
 });
 
-document.getElementById('btn-remove-logo').addEventListener('click', () => {
+document.getElementById('btn-remove-logo')?.addEventListener('click', () => {
   _pendingLogoFile = null;
-  document.getElementById('s-logo').value = '';
-  document.getElementById('logo-file-input').value = '';
-  const img = document.getElementById('logo-preview-img');
-  img.src = ''; img.style.display = 'none';
-  document.getElementById('logo-preview-icon').style.display = '';
-  document.getElementById('logo-preview-wrap').style.borderStyle = 'dashed';
-  document.getElementById('logo-preview-wrap').style.borderColor = 'var(--border)';
-  document.getElementById('btn-remove-logo').style.display = 'none';
-  document.getElementById('logo-upload-status').textContent = '';
+  const sLogo = document.getElementById('s-logo'); if (sLogo) sLogo.value = '';
+  const fileInp = document.getElementById('logo-file-input'); if (fileInp) fileInp.value = '';
+  const img = document.getElementById('logo-preview-img'); if (img) { img.src = ''; img.style.display = 'none'; }
+  const icon = document.getElementById('logo-preview-icon'); if (icon) icon.style.display = '';
+  const wrap = document.getElementById('logo-preview-wrap'); if (wrap) { wrap.style.borderStyle = 'dashed'; wrap.style.borderColor = 'var(--border)'; }
+  const rmBtn = document.getElementById('btn-remove-logo'); if (rmBtn) rmBtn.style.display = 'none';
+  const st = document.getElementById('logo-upload-status'); if (st) st.textContent = '';
 });
 
-// Token expiry live preview
+// ── Token Expiry Live Preview ──────────────────────────────────────────
 function updateExpiryPreview() {
   const el = document.getElementById('expiry-preview');
   if (!el) return;
-  const h = parseInt(document.getElementById('s-expiry-h').value) || 0;
-  const m = parseInt(document.getElementById('s-expiry-m').value) || 0;
+  const h = parseInt(document.getElementById('s-expiry-h')?.value) || 0;
+  const m = parseInt(document.getElementById('s-expiry-m')?.value) || 0;
   const totalMins = h * 60 + m;
-  if (totalMins <= 0) { el.innerHTML = '<i data-lucide="alert-triangle"></i> Expiry must be greater than 0'; window.initIcons?.();; el.style.color = 'var(--danger)'; return; }
+  if (totalMins <= 0) {
+    el.innerHTML = '<i data-lucide="alert-triangle"></i> Expiry must be greater than 0';
+    el.style.color = 'var(--danger)';
+    window.initIcons?.();
+    return;
+  }
   el.style.color = 'var(--secondary)';
   const expiry = new Date(Date.now() + totalMins * 60000);
   el.textContent = `Tokens generated now will expire: ${expiry.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
 }
-document.getElementById('s-expiry-h').addEventListener('input', updateExpiryPreview);
-document.getElementById('s-expiry-m').addEventListener('input', updateExpiryPreview);
+document.getElementById('s-expiry-h')?.addEventListener('input', updateExpiryPreview);
+document.getElementById('s-expiry-m')?.addEventListener('input', updateExpiryPreview);
+document.getElementById('s-school-name')?.addEventListener('input', updatePrefixPreview);
 
-// ── Save All Settings ────────────────────────────────────────────────────────
-document.getElementById('btn-save-all').addEventListener('click',async()=>{
-  const btn=document.getElementById('btn-save-all');
-  btn.disabled=true;btn.textContent='Saving…';
-  try{
-    const expiryH = (parseInt(document.getElementById('s-expiry-h').value) || 0);
-    const expiryM = (parseInt(document.getElementById('s-expiry-m').value) || 0);
+// ── Save Operator Credentials ──────────────────────────────────────────
+document.getElementById('toggle-op-pw')?.addEventListener('click', () => {
+  const inp = document.getElementById('s-op-password');
+  const btn = document.getElementById('toggle-op-pw');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  if (btn) { btn.innerHTML = inp.type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>'; window.initIcons?.(); }
+});
+
+document.getElementById('btn-save-operator')?.addEventListener('click', async () => {
+  const username = document.getElementById('s-op-username')?.value.trim();
+  const password = document.getElementById('s-op-password')?.value;
+  const msg = document.getElementById('op-save-msg');
+  if (!username || !password) { toast('Enter both username and password.', 'error'); return; }
+  if (password.length < 4) { toast('Password must be at least 4 characters.', 'error'); return; }
+  const btn = document.getElementById('btn-save-operator');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    await saveSettings({ operator_username: username, operator_password: password });
+    if (msg) {
+      msg.innerHTML = '<i data-lucide="check-circle-2"></i> Credentials saved! Share the new credentials with your token staff.';
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      window.initIcons?.();
+    }
+    toast('Operator credentials updated!', 'success');
+  } catch (err) { toast('Failed to save: ' + err.message, 'error'); }
+  finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save Credentials'; window.initIcons?.(); }
+  }
+});
+
+// ── Save All Settings ──────────────────────────────────────────────────
+document.getElementById('btn-save-all')?.addEventListener('click', async () => {
+  const btn = document.getElementById('btn-save-all');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    const expiryH = parseInt(document.getElementById('s-expiry-h')?.value) || 0;
+    const expiryM = parseInt(document.getElementById('s-expiry-m')?.value) || 0;
     const expiryTotalMins = expiryH * 60 + expiryM;
-    if(expiryTotalMins < 1){ toast('Token expiry must be at least 1 minute.','error'); btn.disabled=false; btn.innerHTML='<i data-lucide="save"></i> Save All Settings'; window.initIcons?.(); return; }
+    if (expiryTotalMins < 1) {
+      toast('Token expiry must be at least 1 minute.', 'error');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.(); }
+      return;
+    }
 
-    // If admin picked a new logo file, upload it first then save the URL
     if (_pendingLogoFile) {
-      btn.textContent = 'Uploading logo…';
-      document.getElementById('logo-upload-status').innerHTML = '<span style="color:var(--text-2)">Uploading…</span>';
+      if (btn) btn.textContent = 'Uploading logo…';
+      const st = document.getElementById('logo-upload-status');
+      if (st) st.innerHTML = '<span style="color:var(--text-2)">Uploading…</span>';
       try {
         const url = await uploadInstitutionLogo(_pendingLogoFile);
-        document.getElementById('s-logo').value = url;
+        const sLogo = document.getElementById('s-logo');
+        if (sLogo) sLogo.value = url;
         _pendingLogoFile = null;
-        document.getElementById('logo-upload-status').innerHTML =
-          '<span style="color:var(--success)"><i data-lucide="check-circle-2"></i> Logo uploaded!</span>';
+        if (st) st.innerHTML = '<span style="color:var(--success)"><i data-lucide="check-circle-2"></i> Logo uploaded!</span>';
         window.initIcons?.();
       } catch (uploadErr) {
-        // Fallback to Data URL if storage bucket fails
         try {
           const reader = new FileReader();
           const dataUrl = await new Promise((resolve) => {
@@ -603,25 +529,22 @@ document.getElementById('btn-save-all').addEventListener('click',async()=>{
             reader.readAsDataURL(_pendingLogoFile);
           });
           if (dataUrl) {
-            document.getElementById('s-logo').value = dataUrl;
+            const sLogo = document.getElementById('s-logo');
+            if (sLogo) sLogo.value = dataUrl;
             _pendingLogoFile = null;
-            document.getElementById('logo-upload-status').innerHTML =
-              '<span style="color:var(--success)"><i data-lucide="check-circle-2"></i> Logo saved!</span>';
+            if (st) st.innerHTML = '<span style="color:var(--success)"><i data-lucide="check-circle-2"></i> Logo saved!</span>';
             window.initIcons?.();
           } else {
             throw uploadErr;
           }
         } catch {
           toast('Logo upload failed: ' + uploadErr.message, 'error');
-          document.getElementById('logo-upload-status').innerHTML =
-            `<span style="color:var(--danger)">${uploadErr.message}</span>`;
-          btn.disabled = false;
-          btn.innerHTML = '<i data-lucide="save"></i> Save All Settings';
-          window.initIcons?.();
+          if (st) st.innerHTML = `<span style="color:var(--danger)">${uploadErr.message}</span>`;
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.(); }
           return;
         }
       }
-      btn.textContent = 'Saving…';
+      if (btn) btn.textContent = 'Saving…';
     }
 
     await saveSettings({
@@ -632,46 +555,123 @@ document.getElementById('btn-save-all').addEventListener('click',async()=>{
       secondary_color: document.getElementById('s-color2')?.value || '#14b8a6',
       results_public:  document.getElementById('s-public-results')?.checked ?? true,
       allow_abstain:   document.getElementById('s-allow-abstain')?.checked ?? true,
-      show_bios:       document.getElementById('s-show-bios')?.checked ?? true,
-      show_photos:     document.getElementById('s-show-photos')?.checked ?? true,
-      token_expiry_hrs: expiryTotalMins, // Stored as MINUTES (integer). Read via fetchTokenExpiryMinutes().
+      token_expiry_hrs: expiryTotalMins,
     });
     toast('Settings saved successfully!', 'success');
-  }catch(err){toast('Failed to save: '+err.message,'error');}
-  finally{btn.disabled=false;btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.();;}
+  } catch (err) {
+    toast('Failed to save: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.(); }
+  }
 });
 
-// Danger zone
-document.getElementById('btn-clear-logs').addEventListener('click',()=>{
-  if(!confirm('Delete ALL audit logs? This cannot be undone.'))return;
-  supabase.from('audit_logs').delete().neq('id','00000000-0000-0000-0000-000000000000').then(()=>toast('Audit logs cleared.','success')).catch(e=>toast(e.message,'error'));
-});
-document.getElementById('btn-clear-tokens').addEventListener('click',()=>{
-  if(!confirm('Delete ALL unused tokens?'))return;
-  supabase.from('voters').delete().eq('status','unused').then(()=>toast('Unused tokens deleted.','success')).catch(e=>toast(e.message,'error'));
-});
-document.getElementById('btn-reset').addEventListener('click',()=>{
-  const typed=prompt('Type "RESET" to confirm full system reset. ALL DATA WILL BE LOST.');
-  if(typed==='RESET'){toast('Full reset requires direct Supabase action for safety. Go to Supabase SQL Editor and run truncate commands.','info');}
-});
-
-// Tabs
-document.querySelectorAll('.s-tab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    document.querySelectorAll('.s-tab,.s-panel').forEach(el=>el.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+// ── Danger Zone ────────────────────────────────────────────────────────
+document.getElementById('btn-clear-logs')?.addEventListener('click', () => {
+  if (!confirm('Delete ALL audit logs? This cannot be undone.')) return;
+  import('../src/assets/js/supabase-client.js').then(m => {
+    m.supabase.from('audit_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+      .then(() => toast('Audit logs cleared.', 'success'))
+      .catch(e => toast(e.message, 'error'));
   });
 });
 
-function toast(msg,type='info'){
-  const c=document.getElementById('toast-container'),t=document.createElement('div');
-  t.className=`toast ${type}`;t.innerHTML=`<span>${type==='success'?'<i data-lucide="check-circle-2"></i>':'<i data-lucide="x-circle"></i>'}</span><span>${msg}</span>`;
-  c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3500);
+document.getElementById('btn-clear-tokens')?.addEventListener('click', () => {
+  if (!confirm('Delete ALL unused tokens?')) return;
+  import('../src/assets/js/supabase-client.js').then(m => {
+    m.supabase.from('voters').delete().eq('status', 'unused')
+      .then(() => toast('Unused tokens deleted.', 'success'))
+      .catch(e => toast(e.message, 'error'));
+  });
+});
+
+document.getElementById('btn-reset')?.addEventListener('click', () => {
+  const typed = prompt('Type "RESET" to confirm full system reset. ALL DATA WILL BE LOST.');
+  if (typed === 'RESET') {
+    toast('Full reset requires direct Supabase action for safety. Go to Supabase SQL Editor and run truncate commands.', 'info');
+  }
+});
+
+// ── Page Initialization ────────────────────────────────────────────────
+async function init() {
+  const profile = await requireAdmin().catch(() => null);
+  if (profile) {
+    const av = document.getElementById('user-avatar');
+    if (av) av.textContent = (profile.full_name || profile.email || 'A').slice(0, 2).toUpperCase();
+    const nm = document.getElementById('user-name');
+    if (nm) nm.textContent = profile.full_name || profile.email || 'Admin';
+  }
+
+  try {
+    const settings = await fetchSettings();
+    if (settings.school_name && document.getElementById('s-school-name')) {
+      document.getElementById('s-school-name').value = settings.school_name;
+    }
+    updatePrefixPreview();
+    if (settings.school_motto && document.getElementById('s-motto')) {
+      document.getElementById('s-motto').value = settings.school_motto;
+    }
+    const savedLogo = settings.school_logo_url;
+    if (savedLogo) {
+      const sLogo = document.getElementById('s-logo'); if (sLogo) sLogo.value = savedLogo;
+      const img = document.getElementById('logo-preview-img');
+      if (img) { img.src = savedLogo; img.style.display = 'block'; }
+      const icon = document.getElementById('logo-preview-icon'); if (icon) icon.style.display = 'none';
+      const rmBtn = document.getElementById('btn-remove-logo'); if (rmBtn) rmBtn.style.display = '';
+      const wrap = document.getElementById('logo-preview-wrap'); if (wrap) wrap.style.borderStyle = 'solid';
+    }
+    if (settings.primary_color && document.getElementById('s-color1')) {
+      document.getElementById('s-color1').value = settings.primary_color;
+      const h1 = document.getElementById('s-color1-hex'); if (h1) h1.value = settings.primary_color;
+      const p1 = document.getElementById('color1-preview'); if (p1) p1.style.background = settings.primary_color;
+    }
+    if (settings.secondary_color && document.getElementById('s-color2')) {
+      document.getElementById('s-color2').value = settings.secondary_color;
+      const h2 = document.getElementById('s-color2-hex'); if (h2) h2.value = settings.secondary_color;
+      const p2 = document.getElementById('color2-preview'); if (p2) p2.style.background = settings.secondary_color;
+    }
+    if (settings.results_public && document.getElementById('s-public-results')) {
+      document.getElementById('s-public-results').checked = true;
+    }
+    if (settings.allow_abstain && document.getElementById('s-allow-abstain')) {
+      document.getElementById('s-allow-abstain').checked = true;
+    }
+    const _raw = settings.token_expiry_hrs ?? 1440;
+    const _totalMins = (_raw === 24) ? 1440 : Math.round(_raw);
+    const expH = document.getElementById('s-expiry-h'); if (expH) expH.value = Math.floor(_totalMins / 60);
+    const expM = document.getElementById('s-expiry-m'); if (expM) expM.value = _totalMins % 60;
+    updateExpiryPreview();
+  } catch {}
+
+  try {
+    const { APP_VERSION } = await import('../config/constants.js');
+    const verEl = document.getElementById('cfg-version');
+    if (verEl) verEl.textContent = APP_VERSION;
+  } catch {}
 }
-document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
-document.getElementById('logout-btn').addEventListener('click',()=>import('../src/assets/js/auth.js').then(m=>m.adminLogout()));
+
+// Operator credentials loader
+async function loadOperatorCreds() {
+  try {
+    const settings = await fetchSettings();
+    if (settings.operator_username && document.getElementById('s-op-username')) {
+      document.getElementById('s-op-username').value = settings.operator_username;
+    }
+    if (settings.operator_password) {
+      const hint = document.getElementById('s-op-password')?.parentElement?.nextElementSibling;
+      if (hint) {
+        hint.innerHTML = '<i data-lucide="check-circle-2"></i> A password is currently set. Enter a new one below to change it. ' +
+          '<span style="color:var(--warning);font-weight:600"><i data-lucide="alert-triangle"></i> Stored in plain text — reset after each election.</span>';
+        window.initIcons?.();
+      }
+    }
+  } catch {}
+}
+
+document.getElementById('hamburger')?.addEventListener('click', () => document.getElementById('sidebar')?.classList.toggle('open'));
+document.getElementById('logout-btn')?.addEventListener('click', () => import('../src/assets/js/auth.js').then(m => m.adminLogout()));
+
 init();
+loadOperatorCreds();
 </script>
 
 <!-- ── STACKWEB Developers Footer ── -->
@@ -683,7 +683,7 @@ init();
   </div>
 </footer>
 
-<!-- Lucide Icons – pinned v0.408.0, single observer, RAF debounce -->
+<!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
 <script>
   (function () {
@@ -715,10 +715,9 @@ init();
       });
       _obs.observe(document.body, { childList: true, subtree: true });
     });
-  });
+  })();
 </script>
 <script id="sw-mobile-nav">
-/* STACKWEB — Standardised mobile sidebar fix (runs after module scripts) */
 document.addEventListener('DOMContentLoaded', function(){
   var ham = document.getElementById('hamburger');
   var sb  = document.getElementById('sidebar');
@@ -736,18 +735,12 @@ document.addEventListener('DOMContentLoaded', function(){
     document.body.style.overflow = '';
   }
 
-  /* Replace hamburger to remove stale listeners */
   var newHam = ham.cloneNode(true);
   ham.parentNode.replaceChild(newHam, ham);
   newHam.addEventListener('click', function(){ sb.classList.contains('open') ? closeSb() : openSb(); });
 
-  /* Overlay click closes sidebar */
   if (ov) ov.addEventListener('click', closeSb);
-
-  /* Close on desktop resize */
   window.addEventListener('resize', function(){ if (window.innerWidth > 768) closeSb(); });
-
-  /* Auto-close sidebar when any nav item is tapped on mobile */
   sb.querySelectorAll('a.nav-item').forEach(function(item){
     item.addEventListener('click', function(){
       if (window.innerWidth <= 768) setTimeout(closeSb, 80);
