@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -440,7 +440,7 @@ async function init(){
     // "invalid input for integer: 0.5" Supabase error.
     // Backwards-compat: old data stored hours (values ≤168) — auto-convert once.
     const _raw = settings.token_expiry_hrs ?? 1440; // default 24h = 1440 min
-    const _totalMins = (_raw <= 168) ? Math.round(_raw * 60) : Math.round(_raw);
+    const _totalMins = (_raw === 24) ? 1440 : Math.round(_raw);
     document.getElementById('s-expiry-h').value = Math.floor(_totalMins / 60);
     document.getElementById('s-expiry-m').value = _totalMins % 60;
     updateExpiryPreview();
@@ -601,7 +601,7 @@ document.getElementById('btn-save-all').addEventListener('click',async()=>{
       allow_abstain:  document.getElementById('s-allow-abstain').checked,
       show_bios:      document.getElementById('s-show-bios').checked,
       show_photos:    document.getElementById('s-show-photos').checked,
-      token_expiry_hrs: expiryTotalMins, // Stored as MINUTES (integer). Read via fetchTokenExpiryHours() which divides by 60.
+      token_expiry_hrs: expiryTotalMins, // Stored as MINUTES (integer). Read via fetchTokenExpiryMinutes().
     });
     toast('Settings saved!','success');
   }catch(err){toast('Failed to save: '+err.message,'error');}

@@ -198,7 +198,7 @@ function redirectToLogin() {
     // Fallback: navigate relative from wherever we are
     const depth = path.split('/').filter(Boolean).length;
     const prefix = depth > 2 ? '../'.repeat(depth - 2) : './';
-    window.location.href = `${prefix}src/pages/admin/index.html`;
+    window.location.href = `${prefix}admin/index.html`;
   }
 }
 

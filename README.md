@@ -70,7 +70,7 @@ INSERT INTO profiles (id, role, full_name)
 VALUES ('PASTE-YOUR-UID-HERE', 'admin', 'Your Name');
 ```
 
-5. Now go to `http://localhost/STACKWEB-ONLINE-VOTING-SYSTEM/src/pages/admin/` and log in!
+5. Now go to `http://localhost/STACKWEB-ONLINE-VOTING-SYSTEM/admin/` and log in!
 
 ---
 
@@ -95,36 +95,39 @@ Since this is a Vanilla HTML/CSS/JS project, no build step is needed.
 STACKWEB-ONLINE-VOTING-SYSTEM/
 ├── index.html                          ← Public landing page
 ├── config/
-│   └── supabase.js                     ← 🔑 YOUR CREDENTIALS GO HERE
+│   ├── supabase.js                     ← 🔑 YOUR CREDENTIALS GO HERE
+│   └── constants.js                    ← App constants & status enums
 ├── database/
 │   └── schema.sql                      ← Run this in Supabase SQL Editor
 ├── public/
 │   └── favicon/
-├── src/
-│   ├── assets/
-│   │   ├── css/
-│   │   │   └── global.css
-│   │   └── js/
-│   │       ├── supabase-client.js      ← All DB functions
-│   │       ├── auth.js                 ← Login/logout/guards
-│   │       └── main.js                 ← Shared utilities
-│   └── pages/
-│       ├── admin/
-│       │   ├── index.html              ← Admin login
-│       │   ├── dashboard.html          ← Admin home
-│       │   ├── manage-elections.html   ← Create/edit elections
-│       │   ├── manage-candidates.html  ← Add candidates + photos
-│       │   ├── voter-management.html   ← View all voters/tokens
-│       │   ├── token-generator.html    ← Generate & export tokens
-│       │   ├── voting-control.html     ← Start/pause/end elections
-│       │   ├── analytics.html          ← Live results & charts
-│       │   ├── audit-logs.html         ← Full system audit trail
-│       │   └── settings.html           ← System configuration
-│       └── voter/
-│           ├── landing.html            ← Voter token entry
-│           ├── dashboard.html          ← The ballot (vote here)
-│           ├── confirmation.html       ← Vote submitted screen
-│           └── results.html            ← Public results page
+├── admin/
+│   ├── index.html                      ← Admin login
+│   ├── dashboard.html                  ← Admin home
+│   ├── manage-elections.html           ← Create/edit elections
+│   ├── manage-candidates.html          ← Add candidates + photos
+│   ├── voter-management.html           ← View all voters/tokens
+│   ├── token-generator.html            ← Generate & export tokens
+│   ├── voting-control.html             ← Start/pause/end elections
+│   ├── analytics.html                  ← Live results & charts
+│   ├── audit-logs.html                 ← Full system audit trail
+│   └── settings.html                   ← System configuration
+├── voter/
+│   ├── landing.html                    ← Voter token entry
+│   ├── dashboard.html                  ← The ballot (vote here)
+│   ├── confirmation.html               ← Vote submitted screen
+│   └── results.html                    ← Public results page
+├── operator/
+│   └── token-portal.html               ← Staff token distribution portal
+└── src/
+    └── assets/
+        ├── css/
+        │   └── global.css
+        └── js/
+            ├── supabase-client.js      ← All DB functions
+            ├── auth.js                 ← Login/logout/guards
+            ├── main.js                 ← Shared utilities
+            └── charts.js               ← Chart.js engine
 ```
 
 ---

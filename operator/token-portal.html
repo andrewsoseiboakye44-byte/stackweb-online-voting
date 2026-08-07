@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -318,7 +318,7 @@
 </div>
 
 <script type="module">
-import { supabase, fetchTokenExpiryHours, generateTokens } from '../src/assets/js/supabase-client.js';
+import { supabase, fetchTokenExpiryMinutes, formatExpiryMins, generateTokens } from '../src/assets/js/supabase-client.js';
 
 // ── Session Guard ──────────────────────────────────────────────
 const sess = (() => { try { return JSON.parse(sessionStorage.getItem('op_session')||'{}'); } catch { return {}; } })();
@@ -345,7 +345,7 @@ document.getElementById('btn-logout').addEventListener('click', () => {
 // ── State ──────────────────────────────────────────────────────
 let elections = [];
 let selectedElection = null;
-let globalExpiryHrs = 24;
+let globalExpiryMins = 1440;
 let currentMode = 'quick';
 let quickGenerated = 0;
 let quickHanded = 0;
@@ -353,22 +353,11 @@ let lastBatchTokens = [];
 let currentQuickToken = null;
 
 // ── Load Expiry from Settings ──────────────────────────────────
-// Formats decimal hours into a human-readable label (e.g. 1.5 → "1 h 30 min")
-function formatExpiryHrs(hrs) {
-  const totalMins = Math.round((hrs || 0) * 60);
-  if (totalMins >= 1440) { const d = Math.floor(totalMins / 1440); return `${d} day${d > 1 ? 's' : ''}`; }
-  const h = Math.floor(totalMins / 60);
-  const m = totalMins % 60;
-  if (h === 0) return `${m} min`;
-  if (m === 0) return `${h} h`;
-  return `${h} h ${m} min`;
-}
-
 async function loadExpiryHours() {
   try {
-    globalExpiryHrs = await fetchTokenExpiryHours();
-  } catch { globalExpiryHrs = 24; }
-  const label = formatExpiryHrs(globalExpiryHrs);
+    globalExpiryMins = await fetchTokenExpiryMinutes();
+  } catch { globalExpiryMins = 1440; }
+  const label = formatExpiryMins(globalExpiryMins);
   document.getElementById('expiry-badge').innerHTML = `<i data-lucide="timer"></i> Expiry: ${label}`;
   document.getElementById('quick-expiry-note').textContent = label;
   window.initIcons?.();
@@ -453,7 +442,7 @@ document.getElementById('btn-quick-generate').addEventListener('click', async ()
   btn.innerHTML = '<span class="spinner"></span> Generating…';
 
   try {
-    const results = await generateTokens(selectedElection.id, [{ name: 'Voter', email: null, class: null }], globalExpiryHrs);
+    const results = await generateTokens(selectedElection.id, [{ name: 'Voter', email: null, class: null }], globalExpiryMins);
     const voter = results[0];
     currentQuickToken = voter;
 
@@ -521,7 +510,7 @@ document.getElementById('btn-batch-generate').addEventListener('click', async ()
 
   try {
     const voterList = Array.from({ length: count }, (_, i) => ({ name: `Voter ${i+1}`, email: null, class: null }));
-    lastBatchTokens = await generateTokens(selectedElection.id, voterList, globalExpiryHrs);
+    lastBatchTokens = await generateTokens(selectedElection.id, voterList, globalExpiryMins);
     renderBatch(lastBatchTokens);
     toast(`${lastBatchTokens.length} tokens generated!`, 'success');
   } catch(err) {

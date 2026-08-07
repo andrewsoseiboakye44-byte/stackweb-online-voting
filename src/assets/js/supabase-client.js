@@ -151,28 +151,20 @@ export function generateTokenString() {
   return `SW-${seg()}-${seg()}-${seg()}`;
 }
 
-export async function generateTokens(electionId, voterList, expiryHours = null) {
+export async function generateTokens(electionId, voterList, expiryMins = null) {
   // If no expiry passed, read the global setting from the DB
-  let hrs = expiryHours;
-  if (hrs === null || hrs === undefined) {
-    try {
-      const settings = await fetchSettings();
-      // token_expiry_hrs stores TOTAL MINUTES since v2.
-      // Values <= 168 were saved as hours by old code — auto-convert for backwards compat.
-      const raw = settings.token_expiry_hrs ?? 1440; // default 24h = 1440 min
-      const totalMins = (raw <= 168) ? raw * 60 : raw;
-      hrs = totalMins / 60; // convert to decimal hours (e.g. 30 min → 0.5)
-    } catch {
-      hrs = 24; // safe default: 24 hours
+  let mins = expiryMins;
+  if (mins === null || mins === undefined) {
+    mins = await fetchTokenExpiryMinutes();
+  } else {
+    // Support decimal hours (e.g. 0.5) or integer minutes (e.g. 30, 1440)
+    if (typeof mins === 'number' && mins > 0 && mins < 100 && !Number.isInteger(mins)) {
+      mins = Math.round(mins * 60);
     }
   }
-  const expiresAt = new Date(Date.now() + hrs * 60 * 60 * 1000).toISOString();
-
-  // Build human-readable duration for audit log
-  const totalMinsForLog = Math.round(hrs * 60);
-  const durationLabel = totalMinsForLog < 60
-    ? `${totalMinsForLog} min`
-    : `${Math.floor(totalMinsForLog/60)}h ${totalMinsForLog%60>0 ? (totalMinsForLog%60)+'min' : ''}`.trim();
+  const totalMins = Math.max(1, Math.round(mins));
+  const expiresAt = new Date(Date.now() + totalMins * 60 * 1000).toISOString();
+  const durationLabel = formatExpiryMins(totalMins);
 
   // voterList = [{name, email, class}]
   const records = voterList.map(v => ({
@@ -249,27 +241,54 @@ export async function validateToken(tokenString, electionId = null) {
   return { valid: true, reason: 'ok', voter: data };
 }
 
-// Fetch the global token expiry setting — returns HOURS (decimal) for use in token generation.
-// token_expiry_hrs in DB stores TOTAL MINUTES (integer) since v2.
-// Backwards-compat: values ≤168 were saved as hours by older code → auto-convert.
-export async function fetchTokenExpiryHours() {
+// Fetch global token expiry in MINUTES (integer)
+export async function fetchTokenExpiryMinutes() {
   try {
     const settings = await fetchSettings();
-    const raw = settings.token_expiry_hrs ?? 1440; // default 24h = 1440 min
-    const totalMins = (raw <= 168) ? raw * 60 : raw; // legacy hour → minutes
-    return totalMins / 60; // convert to decimal hours (e.g. 30 min → 0.5 h)
-  } catch { return 24; }
+    const raw = settings.token_expiry_hrs ?? 1440; // default 1440 min (24h)
+    // Legacy migration check: If raw is 24 (old default hours value), treat as 24h = 1440 min
+    if (raw === 24) return 1440;
+    return Math.max(1, parseInt(raw) || 1440);
+  } catch {
+    return 1440;
+  }
+}
+
+// Fetch the global token expiry setting in HOURS (decimal) for backwards compatibility
+export async function fetchTokenExpiryHours() {
+  const mins = await fetchTokenExpiryMinutes();
+  return mins / 60;
+}
+
+// Format total minutes into a human-readable duration string (e.g. 30 -> "30 min", 90 -> "1 h 30 min", 1440 -> "1 day")
+export function formatExpiryMins(mins) {
+  const totalMins = Math.round(mins || 0);
+  if (totalMins >= 1440 && totalMins % 1440 === 0) {
+    const d = Math.floor(totalMins / 1440);
+    return `${d} day${d > 1 ? 's' : ''}`;
+  }
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} min`;
 }
 
 // Extend expiry for a single unused token (admin action)
-export async function extendTokenExpiry(voterId, hours) {
-  const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+export async function extendTokenExpiry(voterId, duration, unit = 'minutes') {
+  let totalMins = duration;
+  if (unit === 'hours' || (typeof duration === 'number' && duration < 100 && !Number.isInteger(duration))) {
+    totalMins = Math.round(duration * 60);
+  }
+  totalMins = Math.max(1, Math.round(totalMins));
+  const expiresAt = new Date(Date.now() + totalMins * 60 * 1000).toISOString();
   const { error } = await supabase
     .from('voters')
     .update({ expires_at: expiresAt, status: TOKEN_STATUS.UNUSED })
     .eq('id', voterId);
   if (error) throw error;
-  await logAudit('extend_token_expiry', `Token ${voterId} extended by ${hours}h`);
+  const label = formatExpiryMins(totalMins);
+  await logAudit('extend_token_expiry', `Token ${voterId} extended by ${label}`);
 }
 
 // ──────────────────────────────────────────────────────────────

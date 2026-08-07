@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -461,10 +461,10 @@
 
 <script type="module">
 import { requireAdmin } from '../src/assets/js/auth.js';
-import { supabase, fetchElections, generateTokens, generateTokenString, fetchVoters, revokeToken, revokeAllUnusedTokens, fetchTokenExpiryHours, extendTokenExpiry } from '../src/assets/js/supabase-client.js';
+import { supabase, fetchElections, generateTokens, generateTokenString, fetchVoters, revokeToken, revokeAllUnusedTokens, fetchTokenExpiryMinutes, formatExpiryMins, extendTokenExpiry } from '../src/assets/js/supabase-client.js';
 import { showToast, parseCSV, toCSV, downloadFile, debounce } from '../src/assets/js/main.js';
 
-let elections=[], allVoters=[], csvRows=[], globalExpiryHrs=24;
+let elections=[], allVoters=[], csvRows=[], globalExpiryMins=1440;
 
 async function init(){
   const profile=await requireAdmin(); if(!profile)return;
@@ -475,8 +475,8 @@ async function init(){
   await loadTokenStats();
   await loadTokens();
   // Load global expiry — admin-controlled via Settings, no per-batch override
-  globalExpiryHrs = await fetchTokenExpiryHours();
-  const _expiryLabel = formatExpiryHrs(globalExpiryHrs);
+  globalExpiryMins = await fetchTokenExpiryMinutes();
+  const _expiryLabel = formatExpiryMins(globalExpiryMins);
   const _glEl = document.getElementById('g-expiry-label');
   const _qEl  = document.getElementById('quick-expiry-label');
   if (_glEl) _glEl.textContent = _expiryLabel;
@@ -488,17 +488,6 @@ async function init(){
     if (hasEl) document.getElementById('q-stats-row').style.display = 'flex';
     document.getElementById('quick-token-display').style.display = 'none';
   });
-}
-
-// Formats decimal hours into a human-readable label (e.g. 1.5 → "1 h 30 min")
-function formatExpiryHrs(hrs) {
-  const totalMins = Math.round((hrs || 0) * 60);
-  if (totalMins >= 1440) { const d = Math.floor(totalMins / 1440); return `${d} day${d > 1 ? 's' : ''}`; }
-  const h = Math.floor(totalMins / 60);
-  const m = totalMins % 60;
-  if (h === 0) return `${m} min`;
-  if (m === 0) return `${h} h`;
-  return `${h} h ${m} min`;
 }
 
 function populateElectionSelects(){
@@ -651,7 +640,7 @@ document.getElementById('btn-generate').addEventListener('click',async()=>{
 
   try{
     const voters=Array.from({length:count},(_,i)=>({name:`Voter ${i+1}`,email:null,class:null}));
-    const generated=await generateTokens(elId,voters,globalExpiryHrs);
+    const generated=await generateTokens(elId,voters,globalExpiryMins);
     clearInterval(tick);
     progressBar.style.width='100%';progressPct.textContent='100%';
     progressLabel.innerHTML='<i data-lucide="check-circle-2"></i> Tokens generated!'; window.initIcons?.();;
@@ -693,7 +682,7 @@ document.getElementById('btn-quick-gen').addEventListener('click', async () => {
   btn.disabled = true;
   btn.innerHTML = '<i data-lucide="loader-2"></i> Generating…'; window.initIcons?.();
   try {
-    const [result] = await generateTokens(elId, [{ name: 'Voter', email: null, class: null }], globalExpiryHrs);
+    const [result] = await generateTokens(elId, [{ name: 'Voter', email: null, class: null }], globalExpiryMins);
     quickSessionCount++;
     document.getElementById('q-stat-given').textContent = quickSessionCount;
     document.getElementById('q-stat-session').textContent = quickSessionCount;
