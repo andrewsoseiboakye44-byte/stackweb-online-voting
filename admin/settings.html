@@ -593,28 +593,50 @@ document.getElementById('btn-save-all').addEventListener('click',async()=>{
         document.getElementById('logo-upload-status').innerHTML =
           '<span style="color:var(--success)"><i data-lucide="check-circle-2"></i> Logo uploaded!</span>';
         window.initIcons?.();
-      } catch(uploadErr) {
-        toast('Logo upload failed: ' + uploadErr.message, 'error');
-        document.getElementById('logo-upload-status').innerHTML =
-          `<span style="color:var(--danger)">${uploadErr.message}</span>`;
-        return;
+      } catch (uploadErr) {
+        // Fallback to Data URL if storage bucket fails
+        try {
+          const reader = new FileReader();
+          const dataUrl = await new Promise((resolve) => {
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(_pendingLogoFile);
+          });
+          if (dataUrl) {
+            document.getElementById('s-logo').value = dataUrl;
+            _pendingLogoFile = null;
+            document.getElementById('logo-upload-status').innerHTML =
+              '<span style="color:var(--success)"><i data-lucide="check-circle-2"></i> Logo saved!</span>';
+            window.initIcons?.();
+          } else {
+            throw uploadErr;
+          }
+        } catch {
+          toast('Logo upload failed: ' + uploadErr.message, 'error');
+          document.getElementById('logo-upload-status').innerHTML =
+            `<span style="color:var(--danger)">${uploadErr.message}</span>`;
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="save"></i> Save All Settings';
+          window.initIcons?.();
+          return;
+        }
       }
       btn.textContent = 'Saving…';
     }
 
     await saveSettings({
-      school_name:    document.getElementById('s-school-name').value.trim()||null,
-      school_motto:   document.getElementById('s-motto').value.trim()||null,
-      school_logo_url:document.getElementById('s-logo').value.trim()||null,
-      primary_color:  document.getElementById('s-color1').value,
-      secondary_color:document.getElementById('s-color2').value,
-      results_public: document.getElementById('s-public-results').checked,
-      allow_abstain:  document.getElementById('s-allow-abstain').checked,
-      show_bios:      document.getElementById('s-show-bios').checked,
-      show_photos:    document.getElementById('s-show-photos').checked,
+      school_name:     document.getElementById('s-school-name')?.value.trim() || null,
+      school_motto:    document.getElementById('s-motto')?.value.trim() || null,
+      school_logo_url: document.getElementById('s-logo')?.value.trim() || null,
+      primary_color:   document.getElementById('s-color1')?.value || '#4f46e5',
+      secondary_color: document.getElementById('s-color2')?.value || '#14b8a6',
+      results_public:  document.getElementById('s-public-results')?.checked ?? true,
+      allow_abstain:   document.getElementById('s-allow-abstain')?.checked ?? true,
+      show_bios:       document.getElementById('s-show-bios')?.checked ?? true,
+      show_photos:     document.getElementById('s-show-photos')?.checked ?? true,
       token_expiry_hrs: expiryTotalMins, // Stored as MINUTES (integer). Read via fetchTokenExpiryMinutes().
     });
-    toast('Settings saved!','success');
+    toast('Settings saved successfully!', 'success');
   }catch(err){toast('Failed to save: '+err.message,'error');}
   finally{btn.disabled=false;btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.();;}
 });
