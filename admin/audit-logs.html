@@ -270,7 +270,7 @@ function renderLogs(logs){
     return`<div class="log-item">
       <div class="log-dot-col">
         <div class="log-dot" style="background:${cfg.color}"></div>
-        ${!isLast?'<div class="log-line"></div>':'}
+        ${!isLast?'<div class="log-line"></div>':''}
       </div>
       <div class="log-body">
         <div class="log-action">${cfg.icon} ${(l.action||'').replace(/_/g,' ')}</div>
