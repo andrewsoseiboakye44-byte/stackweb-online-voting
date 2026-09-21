@@ -148,6 +148,8 @@ CREATE POLICY "admins_read_votes"  ON votes FOR SELECT USING (auth.role() = 'aut
 -- Operators (anon) call this to list elections available for
 -- token generation. SECURITY DEFINER bypasses RLS safely.
 
+-- FIX: DROP first — CREATE OR REPLACE cannot change return type of existing function
+DROP FUNCTION IF EXISTS get_elections_for_tokens();
 CREATE OR REPLACE FUNCTION get_elections_for_tokens()
 RETURNS SETOF elections
 LANGUAGE sql
