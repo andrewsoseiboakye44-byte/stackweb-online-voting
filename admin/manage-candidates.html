@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="STACKWEB — Manage Positions & Candidates for each election."/>
-  <title>Positions & Candidates — STACKWEB Admin</title>
-  <link rel="icon" href="../public/favicon/favicon.ico"/>
+  <meta name="description" content="STACKWEB � Manage Positions & Candidates for each election."/>
+  <title>Positions & Candidates � STACKWEB Admin</title>
+  <link rel="icon" href="../public/favicon/favicon.svg" type="image/svg+xml"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Lucide icon sizing ───────────────────────────────── */
     [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
     [data-lucide].icon-xs{width:13px;height:13px;}
     [data-lucide].icon-sm{width:15px;height:15px;}
@@ -222,18 +222,18 @@
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="pos-modal-title">Add Position</div>
-      <button class="modal-close" id="pos-modal-close">×</button>
+      <button class="modal-close" id="pos-modal-close">�</button>
     </div>
     <div class="modal-body">
       <div class="alert alert-error" id="pos-modal-error" style="display:none"></div>
       <div class="form-group">
         <label class="form-label">Position Title <span class="req">*</span></label>
-        <input type="text" class="form-control" id="pos-title" placeholder="e.g. Head Prefect, Vice President…"/>
+        <input type="text" class="form-control" id="pos-title" placeholder="e.g. Head Prefect, Vice President�"/>
         <div class="form-hint">The name voters will see on the ballot for this position.</div>
       </div>
       <div class="form-group">
         <label class="form-label">Description <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
-        <textarea class="form-control" id="pos-desc" placeholder="Brief description of the role…"></textarea>
+        <textarea class="form-control" id="pos-desc" placeholder="Brief description of the role�"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Display Order</label>
@@ -253,13 +253,13 @@
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="cand-modal-title">Add Candidate</div>
-      <button class="modal-close" id="cand-modal-close">×</button>
+      <button class="modal-close" id="cand-modal-close">�</button>
     </div>
     <div class="modal-body">
       <div class="alert alert-error" id="cand-modal-error" style="display:none"></div>
       <div class="form-group">
         <label class="form-label">Position</label>
-        <div style="font-size:0.85rem;font-weight:600;color:var(--primary);background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:var(--radius-sm);padding:0.5rem 0.75rem;" id="cand-pos-label">—</div>
+        <div style="font-size:0.85rem;font-weight:600;color:var(--primary);background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:var(--radius-sm);padding:0.5rem 0.75rem;" id="cand-pos-label">�</div>
       </div>
       <div class="form-group">
         <label class="form-label">Photo <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
@@ -267,7 +267,7 @@
           <input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp"/>
           <img class="photo-preview" id="photo-preview" alt="Preview" decoding="async"/>
           <div class="photo-icon" id="photo-icon"><i data-lucide="image"></i></div>
-          <div class="photo-hint"><strong>Click to upload</strong> or drag &amp; drop<br>JPG, PNG, WebP · Max 2MB</div>
+          <div class="photo-hint"><strong>Click to upload</strong> or drag &amp; drop<br>JPG, PNG, WebP � Max 2MB</div>
         </div>
       </div>
       <div class="form-group">
@@ -276,7 +276,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Short Bio <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
-        <textarea class="form-control" id="cand-bio" placeholder="Brief background about the candidate…"></textarea>
+        <textarea class="form-control" id="cand-bio" placeholder="Brief background about the candidate�"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Manifesto / Campaign Promise <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
@@ -343,7 +343,7 @@
       <div class="election-bar">
         <label for="election-select"><i data-lucide="clipboard-list"></i> Election:</label>
         <select id="election-select">
-          <option value="">— Select an election —</option>
+          <option value="">� Select an election �</option>
         </select>
         <div class="election-meta" id="election-meta" style="display:none">
           <span class="meta-pill" id="meta-status">Draft</span>
@@ -371,7 +371,7 @@
 import { requireAdmin, adminLogout } from '../src/assets/js/auth.js';
 import { supabase, createPosition, updatePosition, deletePosition, createCandidate, updateCandidate, deleteCandidate, uploadCandidatePhoto, fetchElections } from '../src/assets/js/supabase-client.js';
 
-// ── State ──────────────────────────────────────────────────────
+// -- State ------------------------------------------------------
 let selectedElection = null;
 let positions        = [];
 let editingPosId     = null;
@@ -380,7 +380,7 @@ let activePosId      = null;
 let selectedPhoto    = null;
 let confirmCb        = null;
 
-// ── Init ───────────────────────────────────────────────────────
+// -- Init -------------------------------------------------------
 async function init() {
   const profile = await requireAdmin();
   if (!profile) return;
@@ -397,13 +397,13 @@ async function init() {
 
   const sel = document.getElementById('election-select');
   // Clear and add placeholder
-  sel.innerHTML = '<option value="">— Select an election —</option>';
+  sel.innerHTML = '<option value="">� Select an election �</option>';
   if (!elections.length) {
-    sel.add(new Option('No elections found — go create one first', '', false, false));
+    sel.add(new Option('No elections found � go create one first', '', false, false));
   } else {
     // Group by status for clarity
     const statusOrder = ['active', 'paused', 'draft', 'closed'];
-    const statusLabel = { active: '▶ Active', paused: '⏸ Paused', draft: '✎ Draft', closed: '✓ Closed' };
+    const statusLabel = { active: '? Active', paused: '? Paused', draft: '? Draft', closed: '? Closed' };
     statusOrder.forEach(function(status) {
       const group = elections.filter(function(e) { return e.status === status; });
       if (!group.length) return;
@@ -584,7 +584,7 @@ function renderPositionBlock(pos, idx) {
   '</div>';
 }
 
-// ── Position actions ───────────────────────────────────────────
+// -- Position actions -------------------------------------------
 async function handlePosAction(e) {
   const action   = e.currentTarget.dataset.posAction;
   const posId    = e.currentTarget.dataset.posId;
@@ -604,7 +604,7 @@ async function handlePosAction(e) {
   }
 }
 
-// ── Candidate actions ──────────────────────────────────────────
+// -- Candidate actions ------------------------------------------
 async function handleCandAction(e) {
   const action   = e.currentTarget.dataset.candAction;
   const candId   = e.currentTarget.dataset.candId;
@@ -629,7 +629,7 @@ async function handleCandAction(e) {
   }
 }
 
-// ── Position Modal ─────────────────────────────────────────────
+// -- Position Modal ---------------------------------------------
 const posOverlay = document.getElementById('pos-modal-overlay');
 function openPosModal(pos) {
   pos = pos || null;
@@ -668,7 +668,7 @@ document.getElementById('pos-modal-close').addEventListener('click', closePosMod
 document.getElementById('pos-modal-cancel').addEventListener('click', closePosModal);
 posOverlay.addEventListener('click', function(e) { if (e.target === posOverlay) closePosModal(); });
 
-// ── Candidate Modal ────────────────────────────────────────────
+// -- Candidate Modal --------------------------------------------
 const candOverlay = document.getElementById('cand-modal-overlay');
 function openCandModal(posId, cand) {
   cand = cand || null;
@@ -735,7 +735,7 @@ document.getElementById('cand-modal-close').addEventListener('click',  closeCand
 document.getElementById('cand-modal-cancel').addEventListener('click', closeCandModal);
 candOverlay.addEventListener('click', function(e) { if (e.target === candOverlay) closeCandModal(); });
 
-// ── Photo handling ─────────────────────────────────────────────
+// -- Photo handling ---------------------------------------------
 var photoFile = document.getElementById('photo-file');
 var photoDrop = document.getElementById('photo-drop');
 function handlePhoto(file) {
@@ -755,7 +755,7 @@ photoDrop.addEventListener('dragover',  function(e) { e.preventDefault(); photoD
 photoDrop.addEventListener('dragleave', function()  { photoDrop.style.borderColor = ''; });
 photoDrop.addEventListener('drop',      function(e) { e.preventDefault(); photoDrop.style.borderColor = ''; handlePhoto(e.dataTransfer.files[0]); });
 
-// ── Confirm ────────────────────────────────────────────────────
+// -- Confirm ----------------------------------------------------
 function doConfirm(title, body, cb) {
   document.getElementById('confirm-title').textContent = title;
   document.getElementById('confirm-body').textContent  = body;
@@ -770,7 +770,7 @@ document.getElementById('confirm-cancel').addEventListener('click', function() {
   document.getElementById('confirm-overlay').classList.remove('open');
 });
 
-// ── Toast ──────────────────────────────────────────────────────
+// -- Toast ------------------------------------------------------
 function toast(msg, type) {
   type = type || 'info';
   var c = document.getElementById('toast-container');
@@ -791,7 +791,7 @@ function toast(msg, type) {
   setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(function() { t.remove(); }, 300); }, 3500);
 }
 
-// ── Wire globals & init ────────────────────────────────────────
+// -- Wire globals & init ----------------------------------------
 window.openPosModal  = openPosModal;
 window.openCandModal = openCandModal;
 document.getElementById('btn-add-position').addEventListener('click', function() { openPosModal(); });
@@ -801,10 +801,10 @@ document.getElementById('logout-btn').addEventListener('click', adminLogout);
 init();
 </script>
 
-  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€ -->
+  <!-- ── STACKWEB Developers Footer ── -->
 
-  <!-- â”€â”€ STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-  <!-- â”€â”€ End STACKWEB Developers Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- ── STACKWEB Developers Footer ────────────────────────── -->
+  <!-- ── End STACKWEB Developers Footer ────────────────────── -->
 
   <!-- StackWeb Developers Footer -->
   <footer class="sw-dev-footer">
@@ -815,7 +815,7 @@ init();
     </div>
   </footer>
 
-<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<!-- Lucide Icons — pinned v0.408.0, single observer, RAF debounce -->
 <script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
 <script>
   (function () {
@@ -828,7 +828,7 @@ init();
       if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
     }
     window.initIcons = function () {
-      if (_raf) return; // already queued â€” skip
+      if (_raf) return; // already queued — skip
       _raf = requestAnimationFrame(_run);
     };
     document.addEventListener('DOMContentLoaded', function () {
@@ -850,7 +850,7 @@ init();
   });
 </script>
 <script id="sw-mobile-nav">
-/* STACKWEB — Standardised mobile sidebar fix (runs after module scripts) */
+/* STACKWEB � Standardised mobile sidebar fix (runs after module scripts) */
 document.addEventListener('DOMContentLoaded', function(){
   var ham = document.getElementById('hamburger');
   var sb  = document.getElementById('sidebar');

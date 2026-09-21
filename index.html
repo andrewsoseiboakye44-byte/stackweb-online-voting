@@ -1,17 +1,17 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="STACKWEB — Secure, anonymous, real-time online voting for schools and institutions. Fast, fair, and transparent elections."/>
+  <meta name="description" content="STACKWEB � Secure, anonymous, real-time online voting for schools and institutions. Fast, fair, and transparent elections."/>
   <meta property="og:title" content="STACKWEB Online Voting System"/>
   <meta property="og:description" content="Secure, anonymous, real-time student elections."/>
-  <title>STACKWEB — Online Voting System</title>
-  <link rel="icon" href="public/favicon/favicon.ico"/>
+  <title>STACKWEB � Online Voting System</title>
+  <link rel="icon" href="public/favicon/favicon.svg" type="image/svg+xml"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    /* â”€â”€ Lucide icon sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Lucide icon sizing ───────────────────────────────── */
     [data-lucide]{display:inline-block;vertical-align:-0.15em;stroke-width:2;flex-shrink:0;}
     [data-lucide].icon-xs{width:13px;height:13px;}
     [data-lucide].icon-sm{width:15px;height:15px;}
@@ -34,7 +34,7 @@
     a{text-decoration:none;color:inherit;}
     ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
 
-    /* ── Background ── */
+    /* -- Background -- */
     .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
     .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(79,70,229,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(79,70,229,0.035) 1px,transparent 1px);background-size:64px 64px;}
     .orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;will-change:transform;transform:translateZ(0)}
@@ -42,7 +42,7 @@
     .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(20,184,166,0.1),transparent 70%);bottom:-150px;left:-150px;animation:drift 18s ease-in-out infinite reverse;}
     @keyframes drift{0%,100%{transform:translate(0,0);}50%{transform:translate(40px,-30px);}}
 
-    /* ── Navigation ── */
+    /* -- Navigation -- */
     .nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,0.82);backdrop-filter:blur(16px);border-bottom:1px solid rgba(33,38,45,0.8);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
     .nav-brand{display:flex;align-items:center;gap:0.75rem;}
     .brand-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:900;color:#fff;font-size:0.95rem;flex-shrink:0;}
@@ -57,7 +57,7 @@
     .nav-mobile-menu{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
     .nav-mobile-menu span{display:block;width:22px;height:2px;background:var(--text-1);border-radius:2px;transition:all 0.3s;}
 
-    /* ── Hero ── */
+    /* -- Hero -- */
     .hero{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:6rem 2rem;text-align:center;position:relative;z-index:1;}
     .hero-inner{max-width:860px;}
     .hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.25);border-radius:99px;padding:0.375rem 1rem;font-size:0.78rem;font-weight:600;color:#a5b4fc;margin-bottom:2rem;animation:fadeUp 0.6s ease both;}
@@ -76,21 +76,21 @@
     .btn-ghost{background:rgba(255,255,255,0.05);color:var(--text-1);border:1px solid rgba(255,255,255,0.08);}
     .btn-ghost:hover{background:rgba(255,255,255,0.08);}
 
-    /* ── Hero stats ── */
+    /* -- Hero stats -- */
     .hero-stats{display:flex;gap:2.5rem;justify-content:center;margin-top:3.5rem;flex-wrap:wrap;animation:fadeUp 0.6s 0.4s ease both;}
     .hs-item{text-align:center;}
     .hs-num{font-family:var(--font-head);font-size:2rem;font-weight:900;}
     .hs-lbl{font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;}
     .hs-div{width:1px;background:var(--border);align-self:stretch;}
 
-    /* ── Section ── */
+    /* -- Section -- */
     .section{padding:6rem 2rem;position:relative;z-index:1;}
     .section-inner{max-width:1100px;margin:0 auto;}
     .section-label{font-size:0.72rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--primary);margin-bottom:0.75rem;}
     .section-title{font-family:var(--font-head);font-size:clamp(1.75rem,3.5vw,2.75rem);font-weight:800;line-height:1.2;margin-bottom:1rem;}
     .section-sub{font-size:1rem;color:var(--text-2);max-width:560px;line-height:1.7;}
 
-    /* ── Features grid ── */
+    /* -- Features grid -- */
     .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3.5rem;}
     .feature-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;transition:all var(--transition);position:relative;overflow:hidden;}
     .feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(79,70,229,0.04),transparent);opacity:0;transition:opacity var(--transition);}
@@ -100,7 +100,7 @@
     .fc-title{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:0.5rem;}
     .fc-desc{font-size:0.85rem;color:var(--text-2);line-height:1.6;}
 
-    /* ── How it works ── */
+    /* -- How it works -- */
     .how-section{background:rgba(255,255,255,0.015);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
     .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3rem;}
     .step{text-align:center;padding:1.5rem 1rem;}
@@ -109,7 +109,7 @@
     .step-desc{font-size:0.82rem;color:var(--text-2);line-height:1.6;}
     .step-connector{display:none;}
 
-    /* ── Roles ── */
+    /* -- Roles -- */
     .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem;}
     .role-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;transition:all var(--transition);}
     .role-card:hover{border-color:rgba(79,70,229,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.25);}
@@ -127,7 +127,7 @@
     .rf-dot{width:16px;height:16px;border-radius:50%;background:rgba(63,185,80,0.15);border:1px solid rgba(63,185,80,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
     .rf-dot [data-lucide]{width:9px;height:9px;color:#3fb950;stroke-width:3;}
 
-    /* ── CTA banner ── */
+    /* -- CTA banner -- */
     .cta-section{padding:6rem 2rem;position:relative;z-index:1;}
     .cta-inner{max-width:720px;margin:0 auto;text-align:center;background:linear-gradient(135deg,rgba(79,70,229,0.1),rgba(20,184,166,0.06));border:1px solid rgba(79,70,229,0.2);border-radius:var(--radius-xl);padding:4rem 3rem;position:relative;overflow:hidden;}
     .cta-inner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(79,70,229,0.12),transparent 60%);pointer-events:none;}
@@ -135,12 +135,12 @@
     .cta-sub{color:var(--text-2);margin-bottom:2rem;font-size:0.95rem;line-height:1.6;}
     .cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
 
-    /* ── Footer ── */
+    /* -- Footer -- */
     .footer{background:var(--bg-card);border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;position:relative;z-index:1;}
     .footer-brand{font-family:var(--font-head);font-weight:800;font-size:1.05rem;margin-bottom:0.5rem;}
     .footer-copy{font-size:0.78rem;color:var(--text-muted);}
 
-    /* ── Mobile nav ── */
+    /* -- Mobile nav -- */
     .mobile-nav{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(13,17,23,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:1.25rem 2rem;flex-direction:column;gap:0.25rem;z-index:99;}
     .mobile-nav.open{display:flex;}
     .mob-link{padding:0.75rem 1rem;border-radius:var(--radius);color:var(--text-2);font-size:0.9rem;font-weight:500;display:block;transition:all var(--transition);}
@@ -208,7 +208,7 @@
   <div class="hero-inner">
     <div class="hero-badge">
       <div class="live-dot"></div>
-      Secure · Anonymous · Real-Time
+      Secure � Anonymous � Real-Time
     </div>
     <h1 class="hero-h1">
       Student Elections,<br/>
@@ -216,7 +216,7 @@
     </h1>
     <p class="hero-sub">
       STACKWEB makes running fair, transparent, and anonymous school elections effortless.
-      From token generation to live results — everything in one platform.
+      From token generation to live results � everything in one platform.
     </p>
     <div class="hero-actions">
       <a href="voter/landing.html"        class="btn btn-primary"><i data-lucide="check-square"></i> Cast Your Vote</a>
@@ -245,12 +245,12 @@
       <div class="feature-card">
         <div class="fc-icon" style="background:rgba(79,70,229,0.12)"><i data-lucide="key-round"></i></div>
         <div class="fc-title">Token-Based Access</div>
-        <div class="fc-desc">Each voter receives a unique <code style="font-family:monospace;font-size:0.8em;background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px">SW-XXXX-XXXX-XXXX</code> token. One token, one vote — no duplicates, no fraud.</div>
+        <div class="fc-desc">Each voter receives a unique <code style="font-family:monospace;font-size:0.8em;background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px">SW-XXXX-XXXX-XXXX</code> token. One token, one vote � no duplicates, no fraud.</div>
       </div>
       <div class="feature-card">
         <div class="fc-icon" style="background:rgba(63,185,80,0.12)"><i data-lucide="lock"></i></div>
         <div class="fc-title">Identity-Protected Voting</div>
-        <div class="fc-desc">Your name is never shown in results. Votes are recorded securely — only your token is used to verify participation, never your identity.</div>
+        <div class="fc-desc">Your name is never shown in results. Votes are recorded securely � only your token is used to verify participation, never your identity.</div>
       </div>
       <div class="feature-card">
         <div class="fc-icon" style="background:rgba(20,184,166,0.12)"><i data-lucide="trending-up"></i></div>
@@ -265,7 +265,7 @@
       <div class="feature-card">
         <div class="fc-icon" style="background:rgba(248,81,73,0.12)"><i data-lucide="clipboard-list"></i></div>
         <div class="fc-title">Full Audit Trail</div>
-        <div class="fc-desc">Every admin action is logged — election changes, token generation, and status updates. Full transparency.</div>
+        <div class="fc-desc">Every admin action is logged � election changes, token generation, and status updates. Full transparency.</div>
       </div>
       <div class="feature-card">
         <div class="fc-icon" style="background:rgba(79,70,229,0.12)"><i data-lucide="folder-open"></i></div>
@@ -285,7 +285,7 @@
       <div class="feature-card">
         <div class="fc-icon" style="background:rgba(245,158,11,0.12)"><i data-lucide="smartphone"></i></div>
         <div class="fc-title">Mobile Friendly</div>
-        <div class="fc-desc">Students vote from any device — phone, tablet, or desktop. Fully responsive design throughout.</div>
+        <div class="fc-desc">Students vote from any device � phone, tablet, or desktop. Fully responsive design throughout.</div>
       </div>
     </div>
   </div>
@@ -296,7 +296,7 @@
   <div class="section-inner">
     <div class="section-label">Simple Process</div>
     <h2 class="section-title">Up and Running in Minutes</h2>
-    <p class="section-sub">From setup to results — the complete election lifecycle in four easy steps.</p>
+    <p class="section-sub">From setup to results � the complete election lifecycle in four easy steps.</p>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -311,7 +311,7 @@
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-title">Vote Securely</div>
-        <div class="step-desc">Students enter their token, select candidates, confirm their ballot — done in under 2 minutes.</div>
+        <div class="step-desc">Students enter their token, select candidates, confirm their ballot � done in under 2 minutes.</div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
@@ -339,7 +339,7 @@
         <div class="role-features">
           <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Enter your unique token (SW-XXXX-XXXX-XXXX)</div>
           <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Browse candidates with photos and bios</div>
-          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Vote anonymously — no one sees your choice</div>
+          <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Vote anonymously � no one sees your choice</div>
           <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>Get a confirmation reference code</div>
           <div class="rf-item"><span class="rf-dot"><i data-lucide="check"></i></span>View results when they're published</div>
         </div>
@@ -380,7 +380,7 @@
 <!-- Footer -->
 <footer class="footer">
   <div class="footer-brand"><i data-lucide="check-square"></i> STACKWEB Online Voting System</div>
-  <div class="footer-copy">Secure · Anonymous · Real-Time &nbsp;·&nbsp; Built with Supabase &nbsp;·&nbsp; v1.1.0</div>
+  <div class="footer-copy">Secure � Anonymous � Real-Time &nbsp;�&nbsp; Built with Supabase &nbsp;�&nbsp; v1.1.0</div>
 </footer>
 
 <script>
@@ -415,7 +415,7 @@
     </div>
   </footer>
 
-<!-- Lucide Icons â€” pinned v0.408.0, single observer, RAF debounce -->
+<!-- Lucide Icons — pinned v0.408.0, single observer, RAF debounce -->
 <script src="https://unpkg.com/lucide@0.408.0/dist/umd/lucide.min.js"></script>
 <script>
   (function () {
@@ -428,7 +428,7 @@
       if (_obs) _obs.observe(document.body, { childList: true, subtree: true });
     }
     window.initIcons = function () {
-      if (_raf) return; // already queued â€” skip
+      if (_raf) return; // already queued — skip
       _raf = requestAnimationFrame(_run);
     };
     document.addEventListener('DOMContentLoaded', function () {
