@@ -65,7 +65,9 @@ ALTER TABLE profiles
 -- ── 7. DB VIEWS ──────────────────────────────────────────────
 
 -- candidate_standings: pre-aggregated vote counts, ranked per position
-CREATE OR REPLACE VIEW candidate_standings AS
+-- FIX: DROP first because CREATE OR REPLACE cannot rename existing columns
+DROP VIEW IF EXISTS candidate_standings CASCADE;
+CREATE VIEW candidate_standings AS
 SELECT
   c.id          AS candidate_id,
   c.name        AS candidate_name,
@@ -90,7 +92,9 @@ GROUP  BY c.id, c.name, c.photo_url, c.bio, c.is_active,
 
 
 -- election_summary: turnout stats, excludes revoked tokens
-CREATE OR REPLACE VIEW election_summary AS
+-- FIX: DROP first because CREATE OR REPLACE cannot rename existing columns
+DROP VIEW IF EXISTS election_summary CASCADE;
+CREATE VIEW election_summary AS
 SELECT
   e.id,
   e.name,
