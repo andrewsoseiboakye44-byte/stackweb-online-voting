@@ -257,13 +257,6 @@ export async function markTokenUsed(voterId) {
   if (error) throw error;
 }
 
-export async function fetchVoters(electionId = null) {
-  let q = supabase.from('voters').select('*, elections(name)').order('created_at', { ascending: false });
-  if (electionId) q = q.eq('election_id', electionId);
-  const { data, error } = await q;
-  if (error) throw error;
-  return data || [];
-}
 
 // Validate voter token — returns { valid, reason, voter }
 // reason: 'ok' | 'not_found' | 'used' | 'revoked' | 'expired'
