@@ -491,29 +491,6 @@ export async function saveSettings(payload) {
   await logAudit('system', 'System settings updated');
 }
 
-/**
- * Returns the token expiry duration in minutes from settings.
- * Defaults to 1440 (24 hours) if not configured.
- */
-export async function fetchTokenExpiryMinutes() {
-  const settings = await fetchSettings();
-  const hrs = settings?.token_expiry_hrs;
-  if (hrs == null || isNaN(hrs)) return 1440;
-  return Math.max(1, Number(hrs) * 60);
-}
-
-/**
- * Formats a duration in minutes to a human-readable string.
- * e.g. 60 → "1 hour", 1440 → "24 hours", 90 → "1 h 30 m"
- */
-export function formatExpiryMins(mins) {
-  if (!mins || mins <= 0) return '—';
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  if (h === 0) return `${m} min`;
-  if (m === 0) return `${h} hour${h !== 1 ? 's' : ''}`;
-  return `${h} h ${m} m`;
-}
 
 // ──────────────────────────────────────────────────────────────
 // AUDIT LOGS
