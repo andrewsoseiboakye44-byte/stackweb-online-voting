@@ -146,7 +146,7 @@ export async function uploadInstitutionLogo(file) {
 // Unambiguous uppercase alphanumeric characters (no 0, O, 1, I to prevent voter confusion)
 const TOKEN_CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
-import { deriveTokenPrefix } from '../utils/validators.js';
+import { deriveTokenPrefix } from '../../utils/validators.js';
 export { deriveTokenPrefix };
 
 export async function fetchTokenPrefix() {
