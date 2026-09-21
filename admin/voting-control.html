@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -414,7 +414,7 @@ async function handleStatusChange(action){
 async function loadStats(){
   if(!currentElection)return;
   try{
-    const {count:total}=await supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',currentElection.id);
+    const {count:total}=await supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',currentElection.id).neq('status','revoked'); // FIX: exclude revoked
     const {count:voted}=await supabase.from('votes').select('id',{count:'exact',head:true}).eq('election_id',currentElection.id);
     const pending=Math.max((total||0)-(voted||0),0);
     const pct=total>0?(((voted||0)/total)*100).toFixed(1)+'%':'0%';
@@ -434,7 +434,7 @@ async function renderPositionBars(){
     document.getElementById('position-bars').innerHTML='<div style="color:var(--text-muted);font-size:0.85rem;padding:0.5rem 0">No positions found for this election.</div>';
     return;
   }
-  const {count:totalVoters}=await supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',currentElection.id);
+  const {count:totalVoters}=await supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',currentElection.id).neq('status','revoked'); // FIX: exclude revoked
   const {data:allVotes}=await supabase.from('votes').select('position_id').eq('election_id',currentElection.id);
   const voteCounts={};
   (allVotes||[]).forEach(v=>{voteCounts[v.position_id]=(voteCounts[v.position_id]||0)+1;});

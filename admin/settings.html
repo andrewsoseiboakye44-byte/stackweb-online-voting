@@ -256,6 +256,14 @@
               <div class="toggle-info"><div class="toggle-title">Allow Abstaining</div><div class="toggle-sub">Voters can submit a ballot without selecting a candidate for a position</div></div>
               <label class="toggle-switch"><input type="checkbox" id="s-allow-abstain"/><span class="toggle-track"></span></label>
             </div>
+            <!-- FIX: Maintenance Mode toggle — wired to settings.maintenance_mode -->
+            <div class="toggle-row" style="border-top:1px solid var(--border);padding-top:1rem;margin-top:0.5rem">
+              <div class="toggle-info">
+                <div class="toggle-title" style="color:var(--warning)"><i data-lucide="wrench"></i> Maintenance Mode</div>
+                <div class="toggle-sub">Block voter access with a maintenance message. Admins can still log in.</div>
+              </div>
+              <label class="toggle-switch"><input type="checkbox" id="s-maintenance-mode"/><span class="toggle-track"></span></label>
+            </div>
           </div>
         </div>
 
@@ -301,6 +309,20 @@
         <div class="s-section">
           <div class="s-section-header"><div class="s-section-title"><i data-lucide="key-round"></i> Token Staff Operator Credentials</div><div class="s-section-sub">Credentials used by staff at token distribution desks</div></div>
           <div class="s-section-body">
+            <!-- FIX: operator_enabled toggle — wired to settings.operator_enabled -->
+            <div class="toggle-row" style="margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)">
+              <div class="toggle-info">
+                <div class="toggle-title">Operator Portal Enabled</div>
+                <div class="toggle-sub">Allow token staff to log in to the operator portal and generate tokens</div>
+              </div>
+              <label class="toggle-switch"><input type="checkbox" id="s-operator-enabled" checked/><span class="toggle-track"></span></label>
+            </div>
+            <!-- FIX: max_tokens_per_batch field -->
+            <div class="form-group">
+              <label class="form-label">Max Tokens Per Batch</label>
+              <input type="number" class="form-control" id="s-max-tokens" value="50" min="1" max="500" style="max-width:160px"/>
+              <div class="form-hint">Maximum number of tokens an operator can generate in a single batch. Limits abuse.</div>
+            </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Operator Username</label>
@@ -316,7 +338,7 @@
               </div>
             </div>
             <div id="op-save-msg" style="display:none;font-size:0.8rem;color:var(--success);margin-bottom:1rem"></div>
-            <button class="btn btn-primary" id="btn-save-operator"><i data-lucide="save"></i> Save Credentials</button>
+            <button class="btn btn-primary" id="btn-save-operator"><i data-lucide="save"></i> Save Operator Settings</button>
           </div>
         </div>
       </div>
@@ -473,26 +495,29 @@ document.getElementById('toggle-op-pw')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-save-operator')?.addEventListener('click', async () => {
-  const username = document.getElementById('s-op-username')?.value.trim();
-  const password = document.getElementById('s-op-password')?.value;
+  const username  = document.getElementById('s-op-username')?.value.trim();
+  const password  = document.getElementById('s-op-password')?.value;
+  const opEnabled = document.getElementById('s-operator-enabled')?.checked ?? true;
+  const maxTokens = parseInt(document.getElementById('s-max-tokens')?.value) || 50;
   const msg = document.getElementById('op-save-msg');
-  if (!username || !password) { toast('Enter both username and password.', 'error'); return; }
-  if (password.length < 4) { toast('Password must be at least 4 characters.', 'error'); return; }
-  const btn = document.getElementById('btn-save-operator');
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  if (!username) { toast('Operator username is required.', 'error'); return; }
+  if (password && password.length < 4) { toast('Password must be at least 4 characters.', 'error'); return; }
+  const btn2 = document.getElementById('btn-save-operator');
+  if (btn2) { btn2.disabled = true; btn2.textContent = 'Saving…'; }
   try {
-    await saveSettings({ operator_username: username, operator_password: password });
+    const payload = { operator_username: username, operator_enabled: opEnabled, max_tokens_per_batch: maxTokens };
+    if (password) payload.operator_password = password;
+    await saveSettings(payload);
     if (msg) {
-      msg.innerHTML = '<i data-lucide="check-circle-2"></i> Credentials saved! Share the new credentials with your token staff.';
+      msg.innerHTML = '<i data-lucide="check-circle-2"></i> Operator settings saved!';
       msg.style.display = 'block';
       setTimeout(() => { msg.style.display = 'none'; }, 5000);
       window.initIcons?.();
     }
-    toast('Operator credentials updated!', 'success');
+    toast('Operator settings updated!', 'success');
   } catch (err) { toast('Failed to save: ' + err.message, 'error'); }
   finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save Credentials'; window.initIcons?.(); }
-  }
+    if (btn2) { btn2.disabled = false; btn2.innerHTML = '<i data-lucide="save"></i> Save Operator Settings'; window.initIcons?.(); }
 });
 
 // ── Save All Settings ──────────────────────────────────────────────────
@@ -548,14 +573,17 @@ document.getElementById('btn-save-all')?.addEventListener('click', async () => {
     }
 
     await saveSettings({
-      school_name:     document.getElementById('s-school-name')?.value.trim() || null,
-      school_motto:    document.getElementById('s-motto')?.value.trim() || null,
-      school_logo_url: document.getElementById('s-logo')?.value.trim() || null,
-      primary_color:   document.getElementById('s-color1')?.value || '#4f46e5',
-      secondary_color: document.getElementById('s-color2')?.value || '#14b8a6',
-      results_public:  document.getElementById('s-public-results')?.checked ?? true,
-      allow_abstain:   document.getElementById('s-allow-abstain')?.checked ?? true,
-      token_expiry_hrs: expiryTotalMins,
+      school_name:          document.getElementById('s-school-name')?.value.trim()  || null,
+      school_motto:         document.getElementById('s-motto')?.value.trim()         || null,
+      school_logo_url:      document.getElementById('s-logo')?.value.trim()          || null,
+      primary_color:        document.getElementById('s-color1')?.value               || '#4f46e5',
+      secondary_color:      document.getElementById('s-color2')?.value               || '#14b8a6',
+      results_public:       document.getElementById('s-public-results')?.checked     ?? true,
+      allow_abstain:        document.getElementById('s-allow-abstain')?.checked      ?? true,
+      maintenance_mode:     document.getElementById('s-maintenance-mode')?.checked   ?? false,
+      // FIX: Sync both token expiry column names to keep schema consistent
+      token_expiry_hrs:     expiryTotalMins,
+      token_expiry_hours:   expiryTotalMins,
     });
     toast('Settings saved successfully!', 'success');
   } catch (err) {
@@ -631,7 +659,11 @@ async function init() {
     if (settings.allow_abstain && document.getElementById('s-allow-abstain')) {
       document.getElementById('s-allow-abstain').checked = true;
     }
-    const _raw = settings.token_expiry_hrs ?? 1440;
+    // FIX: Load maintenance_mode toggle
+    const maintEl = document.getElementById('s-maintenance-mode');
+    if (maintEl) maintEl.checked = settings.maintenance_mode === true;
+    // FIX: Load token expiry — prefer token_expiry_hours, fall back to token_expiry_hrs
+    const _raw = settings.token_expiry_hours ?? settings.token_expiry_hrs ?? 1440;
     const _totalMins = (_raw === 24) ? 1440 : Math.round(_raw);
     const expH = document.getElementById('s-expiry-h'); if (expH) expH.value = Math.floor(_totalMins / 60);
     const expM = document.getElementById('s-expiry-m'); if (expM) expM.value = _totalMins % 60;
@@ -651,6 +683,12 @@ async function loadOperatorCreds() {
     if (settings.operator_username && document.getElementById('s-op-username')) {
       document.getElementById('s-op-username').value = settings.operator_username;
     }
+    // FIX: Load operator_enabled toggle state
+    const opEnabledEl = document.getElementById('s-operator-enabled');
+    if (opEnabledEl) opEnabledEl.checked = settings.operator_enabled !== false;
+    // FIX: Load max_tokens_per_batch
+    const maxTokEl = document.getElementById('s-max-tokens');
+    if (maxTokEl && settings.max_tokens_per_batch) maxTokEl.value = settings.max_tokens_per_batch;
     if (settings.operator_password) {
       const hint = document.getElementById('s-op-password')?.parentElement?.nextElementSibling;
       if (hint) {

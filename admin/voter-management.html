@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -173,8 +173,8 @@
       <div class="table-card">
         <div class="table-wrap">
           <table class="voters-table">
-            <thead><tr><th>Student Name</th><th>Email</th><th>Class</th><th>Election</th><th>Token</th><th>Status</th><th>Used At</th><th>Action</th></tr></thead>
-            <tbody id="voters-tbody"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">Loading voters…</td></tr></tbody>
+            <thead><tr><th>Student Name</th><th>Email</th><th>Class</th><th>Election</th><th>Token</th><th>Status</th><th>Used At</th><th>Expires</th><th>Action</th></tr></thead>
+            <tbody id="voters-tbody"><tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted)">Loading voters…</td></tr></tbody>
           </table>
         </div>
         <div class="table-footer">
@@ -191,7 +191,7 @@
 </div>
 <script type="module">
 import { requireAdmin } from '../src/assets/js/auth.js';
-import { supabase, fetchElections, revokeToken } from '../src/assets/js/supabase-client.js';
+import { supabase, fetchElections, revokeToken, fetchVoters } from '../src/assets/js/supabase-client.js';
 import { toCSV, downloadFile, debounce } from '../src/assets/js/main.js';
 
 let allVoters=[], elections=[], page=1; const PAGE_SIZE=25;
@@ -207,8 +207,8 @@ async function init(){
 }
 
 async function loadVoters(){
-  const{data}=await supabase.from('voters').select('*,elections(name)').order('created_at',{ascending:false});
-  allVoters=data||[];
+  // FIX: use fetchVoters() helper (includes expires_at and election join)
+  allVoters = await fetchVoters();
   updateStats();
   applyFilters();
 }
@@ -247,18 +247,27 @@ function renderTable(voters){
   document.getElementById('btn-next').disabled=page>=pages||total===0;
 
   const tbody=document.getElementById('voters-tbody');
-  if(!slice.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">No voters found</td></tr>';return;}
-  tbody.innerHTML=slice.map(v=>`
+  if(!slice.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted)">No voters found</td></tr>';return;}
+  tbody.innerHTML=slice.map(v=>{
+    const now = Date.now();
+    const isExpired = v.expires_at && new Date(v.expires_at).getTime() < now;
+    const expiryCell = v.expires_at
+      ? (isExpired
+          ? `<span style="color:var(--danger);font-size:0.72rem">Expired ${new Date(v.expires_at).toLocaleString()}</span>`
+          : `<span style="font-size:0.72rem;color:var(--text-muted)">${new Date(v.expires_at).toLocaleString()}</span>`)
+      : '—';
+    return `
     <tr>
       <td style="font-weight:600">${v.student_name||'—'}</td>
       <td style="font-size:0.78rem;color:var(--text-muted)">${v.email||'—'}</td>
       <td>${v.class||'—'}</td>
       <td style="font-size:0.78rem;color:var(--text-muted)">${v.elections?.name||'—'}</td>
       <td><span class="token-mono">${v.token}</span></td>
-      <td><span class="status-badge s-${v.status}">${v.status}</span></td>
+      <td><span class="status-badge s-${v.status}">${v.status}</span>${isExpired&&v.status!=='used'?' <span style="font-size:0.65rem;color:var(--danger)">⚠ Expired</span>':''}</td>
       <td style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">${v.used_at?new Date(v.used_at).toLocaleString():'—'}</td>
+      <td style="font-size:0.72rem">${expiryCell}</td>
       <td>${v.status==='unused'?`<button class="btn btn-secondary btn-sm" onclick="doRevoke('${v.id}')">Revoke</button>`:'—'}</td>
-    </tr>`).join('');
+    </tr>`;}).join('');
   if(window.lucide)window.lucide.createIcons();
 }
 
@@ -277,7 +286,7 @@ document.getElementById('btn-next').addEventListener('click',()=>{page++;applyFi
 
 document.getElementById('btn-export').addEventListener('click',()=>{
   if(!allVoters.length){toast('No data to export.','error');return;}
-  const csv=toCSV(allVoters,['student_name','email','class','token','status','used_at']);
+  const csv=toCSV(allVoters,['student_name','email','class','token','status','used_at','expires_at']);
   downloadFile(csv,'voters-export.csv','text/csv');toast('Exported!','success');
 });
 

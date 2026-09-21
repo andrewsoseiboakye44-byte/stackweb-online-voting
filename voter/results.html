@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -181,7 +181,15 @@
 </div>
 
 <script type="module">
-import { supabase, fetchActiveElection, subscribeToVotes } from '../src/assets/js/supabase-client.js';
+import {
+  fetchActiveElection,
+  fetchPositions,
+  fetchCandidateStandings,
+  fetchActiveVoterCount,
+  fetchTotalVotes,
+  subscribeToVotes,
+  supabase,
+} from '../src/assets/js/supabase-client.js';
 
 const COLORS=['#4f46e5','#14b8a6','#f59e0b','#f85149','#3fb950','#8b5cf6','#ec4899'];
 let distChart=null;
@@ -189,15 +197,31 @@ let distChart=null;
 async function init(){
   const params=new URLSearchParams(window.location.search);
   let election=null;
-  if(params.get('election')){
-    const{data}=await supabase.from('elections').select('*').eq('id',params.get('election')).single();
-    election=data;
-  } else {
-    const{data}=await supabase.from('elections').select('*').in('status',['closed','active']).order('created_at',{ascending:false}).limit(1).single();
-    election=data;
-  }
 
-  if(!election||(!election.public_results&&election.status!=='closed')){
+  try {
+    if(params.get('election')){
+      // Specific election requested by ID
+      const { data, error } = await supabase
+        .from('elections')
+        .select('*')
+        .eq('id', params.get('election'))
+        .maybeSingle();
+      if (!error) election = data;
+    } else {
+      // Most recent closed or active election
+      const { data, error } = await supabase
+        .from('elections')
+        .select('*')
+        .in('status', ['closed','active'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!error) election = data;
+    }
+  } catch { /* handled below */ }
+
+  // AUTH GUARD: Only show results if election is closed OR public_results is explicitly enabled
+  if (!election || (election.status !== 'closed' && !election.public_results)) {
     document.getElementById('not-public').style.display='';
     document.getElementById('results-content').style.display='none';
     return;
@@ -209,11 +233,15 @@ async function init(){
     statusEl.className='status-banner sb-live';
     statusEl.innerHTML='<div class="live-dot"></div> Live — Voting in Progress';
     document.getElementById('live-updating').style.display='flex';
-    subscribeToVotes(election.id,()=>loadData(election));
+    // Only subscribe if results are truly public during an active election
+    subscribeToVotes(election.id, ()=>loadData(election));
   } else {
     statusEl.className='status-banner sb-closed';
-    statusEl.innerHTML = '<i data-lucide="lock"></i> Election Closed — Official Results'; window.initIcons?.();;
-    if(election.closed_at)document.getElementById('r-closed-at').textContent='Closed '+new Date(election.closed_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    statusEl.innerHTML='<i data-lucide="lock"></i> Election Closed — Official Results';
+    window.initIcons?.();
+    if(election.closed_at)
+      document.getElementById('r-closed-at').textContent='Closed '+
+        new Date(election.closed_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   }
 
   initChart();
@@ -221,23 +249,41 @@ async function init(){
 }
 
 async function loadData(election){
-  const[{count:tv},{count:vc},posData]=await Promise.all([
-    supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',election.id),
-    supabase.from('votes').select('id',{count:'exact',head:true}).eq('election_id',election.id),
-    supabase.from('positions').select('id,title,candidates(id,name,photo_url,bio)').eq('election_id',election.id).order('order_index'),
+  // FIX: Use helper functions instead of raw .from() calls
+  // fetchActiveVoterCount excludes revoked tokens for accurate turnout
+  const [total, cast, positions] = await Promise.all([
+    fetchActiveVoterCount(election.id),
+    fetchTotalVotes(election.id),
+    fetchPositions(election.id),
   ]);
-  const total=tv||0,cast=vc||0,pct=total>0?((cast/total)*100).toFixed(1)+'%':'0%';
-  ['r-voters','sc-voters'].forEach(id=>document.getElementById(id).textContent=total.toLocaleString());
-  ['r-cast','sc-cast'].forEach(id=>document.getElementById(id).textContent=cast.toLocaleString());
-  ['r-turnout','sc-turnout'].forEach(id=>document.getElementById(id).textContent=pct);
 
-  const posResults=await Promise.all((posData.data||[]).map(async p=>{
-    const{data:votes}=await supabase.from('votes').select('candidate_id').eq('position_id',p.id);
-    const counts={};(votes||[]).forEach(v=>counts[v.candidate_id]=(counts[v.candidate_id]||0)+1);
-    const totalPos=votes?.length||0;
-    const candidates=(p.candidates||[]).map(c=>({...c,votes:counts[c.id]||0})).sort((a,b)=>b.votes-a.votes);
-    return{...p,candidates,totalVotes:totalPos};
-  }));
+  const pct = total > 0 ? ((cast / total) * 100).toFixed(1) + '%' : '0%';
+  ['r-voters','sc-voters'].forEach(id => document.getElementById(id).textContent = total.toLocaleString());
+  ['r-cast','sc-cast'].forEach(id => document.getElementById(id).textContent = cast.toLocaleString());
+  ['r-turnout','sc-turnout'].forEach(id => document.getElementById(id).textContent = pct);
+
+  // FIX: Use candidate_standings view instead of re-computing in JS
+  let standings = [];
+  try { standings = await fetchCandidateStandings(election.id); } catch { /* fall back below */ }
+
+  // Build position results from standings (grouped by position)
+  const posResults = positions.map(p => {
+    const posStandings = standings
+      .filter(s => s.position === p.title)
+      .sort((a, b) => (a.rank_in_position || 99) - (b.rank_in_position || 99));
+
+    const candidates = posStandings.length > 0
+      ? posStandings.map(s => ({
+          id:       s.id,
+          name:     s.name,
+          photo_url:s.photo_url,
+          votes:    s.vote_count || 0,
+        }))
+      : (p.candidates || []).map(c => ({ ...c, votes: 0 }));
+
+    const totalPos = candidates.reduce((sum, c) => sum + (c.votes || 0), 0);
+    return { ...p, candidates, totalVotes: totalPos };
+  });
 
   renderPodium(posResults);
   renderPositions(posResults);

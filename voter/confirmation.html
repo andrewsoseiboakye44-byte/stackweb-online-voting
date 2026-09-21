@@ -169,36 +169,72 @@
 </main>
 
 <script type="module">
-import { fetchActiveElection } from '../src/assets/js/supabase-client.js';
+import { fetchActiveElection, fetchSettings, getVoterSession, supabase } from '../src/assets/js/supabase-client.js';
 
 async function init(){
-  const params=new URLSearchParams(window.location.search);
-  const alreadyVoted=params.get('already')==='1';
+  const params = new URLSearchParams(window.location.search);
+  const alreadyVoted = params.get('already') === '1';
 
-  if(alreadyVoted){
+  // ── Server-side vote verification ─────────────────────────────────────────
+  // FIX: Verify the voter's token is actually marked 'used' before showing
+  // confirmation. Prevents direct URL navigation bypass.
+  const session = getVoterSession();
+  const ref     = params.get('ref') || null;
+
+  if (!alreadyVoted) {
+    // Try to verify via stored session voter ID
+    if (session?.id) {
+      try {
+        const { data: voter } = await supabase
+          .from('voters')
+          .select('status')
+          .eq('id', session.id)
+          .maybeSingle();
+        if (!voter || voter.status !== 'used') {
+          // Voter has not actually voted — redirect back to landing
+          window.location.replace('landing.html');
+          return;
+        }
+      } catch { /* non-blocking — allow page to render if DB unavailable */ }
+    } else if (!ref) {
+      // No session and no ref param — definitely not from a real vote submission
+      window.location.replace('landing.html');
+      return;
+    }
+  }
+
+  if (alreadyVoted) {
     document.getElementById('already-voted-banner').style.display='';
     document.getElementById('main-title').textContent='Already Voted';
     document.getElementById('main-sub').textContent='Our records show you have already submitted a vote in this election.';
   }
 
   // Reference code — use the masked token passed from dashboard.html
-  // Format: SW-***-XXX (last segment is real, middle segment is masked)
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref') || ('SW-***-' + Date.now().toString(36).toUpperCase().slice(-3));
-  document.getElementById('ref-code').textContent = ref;
+  const displayRef = ref || ('SW-***-' + Date.now().toString(36).toUpperCase().slice(-3));
+  document.getElementById('ref-code').textContent = displayRef;
   document.getElementById('ref-code').title = 'This matches the last segment of your voter token';
   document.getElementById('submit-time').textContent = new Date().toLocaleString('en-US',{hour:'2-digit',minute:'2-digit',month:'short',day:'numeric'});
 
-  // Election name
-  try{
-    const election=await fetchActiveElection();
-    if(election){
-      document.getElementById('election-name-display').textContent=election.name;
-      if(election.public_results||election.status==='closed'){
-        document.getElementById('results-link-wrap').style.display='block';
+  // Fetch election name + settings for branding
+  try {
+    const [election, settings] = await Promise.all([
+      fetchActiveElection().catch(() => null),
+      fetchSettings().catch(() => ({})),
+    ]);
+
+    if (election) {
+      document.getElementById('election-name-display').textContent = election.name;
+      if (election.public_results || election.status === 'closed') {
+        document.getElementById('results-link-wrap').style.display = 'block';
       }
     }
-  }catch{}
+
+    // Apply school name to topbar if configured
+    if (settings?.school_name) {
+      const nameEl = document.querySelector('.tb-name');
+      if (nameEl) nameEl.textContent = settings.school_name + ' — Voting System';
+    }
+  } catch { /* non-blocking */ }
 }
 
 init();

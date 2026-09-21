@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -254,6 +254,12 @@
           <div><div class="toggle-label">Allow Abstain</div><div class="toggle-sub">Voters can skip a position without selecting</div></div>
           <label class="toggle-switch"><input type="checkbox" id="f-abstain"><div class="toggle-track"></div></label>
         </div>
+        <!-- FIX: max_voters capacity field -->
+        <div class="form-group" style="margin-top:1rem">
+          <label class="form-label">Max Voters (Capacity)</label>
+          <input type="number" class="form-control" id="f-max-voters" min="0" placeholder="Leave blank for unlimited" style="max-width:220px"/>
+          <div class="form-hint">Maximum number of voters allowed. Leave blank or 0 for unlimited.</div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -436,8 +442,9 @@ function renderElections(list) {
   // Load per-election stats async
   list.forEach(async (e) => {
     try {
+      // FIX: exclude revoked tokens from voter count for accurate turnout denominator
       const [{ count: vc }, { count: pc }] = await Promise.all([
-        supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',e.id),
+        supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',e.id).neq('status','revoked'),
         supabase.from('positions').select('id',{count:'exact',head:true}).eq('election_id',e.id),
       ]);
       const votes = await fetchTotalVotes(e.id);
@@ -545,11 +552,15 @@ function openEditModal(el) {
   document.getElementById('f-end').value     = el.ends_at   ? el.ends_at.slice(0,16)   : '';
   document.getElementById('f-public').checked  = el.public_results || false;
   document.getElementById('f-abstain').checked = el.allow_abstain  || false;
+  // FIX: populate max_voters in edit modal
+  const mvEl = document.getElementById('f-max-voters');
+  if (mvEl) mvEl.value = el.max_voters || '';
   overlay.classList.add('open');
 }
 function closeModal() { overlay.classList.remove('open'); clearForm(); }
 function clearForm() {
   ['f-name','f-desc','f-start','f-end'].forEach(id => document.getElementById(id).value = '');
+  const mvClear = document.getElementById('f-max-voters'); if (mvClear) mvClear.value = '';
   document.getElementById('f-public').checked = false;
   document.getElementById('f-abstain').checked = false;
   document.getElementById('modal-error').style.display = 'none';
@@ -566,6 +577,8 @@ document.getElementById('election-modal-save').addEventListener('click', async (
     ends_at:        document.getElementById('f-end').value   || null,
     public_results: document.getElementById('f-public').checked,
     allow_abstain:  document.getElementById('f-abstain').checked,
+    // FIX: include max_voters capacity in payload
+    max_voters:     parseInt(document.getElementById('f-max-voters')?.value) || null,
   };
   const btn = document.getElementById('election-modal-save');
   btn.disabled = true;

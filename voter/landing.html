@@ -696,7 +696,7 @@
 </footer>
 
 <script type="module">
-import { fetchActiveElection, fetchSettings, deriveTokenPrefix } from '../src/assets/js/supabase-client.js';
+import { fetchActiveElection, fetchSettings, deriveTokenPrefix, checkMaintenanceMode, supabase } from '../src/assets/js/supabase-client.js';
 import { validateVoterAccess } from '../src/assets/js/auth.js';
 import { setVoterSession }     from '../src/assets/js/supabase-client.js';
 
@@ -711,6 +711,21 @@ let activePrefix = 'SW';
 // ── Load election status + institution branding ─────────────────────────
 async function loadElectionStatus() {
   try {
+    // FIX: Check maintenance mode FIRST — block voter access if enabled
+    const maintenance = await checkMaintenanceMode();
+    if (maintenance) {
+      submitBtn.disabled = true;
+      input.disabled = true;
+      const banner = document.getElementById('no-election-banner');
+      banner.classList.add('show');
+      const nameEl = banner.querySelector('.ne-name');
+      const subEl  = banner.querySelector('#no-election-sub');
+      if (nameEl) nameEl.innerHTML = '<i data-lucide="wrench"></i> System Maintenance';
+      if (subEl)  subEl.textContent = 'The voting system is currently undergoing maintenance. Please try again later.';
+      window.initIcons?.();
+      return;
+    }
+
     const [election, settings] = await Promise.all([
       fetchActiveElection(),
       fetchSettings().catch(() => ({}))
@@ -747,11 +762,28 @@ async function loadElectionStatus() {
         nameEl.style.display = 'block';
       }
     } else {
+      // FIX: Check if there is a paused election for a better error message
+      let pausedMsg = null;
+      try {
+        const { data: paused } = await supabase
+          .from('elections')
+          .select('id, name, status')
+          .eq('status', 'paused')
+          .limit(1)
+          .maybeSingle();
+        if (paused) pausedMsg = `"${paused.name}" is temporarily paused. Please try again shortly.`;
+      } catch { /* ignore */ }
+
       document.getElementById('no-election-banner').classList.add('show');
+      if (pausedMsg) {
+        const subEl = document.getElementById('no-election-sub');
+        if (subEl) subEl.textContent = pausedMsg;
+      }
       submitBtn.disabled = true;
     }
   } catch { /* silent */ }
 }
+
 
 loadElectionStatus();
 

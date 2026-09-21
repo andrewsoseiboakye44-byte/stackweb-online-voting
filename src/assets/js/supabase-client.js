@@ -227,6 +227,22 @@ export async function revokeToken(voterId) {
   await logAudit('revoke_token', `Token for voter ${voterId} revoked`);
 }
 
+/**
+ * Fetch all voters, optionally filtered by electionId.
+ * Joins election name and includes expires_at for expiry status display.
+ */
+export async function fetchVoters(electionId = null) {
+  let q = supabase
+    .from('voters')
+    .select('id, student_name, email, class, token, status, used_at, expires_at, election_id, elections(name)')
+    .order('created_at', { ascending: false });
+  if (electionId) q = q.eq('election_id', electionId);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data || [];
+}
+
+
 export async function revokeAllUnusedTokens(electionId) {
   const { error } = await supabase.from('voters').update({ status: TOKEN_STATUS.REVOKED }).eq('election_id', electionId).eq('status', TOKEN_STATUS.UNUSED);
   if (error) throw error;
@@ -438,23 +454,24 @@ export async function fetchDashboardStats() {
   const [
     { count: totalElections },
     { count: activeElections },
+    // FIX: exclude revoked tokens — they should not count in the turnout denominator
     { count: totalVoters },
     { count: totalVotes },
     { count: totalCandidates },
   ] = await Promise.all([
     supabase.from('elections').select('id', { count: 'exact', head: true }),
     supabase.from('elections').select('id', { count: 'exact', head: true }).eq('status', ELECTION_STATUS.ACTIVE),
-    supabase.from('voters').select('id',    { count: 'exact', head: true }),
-    supabase.from('votes').select('id',     { count: 'exact', head: true }),
-    supabase.from('candidates').select('id',{ count: 'exact', head: true }),
+    supabase.from('voters').select('id',   { count: 'exact', head: true }).neq('status', TOKEN_STATUS.REVOKED),
+    supabase.from('votes').select('id',    { count: 'exact', head: true }),
+    supabase.from('candidates').select('id',{ count: 'exact', head: true }).eq('is_active', true),
   ]);
   return {
-    totalElections: totalElections || 0,
+    totalElections:  totalElections  || 0,
     activeElections: activeElections || 0,
-    totalVoters:    totalVoters    || 0,
-    totalVotes:     totalVotes     || 0,
-    totalCandidates:totalCandidates|| 0,
-    turnoutPct:     totalVoters > 0 ? ((totalVotes / totalVoters) * 100).toFixed(1) : '0.0',
+    totalVoters:     totalVoters     || 0,
+    totalVotes:      totalVotes      || 0,
+    totalCandidates: totalCandidates || 0,
+    turnoutPct: totalVoters > 0 ? ((totalVotes / totalVoters) * 100).toFixed(1) : '0.0',
   };
 }
 
@@ -484,14 +501,21 @@ export async function saveSettings(payload) {
 // ──────────────────────────────────────────────────────────────
 // AUDIT LOGS
 // ──────────────────────────────────────────────────────────────
-export async function logAudit(action, description = '') {
+export async function logAudit(action, description = '', metadata = null) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('audit_logs').insert({
+    // FIX: Populate ip_address and user_agent columns (added in v2 migration)
+    // ip_address is not directly available client-side; we store the user agent
+    // and set ip_address via a Supabase Edge Function or leave for server-side enrichment.
+    const entry = {
       action,
       description,
-      admin_id: user?.id || null,
-    });
+      admin_id:   user?.id || null,
+      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+      // ip_address: captured server-side or via edge function — not available in browser JS
+    };
+    if (metadata) entry.metadata = metadata;
+    await supabase.from('audit_logs').insert(entry);
   } catch (e) {
     // Non-blocking — log to console in dev so we know about failures
     console.warn('[STACKWEB Audit] Failed to log audit entry:', action, e?.message);
@@ -499,13 +523,75 @@ export async function logAudit(action, description = '') {
 }
 
 export async function fetchAuditLogs(limit = 200) {
+  // FIX: Join profiles to resolve admin name alongside audit entries
   const { data, error } = await supabase
     .from('audit_logs')
-    .select('*')
+    .select('*, profiles(id, full_name, role)')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
   return data || [];
+}
+
+// ──────────────────────────────────────────────────────────────
+// DB VIEWS — candidate_standings & election_summary
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * Fetch ranked candidate vote counts for an election using the
+ * candidate_standings DB view (avoids re-computing in JS).
+ */
+export async function fetchCandidateStandings(electionId) {
+  const { data, error } = await supabase
+    .from('candidate_standings')
+    .select('*')
+    .eq('election_id', electionId)
+    .order('rank_in_position', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+/**
+ * Fetch turnout summary for one or all elections using the
+ * election_summary DB view.
+ */
+export async function fetchElectionSummary(electionId = null) {
+  let q = supabase.from('election_summary').select('*');
+  if (electionId) q = q.eq('id', electionId);
+  const { data, error } = await q;
+  if (error) throw error;
+  return electionId ? (data?.[0] || null) : (data || []);
+}
+
+// ──────────────────────────────────────────────────────────────
+// MAINTENANCE MODE CHECK
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * Returns true if the admin has enabled maintenance mode in settings.
+ * Voter-facing pages should call this on load and block the UI if true.
+ */
+export async function checkMaintenanceMode() {
+  try {
+    const settings = await fetchSettings();
+    return settings?.maintenance_mode === true;
+  } catch {
+    return false; // Default: allow access if settings unavailable
+  }
+}
+
+/**
+ * Returns active voters count for an election (excludes revoked tokens).
+ * Used for accurate turnout denominators.
+ */
+export async function fetchActiveVoterCount(electionId) {
+  const { count, error } = await supabase
+    .from('voters')
+    .select('id', { count: 'exact', head: true })
+    .eq('election_id', electionId)
+    .neq('status', TOKEN_STATUS.REVOKED);
+  if (error) throw error;
+  return count || 0;
 }
 
 // ──────────────────────────────────────────────────────────────

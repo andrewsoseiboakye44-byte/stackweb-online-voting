@@ -318,7 +318,7 @@
 </div>
 
 <script type="module">
-import { supabase, fetchTokenExpiryMinutes, formatExpiryMins, generateTokens } from '../src/assets/js/supabase-client.js';
+import { supabase, fetchTokenExpiryMinutes, formatExpiryMins, generateTokens, fetchSettings } from '../src/assets/js/supabase-client.js';
 
 // ── Session Guard ──────────────────────────────────────────────
 const sess = (() => { try { return JSON.parse(sessionStorage.getItem('op_session')||'{}'); } catch { return {}; } })();
@@ -351,12 +351,23 @@ let quickGenerated = 0;
 let quickHanded = 0;
 let lastBatchTokens = [];
 let currentQuickToken = null;
+let maxTokensPerBatch = 50; // FIX: loaded from settings.max_tokens_per_batch
 
 // ── Load Expiry from Settings ──────────────────────────────────
 async function loadExpiryHours() {
   try {
     globalExpiryMins = await fetchTokenExpiryMinutes();
   } catch { globalExpiryMins = 1440; }
+  // FIX: also load max_tokens_per_batch from settings
+  try {
+    const settings = await fetchSettings();
+    if (settings?.max_tokens_per_batch) maxTokensPerBatch = settings.max_tokens_per_batch;
+    // Update the batch-count input max attribute
+    const batchInput = document.getElementById('batch-count');
+    if (batchInput) { batchInput.max = maxTokensPerBatch; batchInput.placeholder = `1 – ${maxTokensPerBatch}`; }
+    const batchHint = document.getElementById('batch-count-hint');
+    if (batchHint) batchHint.textContent = `Max ${maxTokensPerBatch} tokens per batch (set by admin).`;
+  } catch { /* use default */ }
   const label = formatExpiryMins(globalExpiryMins);
   document.getElementById('expiry-badge').innerHTML = `<i data-lucide="timer"></i> Expiry: ${label}`;
   document.getElementById('quick-expiry-note').textContent = label;
@@ -498,10 +509,14 @@ document.getElementById('btn-batch-generate').addEventListener('click', async ()
   errEl.style.display = 'none';
 
   const count = parseInt(document.getElementById('batch-count').value, 10);
-  if (!count || count < 1 || count > 500) {
-    errEl.innerHTML = '<i data-lucide="alert-triangle"></i> Enter a number between 1 and 500.'; window.initIcons?.();;
-    errEl.style.display = 'block';
-    return;
+  // FIX: enforce max_tokens_per_batch from settings instead of hard-coded 500
+  if (!count || count < 1) {
+    errEl.innerHTML = '<i data-lucide="alert-triangle"></i> Enter a valid number of tokens (minimum 1).'; window.initIcons?.();;
+    errEl.style.display = 'block'; return;
+  }
+  if (count > maxTokensPerBatch) {
+    errEl.innerHTML = `<i data-lucide="alert-triangle"></i> Batch size cannot exceed ${maxTokensPerBatch} tokens (admin limit). Request a smaller batch.`; window.initIcons?.();;
+    errEl.style.display = 'block'; return;
   }
 
   const btn = document.getElementById('btn-batch-generate');

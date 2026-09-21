@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -232,7 +232,7 @@
 
 <script type="module">
 import { requireAdmin } from '../src/assets/js/auth.js';
-import { supabase, fetchElections, fetchVoteCounts, fetchTotalVotes, subscribeToVotes } from '../src/assets/js/supabase-client.js';
+import { supabase, fetchElections, fetchCandidateStandings, fetchElectionSummary, subscribeToVotes } from '../src/assets/js/supabase-client.js';
 import { showToast, formatNumber, formatPercent, toCSV, downloadFile } from '../src/assets/js/main.js';
 
 let elections=[], currentId=null, distChart=null, turnoutChart=null, liveUnsub=null;
@@ -263,27 +263,44 @@ async function loadResults(id){
   document.getElementById('live-badge').style.display=election?.status==='active'?'flex':'none';
 
   try{
-    const [{count:totalVoters},{count:totalVotes},positions]=await Promise.all([
-      supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',id),
-      supabase.from('votes').select('id',{count:'exact',head:true}).eq('election_id',id),
-      supabase.from('positions').select('id,title,candidates(id,name,photo_url,bio)').eq('election_id',id).order('order_index'),
+    // FIX: Use fetchElectionSummary view for accurate turnout stats
+    //      Exclude revoked tokens from voter count denominator
+    const [summary, standings, positionsRes] = await Promise.all([
+      fetchElectionSummary(id).catch(() => null),
+      fetchCandidateStandings(id),
+      supabase.from('positions').select('id,title,order_index').eq('election_id',id).order('order_index'),
     ]);
-    const tv=totalVoters||0, vc=totalVotes||0;
+
+    // FIX: Voter count from summary excludes revoked; fall back to direct query
+    let tv = summary?.total_voters || 0;
+    let vc = summary?.votes_cast   || 0;
+    if (!tv) {
+      const {count:c1} = await supabase.from('voters').select('id',{count:'exact',head:true}).eq('election_id',id).neq('status','revoked');
+      const {count:c2} = await supabase.from('votes').select('id',{count:'exact',head:true}).eq('election_id',id);
+      tv = c1 || 0; vc = c2 || 0;
+    }
     const pct=tv>0?((vc/tv)*100).toFixed(1)+'%':'0%';
     document.getElementById('s-voters').textContent=formatNumber(tv);
     document.getElementById('s-votes').textContent=formatNumber(vc);
     document.getElementById('s-turnout').textContent=pct;
     document.getElementById('s-pending').textContent=formatNumber(Math.max(tv-vc,0));
 
-    // Per-position vote counts
-    const posResults=await Promise.all((positions.data||[]).map(async p=>{
-      const{data:votes}=await supabase.from('votes').select('candidate_id').eq('position_id',p.id);
-      const counts={};
-      (votes||[]).forEach(v=>counts[v.candidate_id]=(counts[v.candidate_id]||0)+1);
-      const total=votes?.length||0;
-      const candidates=(p.candidates||[]).map(c=>({...c,votes:counts[c.id]||0})).sort((a,b)=>b.votes-a.votes);
-      return{...p,candidates,totalVotes:total};
-    }));
+    // FIX: Build posResults from candidate_standings view (server-side aggregated)
+    const positions = positionsRes.data || [];
+    const posResults = positions.map(p => {
+      const candidates = standings
+        .filter(s => s.position_id === p.id)
+        .sort((a,b) => (b.vote_count||0) - (a.vote_count||0))
+        .map(s => ({
+          id:        s.candidate_id,
+          name:      s.candidate_name,
+          photo_url: s.photo_url,
+          bio:       s.bio,
+          votes:     s.vote_count || 0,
+        }));
+      const totalVotes = candidates.reduce((sum,c) => sum + c.votes, 0);
+      return { ...p, candidates, totalVotes };
+    });
 
     renderWinners(posResults);
     renderPositionResults(posResults);
@@ -291,7 +308,7 @@ async function loadResults(id){
     updateTurnoutChart(vc,tv);
 
     // Live subscription
-    if(liveUnsub){liveUnsub();} 
+    if(liveUnsub){liveUnsub();}
     if(election?.status==='active'){
       liveUnsub=subscribeToVotes(id,()=>loadResults(id));
     }
