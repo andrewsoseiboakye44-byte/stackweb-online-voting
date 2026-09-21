@@ -273,14 +273,12 @@
             <div class="form-group">
               <label class="form-label">Default Token Expiry Duration</label>
               <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
-                <div style="display:flex;align-items:center;gap:0.4rem">
-                  <input type="number" class="form-control" id="s-expiry-h" value="24" min="0" max="8760" style="width:90px"/>
-                  <span style="font-size:0.85rem;color:var(--text-2)">hours</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:0.4rem">
-                  <input type="number" class="form-control" id="s-expiry-m" value="0" min="0" max="59" style="width:80px"/>
-                  <span style="font-size:0.85rem;color:var(--text-2)">minutes</span>
-                </div>
+                <input type="number" class="form-control" id="s-expiry-val" value="24" min="1" max="999999" style="width:110px"/>
+                <select class="form-control" id="s-expiry-unit" style="width:130px">
+                  <option value="seconds">Seconds</option>
+                  <option value="minutes">Minutes</option>
+                  <option value="hours" selected>Hours</option>
+                </select>
               </div>
               <div class="form-hint" id="expiry-preview" style="color:var(--secondary);font-weight:600;margin-top:0.4rem"></div>
             </div>
@@ -401,21 +399,31 @@ function updatePrefixPreview() {
   if (el) el.textContent = `Generated Token Prefix: ${prefix}-XXX-XXX`;
 }
 
+function expiryToSeconds() {
+  const val  = parseInt(document.getElementById('s-expiry-val')?.value)  || 0;
+  const unit = document.getElementById('s-expiry-unit')?.value || 'hours';
+  if (unit === 'seconds') return val;
+  if (unit === 'minutes') return val * 60;
+  return val * 3600;
+}
+
 function updateExpiryPreview() {
   const el = document.getElementById('expiry-preview');
   if (!el) return;
-  const h = parseInt(document.getElementById('s-expiry-h')?.value) || 0;
-  const m = parseInt(document.getElementById('s-expiry-m')?.value) || 0;
-  const totalMins = h * 60 + m;
-  if (totalMins <= 0) {
+  const secs = expiryToSeconds();
+  if (secs <= 0) {
     el.innerHTML = '<i data-lucide="alert-triangle"></i> Expiry must be greater than 0';
     el.style.color = 'var(--danger)';
     window.initIcons?.();
     return;
   }
   el.style.color = 'var(--secondary)';
-  const expiry = new Date(Date.now() + totalMins * 60000);
-  el.textContent = `Tokens generated now will expire: ${expiry.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
+  const expiry = new Date(Date.now() + secs * 1000);
+  let label;
+  if (secs < 60)        label = `${secs} second${secs !== 1 ? 's' : ''}`;
+  else if (secs < 3600) label = `${Math.round(secs/60)} minute${Math.round(secs/60) !== 1 ? 's' : ''}`;
+  else                  label = `${(secs/3600 % 1 === 0 ? secs/3600 : (secs/3600).toFixed(1))} hour${secs === 3600 ? '' : 's'}`;
+  el.textContent = `Tokens will expire after ${label} — at: ${expiry.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
 }
 
 // ── Tab Switching ──────────────────────────────────────────────────────
@@ -444,8 +452,8 @@ document.getElementById('s-color2')?.addEventListener('input', e => {
 
 // ── Institution Name & Token Expiry Live Listeners ─────────────────────
 document.getElementById('s-school-name')?.addEventListener('input', updatePrefixPreview);
-document.getElementById('s-expiry-h')?.addEventListener('input', updateExpiryPreview);
-document.getElementById('s-expiry-m')?.addEventListener('input', updateExpiryPreview);
+document.getElementById('s-expiry-val')?.addEventListener('input', updateExpiryPreview);
+document.getElementById('s-expiry-unit')?.addEventListener('change', updateExpiryPreview);
 
 // ── Logo File Picker ───────────────────────────────────────────────────
 document.getElementById('logo-file-input')?.addEventListener('change', e => {
@@ -525,11 +533,9 @@ document.getElementById('btn-save-all')?.addEventListener('click', async () => {
   const btn = document.getElementById('btn-save-all');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   try {
-    const expiryH = parseInt(document.getElementById('s-expiry-h')?.value) || 0;
-    const expiryM = parseInt(document.getElementById('s-expiry-m')?.value) || 0;
-    const expiryTotalMins = expiryH * 60 + expiryM;
-    if (expiryTotalMins < 1) {
-      toast('Token expiry must be at least 1 minute.', 'error');
+    const expirySecs = expiryToSeconds();
+    if (expirySecs < 10) {
+      toast('Token expiry must be at least 10 seconds.', 'error');
       if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save All Settings'; window.initIcons?.(); }
       return;
     }
@@ -581,7 +587,8 @@ document.getElementById('btn-save-all')?.addEventListener('click', async () => {
       results_public:       document.getElementById('s-public-results')?.checked     ?? true,
       allow_abstain:        document.getElementById('s-allow-abstain')?.checked      ?? true,
       maintenance_mode:     document.getElementById('s-maintenance-mode')?.checked   ?? false,
-      token_expiry_hrs:     expiryTotalMins,
+      token_expiry_secs:    expirySecs,
+      token_expiry_hrs:     Math.ceil(expirySecs / 3600),
     });
     toast('Settings saved successfully!', 'success');
   } catch (err) {
@@ -660,11 +667,15 @@ async function init() {
     // FIX: Load maintenance_mode toggle
     const maintEl = document.getElementById('s-maintenance-mode');
     if (maintEl) maintEl.checked = settings.maintenance_mode === true;
-    // FIX: Load token expiry — prefer token_expiry_hours, fall back to token_expiry_hrs
-    const _raw = settings.token_expiry_hours ?? settings.token_expiry_hrs ?? 1440;
-    const _totalMins = (_raw === 24) ? 1440 : Math.round(_raw);
-    const expH = document.getElementById('s-expiry-h'); if (expH) expH.value = Math.floor(_totalMins / 60);
-    const expM = document.getElementById('s-expiry-m'); if (expM) expM.value = _totalMins % 60;
+    // Load token expiry — prefer token_expiry_secs, fall back to hrs
+    const _secs = settings.token_expiry_secs ?? ((settings.token_expiry_hrs ?? 24) * 3600);
+    const valEl  = document.getElementById('s-expiry-val');
+    const unitEl = document.getElementById('s-expiry-unit');
+    if (valEl && unitEl) {
+      if (_secs % 3600 === 0)    { valEl.value = _secs / 3600; unitEl.value = 'hours';   }
+      else if (_secs % 60 === 0) { valEl.value = _secs / 60;   unitEl.value = 'minutes'; }
+      else                       { valEl.value = _secs;         unitEl.value = 'seconds'; }
+    }
     updateExpiryPreview();
   } catch {}
 

@@ -283,16 +283,30 @@ export async function validateToken(tokenString, electionId = null) {
   return { valid: true, reason: 'ok', voter: data };
 }
 
-// Fetch global token expiry in MINUTES (integer)
+// Fetch global token expiry in MINUTES (supports seconds/minutes/hours precision)
 export async function fetchTokenExpiryMinutes() {
   try {
     const settings = await fetchSettings();
-    const raw = settings.token_expiry_hrs ?? 1440; // default 1440 min (24h)
-    // Legacy migration check: If raw is 24 (old default hours value), treat as 24h = 1440 min
-    if (raw === 24) return 1440;
-    return Math.max(1, parseInt(raw) || 1440);
+    // Prefer token_expiry_secs (new granular column), fall back to hrs * 60
+    if (settings.token_expiry_secs != null) {
+      return Math.max(1, Math.ceil(settings.token_expiry_secs / 60));
+    }
+    const hrs = settings.token_expiry_hrs ?? 24;
+    return Math.max(1, hrs * 60);
   } catch {
-    return 1440;
+    return 1440; // default 24 hours
+  }
+}
+
+// Fetch global token expiry in SECONDS
+export async function fetchTokenExpirySecs() {
+  try {
+    const settings = await fetchSettings();
+    if (settings.token_expiry_secs != null) return Math.max(10, settings.token_expiry_secs);
+    const hrs = settings.token_expiry_hrs ?? 24;
+    return hrs * 3600;
+  } catch {
+    return 86400; // default 24 hours
   }
 }
 
