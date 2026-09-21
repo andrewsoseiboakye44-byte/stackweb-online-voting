@@ -526,6 +526,7 @@ document.getElementById('btn-save-operator')?.addEventListener('click', async ()
   } catch (err) { toast('Failed to save: ' + err.message, 'error'); }
   finally {
     if (btn2) { btn2.disabled = false; btn2.innerHTML = '<i data-lucide="save"></i> Save Operator Settings'; window.initIcons?.(); }
+  }
 });
 
 // ── Save All Settings ──────────────────────────────────────────────────
