@@ -34,3 +34,5 @@ desktop.ini
 
 # Supabase local
 .supabase/
+
+.vercel
