@@ -54,12 +54,16 @@ export async function adminLogout() {
 // Returns the admin profile or null (and redirects to login)
 // ──────────────────────────────────────────────────────────────
 export async function requireAdmin() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session }, error: sessErr } = await supabase.auth.getSession();
+  console.log('[AUTH] getSession:', { hasSession: !!session, error: sessErr?.message });
 
   if (!session) {
+    console.warn('[AUTH] No session — redirecting to login');
     redirectToLogin();
     return null;
   }
+
+  console.log('[AUTH] User ID:', session.user.id);
 
   const { data: profile, error } = await supabase
     .from('profiles')
@@ -67,7 +71,10 @@ export async function requireAdmin() {
     .eq('id', session.user.id)
     .single();
 
+  console.log('[AUTH] Profile:', { profile, error: error?.message });
+
   if (error || !profile || !['admin','superadmin'].includes(profile.role)) {
+    console.warn('[AUTH] Profile check failed — signing out');
     await supabase.auth.signOut();
     redirectToLogin();
     return null;
