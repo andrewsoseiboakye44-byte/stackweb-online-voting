@@ -581,9 +581,7 @@ document.getElementById('btn-save-all')?.addEventListener('click', async () => {
       results_public:       document.getElementById('s-public-results')?.checked     ?? true,
       allow_abstain:        document.getElementById('s-allow-abstain')?.checked      ?? true,
       maintenance_mode:     document.getElementById('s-maintenance-mode')?.checked   ?? false,
-      // FIX: Sync both token expiry column names to keep schema consistent
       token_expiry_hrs:     expiryTotalMins,
-      token_expiry_hours:   expiryTotalMins,
     });
     toast('Settings saved successfully!', 'success');
   } catch (err) {
