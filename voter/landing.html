@@ -245,6 +245,13 @@
       letter-spacing:0.12em;
       text-transform:uppercase;
       color:#a5b4fc;
+      margin-bottom:0.2rem;
+    }
+    .ei-motto{
+      font-size:0.72rem;
+      font-style:italic;
+      color:rgba(165,180,252,0.65);
+      letter-spacing:0.04em;
       margin-bottom:0.35rem;
     }
     /* LIVE badge */
@@ -599,6 +606,8 @@
         </div>
         <!-- Institution name -->
         <div class="ei-institution" id="institution-name" style="display:none"></div>
+        <!-- Institution motto -->
+        <div class="ei-motto" id="institution-motto" style="display:none"></div>
         <!-- LIVE badge -->
         <div class="ei-live-badge">
           <div class="ei-live-dot"></div> Live &bull; Voting Open
@@ -756,6 +765,11 @@ async function loadElectionStatus() {
         const nameEl = document.getElementById('institution-name');
         nameEl.textContent = instName;
         nameEl.style.display = 'block';
+      }
+      const instMotto = settings?.school_motto;
+      if (instMotto) {
+        const mottoEl = document.getElementById('institution-motto');
+        if (mottoEl) { mottoEl.textContent = `"${instMotto}"`; mottoEl.style.display = 'block'; }
       }
     } else {
       // FIX: Check if there is a paused election for a better error message
