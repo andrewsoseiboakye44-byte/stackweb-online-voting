@@ -143,8 +143,8 @@ export async function uploadInstitutionLogo(file) {
   return data.publicUrl + '?t=' + Date.now();
 }
 
-// Unambiguous uppercase alphanumeric characters (no 0, O, 1, I to prevent voter confusion)
-const TOKEN_CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+// Digit-only token segments (6 random digits, e.g. GRE-763505)
+const TOKEN_DIGITS = '0123456789';
 
 import { deriveTokenPrefix } from '../../utils/validators.js';
 export { deriveTokenPrefix };
@@ -160,14 +160,12 @@ export async function fetchTokenPrefix() {
 
 export function generateTokenString(prefix = null) {
   const p = (prefix || 'SW').trim().toUpperCase().replace(/[^A-Z0-9]/g, '') || 'SW';
-  const seg = (len = 3) => {
-    let res = '';
-    for (let i = 0; i < len; i++) {
-      res += TOKEN_CHARSET.charAt(Math.floor(Math.random() * TOKEN_CHARSET.length));
-    }
-    return res;
-  };
-  return `${p}-${seg(3)}-${seg(3)}`;
+  // Generate 6 random digits
+  let digits = '';
+  for (let i = 0; i < 6; i++) {
+    digits += TOKEN_DIGITS.charAt(Math.floor(Math.random() * TOKEN_DIGITS.length));
+  }
+  return `${p}-${digits}`;
 }
 
 export async function generateTokens(electionId, voterList, expiryMins = null, tokenPrefix = null) {
